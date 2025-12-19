@@ -29,3 +29,7 @@
 
 [push]
 	autoSetupRemote = true
+[user]
+	name = Jaren Lo
+	email = qnurye@gmail.com
+	signingkey = 9C22CDE7D1E9C21B

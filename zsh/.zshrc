@@ -70,3 +70,24 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Cargo/Rust
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+# Brew hook - auto sync Brewfile after install/uninstall
+brew() {
+  local BREWFILE="$HOME/dotfiles/homebrew/Brewfile"
+  command brew "$@"
+  local ret=$?
+  if [[ $ret -eq 0 && -d "$HOME/dotfiles" ]]; then
+    case "$1" in
+      install|uninstall|remove|rmtree|autoremove)
+        echo "\n📦 Syncing Brewfile..."
+        command brew bundle dump --file="$BREWFILE" --force
+        if git -C "$HOME/dotfiles" diff --quiet "$BREWFILE" 2>/dev/null; then
+          echo "✓ Brewfile unchanged"
+        else
+          echo "✓ Brewfile updated"
+        fi
+        ;;
+    esac
+  fi
+  return $ret
+}
