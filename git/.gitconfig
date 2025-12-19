@@ -1,0 +1,31 @@
+# Dotfiles - Git Configuration
+# https://github.com/Qnurye/dotfiles
+#
+# After cloning, run:
+#   git config --global user.name "Your Name"
+#   git config --global user.email "your@email.com"
+#   git config --global user.signingkey "YOUR_GPG_KEY"
+
+[commit]
+	gpgsign = true
+
+[gpg]
+	program = /opt/homebrew/bin/gpg
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[core]
+	editor = zed --wait
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
