@@ -1,0 +1,3 @@
+- User Jaren Lo dislikes honorifics (敬语) and prefers to be addressed as '你' instead of '您'.
+- The user prefers 'refactor' commit types for moving logic without changing behavior.
+- Prefer `gh` CLI to access GitHub
