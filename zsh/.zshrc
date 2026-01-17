@@ -96,7 +96,7 @@ brew() {
 _dotfiles_auto_sync() {
   local DOTFILES_DIR="$HOME/dotfiles"
   local SYNC_MARKER="$DOTFILES_DIR/.last_sync"
-  local SYNC_INTERVAL=$((2 * 24 * 60 * 60))  # 2 days in seconds
+  local SYNC_INTERVAL=$((2 * 60 * 60))  # 2 hours in seconds
 
   [[ ! -d "$DOTFILES_DIR/.git" ]] && return
 
