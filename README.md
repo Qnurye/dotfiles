@@ -12,13 +12,27 @@ cd ~/dotfiles
 
 ## What's Included
 
-| Directory | Description |
-|-----------|-------------|
-| `zsh/` | ZSH configuration (`.zshrc`, `.zprofile`, `.zshenv`) |
-| `git/` | Git configuration (template, needs personal info) |
-| `tmux/` | Oh My Tmux configuration |
-| `zed/` | Zed editor settings |
-| `homebrew/` | Brewfile for package management |
+| Directory | Links to |
+|-----------|----------|
+| `zsh/` | `~/.zshrc`, `~/.zprofile`, `~/.zshenv` |
+| `git/` | `~/.gitconfig`, `~/.work.gitconfig` |
+| `tmux/` | `~/.tmux.conf.local` (Oh My Tmux customization) |
+| `zed/` | `~/.config/zed/settings.json` |
+| `agents/` | `~/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.gemini/GEMINI.md`, `~/.claude/settings.json` |
+| `homebrew/` | Brewfile (not symlinked) |
+
+## Commands
+
+```bash
+# Full installation (Homebrew, Oh My Zsh, Oh My Tmux, symlinks, packages)
+./install.sh
+
+# Install/update Homebrew packages only
+brew bundle --file=homebrew/Brewfile
+
+# Dump current Homebrew packages to Brewfile
+brew bundle dump --file=homebrew/Brewfile --force
+```
 
 ## Dependencies
 
@@ -26,6 +40,10 @@ The install script will automatically install:
 - [Homebrew](https://brew.sh/)
 - [Oh My Zsh](https://ohmyz.sh/)
 - [Oh My Tmux](https://github.com/gpakosz/.tmux)
+
+## Conventions
+
+- Git configuration uses conditional includes (`includeIf`) for work-specific settings in `~/.work.gitconfig`
 
 ## Post-Installation
 
@@ -35,12 +53,6 @@ Configure Git with your personal info:
 git config --global user.name "Your Name"
 git config --global user.email "your@email.com"
 git config --global user.signingkey "YOUR_GPG_KEY"
-```
-
-## ZSH Plugins (via Homebrew)
-
-```bash
-brew install zsh-syntax-highlighting zsh-autosuggestions autojump
 ```
 
 ## Fonts
