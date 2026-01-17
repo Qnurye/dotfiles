@@ -32,4 +32,9 @@
 [user]
 	name = Jaren Lo
 	email = qnurye@gmail.com
-	signingkey = 9C22CDE7D1E9C21B
+	signingkey = DDEC5D86A0F3E645
+
+[includeIf "gitdir:~/work/"]
+    path = ~/.work.gitconfig
+[gitbutler]
+	aiModelProvider = openai

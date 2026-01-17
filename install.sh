@@ -63,6 +63,7 @@ backup_and_link "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 # Link Git configuration
 info "Linking Git configuration..."
 backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
+backup_and_link "$DOTFILES_DIR/git/.work.gitconfig" "$HOME/.work.gitconfig"
 
 # Link Tmux configuration
 info "Linking Tmux configuration..."
