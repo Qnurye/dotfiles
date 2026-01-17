@@ -77,6 +77,8 @@ backup_and_link "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.js
 # Link AI agent configurations
 info "Linking AI agent configurations..."
 backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
+backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 mkdir -p "$HOME/.claude"
 backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
 
