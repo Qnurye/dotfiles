@@ -91,3 +91,35 @@ brew() {
   fi
   return $ret
 }
+
+# Dotfiles auto-sync (every 2 days)
+_dotfiles_auto_sync() {
+  local DOTFILES_DIR="$HOME/dotfiles"
+  local SYNC_MARKER="$DOTFILES_DIR/.last_sync"
+  local SYNC_INTERVAL=$((2 * 24 * 60 * 60))  # 2 days in seconds
+
+  [[ ! -d "$DOTFILES_DIR/.git" ]] && return
+
+  local now=$(date +%s)
+  local last_sync=0
+  [[ -f "$SYNC_MARKER" ]] && last_sync=$(cat "$SYNC_MARKER")
+
+  if (( now - last_sync >= SYNC_INTERVAL )); then
+    (
+      cd "$DOTFILES_DIR"
+      # Pull with rebase
+      git pull --rebase --quiet 2>/dev/null
+      # Commit if there are changes
+      if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+        git add -A
+        git commit -m "chore: auto sync dotfiles" --quiet
+      fi
+      # Push if ahead of remote
+      if git status | grep -q "Your branch is ahead"; then
+        git push --quiet 2>/dev/null
+      fi
+      echo "$now" > "$SYNC_MARKER"
+    ) &>/dev/null &!
+  fi
+}
+_dotfiles_auto_sync

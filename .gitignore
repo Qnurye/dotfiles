@@ -2,3 +2,4 @@
 *.backup
 *.local
 !.tmux.conf.local
+.last_sync

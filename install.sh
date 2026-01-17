@@ -74,6 +74,12 @@ info "Linking Zed configuration..."
 mkdir -p "$HOME/.config/zed"
 backup_and_link "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 
+# Link AI agent configurations
+info "Linking AI agent configurations..."
+backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
+mkdir -p "$HOME/.claude"
+backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
+
 # Install Homebrew packages
 if [[ -f "$DOTFILES_DIR/homebrew/Brewfile" ]]; then
     info "Installing Homebrew packages (this may take a while)..."
