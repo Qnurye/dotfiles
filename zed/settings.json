@@ -36,6 +36,10 @@
   "agent": {
     "always_allow_tool_actions": true,
     "default_profile": "write",
+    "commit_message_model": {
+      "provider": "copilot_chat",
+      "model": "claude-haiku-4.5",
+    },
   },
   "ui_font_size": 16,
   "buffer_font_family": "Maple Mono NF CN",
