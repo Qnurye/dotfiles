@@ -74,6 +74,11 @@ info "Linking Zed configuration..."
 mkdir -p "$HOME/.config/zed"
 backup_and_link "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 
+# Link Ghostty configuration
+info "Linking Ghostty configuration..."
+mkdir -p "$HOME/.config/ghostty"
+backup_and_link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+
 # Link AI agent configurations
 info "Linking AI agent configurations..."
 backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"

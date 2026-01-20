@@ -1,0 +1,47 @@
+# Ghostty Configuration
+
+# ============ 字体 ============
+font-family = Maple Mono NF CN
+font-size = 13
+
+# ============ 主题 ============
+theme = light:Nord,dark:One Dark
+
+# ============ 光标 ============
+cursor-style = bar
+
+# ============ 背景 ============
+background-opacity = 0.9
+background-blur = true
+
+# ============ 窗口 ============
+window-padding-x = 6
+window-padding-y = 6
+window-padding-balance = true
+window-vsync = true
+window-inherit-working-directory = true
+
+# ============ 滚动 ============
+scrollback-limit = 100000000
+
+# ============ 复制/选择 ============
+copy-on-select = true
+
+# ============ Shell 集成 ============
+shell-integration = detect
+confirm-close-surface = true
+
+# ============ macOS ============
+macos-titlebar-style = tabs
+macos-option-as-alt = right
+macos-window-shadow = true
+
+# ============ Quick Terminal (下拉式终端) ============
+# 全局快捷键: Ctrl+` 任何地方秒开终端 (需要授予辅助功能权限)
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.15
+quick-terminal-autohide = true
+
+# ============ 链接 ============
+link-url = true
