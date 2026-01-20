@@ -35,6 +35,7 @@ brew "just"
 brew "kubernetes-cli"
 brew "libev"
 brew "marked"
+brew "neonctl"
 brew "neovim"
 brew "nmap"
 brew "ollama", restart_service: :changed
