@@ -5,7 +5,7 @@ font-family = Maple Mono NF CN
 font-size = 13
 
 # ============ 主题 ============
-theme = light:Nord,dark:One Dark
+theme = light:Nord,dark:Atom One Dark
 
 # ============ 光标 ============
 cursor-style = bar
