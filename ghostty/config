@@ -23,13 +23,14 @@ window-inherit-working-directory = true
 
 # ============ 滚动 ============
 scrollback-limit = 100000000
+mouse-scroll-multiplier = precision:2,discrete:3
 
 # ============ 复制/选择 ============
 copy-on-select = true
 
 # ============ Shell 集成 ============
 shell-integration = detect
-confirm-close-surface = true
+confirm-close-surface = false
 
 # ============ macOS ============
 macos-titlebar-style = tabs
