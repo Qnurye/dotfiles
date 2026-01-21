@@ -4,6 +4,9 @@
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
 {
+  "git_panel": {
+    "tree_view": true
+  },
   "auto_update": false,
   "lsp_document_colors": "background",
   "indent_guides": {
