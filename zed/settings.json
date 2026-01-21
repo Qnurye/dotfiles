@@ -5,7 +5,7 @@
 // documentation: https://zed.dev/docs/configuring-zed
 {
   "git_panel": {
-    "tree_view": true
+    "tree_view": true,
   },
   "auto_update": false,
   "lsp_document_colors": "background",
@@ -55,6 +55,9 @@
   },
   "autosave": "on_focus_change",
   "languages": {
+    "CSS": {
+      "tab_size": 2,
+    },
     "C++": {
       "show_edit_predictions": false,
       "format_on_save": "on",
