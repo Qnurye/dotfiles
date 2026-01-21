@@ -123,3 +123,4 @@ _dotfiles_auto_sync() {
   fi
 }
 _dotfiles_auto_sync
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
