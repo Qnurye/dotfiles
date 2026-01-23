@@ -20,6 +20,55 @@
 
 [core]
 	editor = zed --wait
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	dark = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = Dracula
+	plus-style = syntax "#003800"
+	minus-style = syntax "#3f0001"
+	plus-emph-style = syntax "#007800"
+	minus-emph-style = syntax "#7f0001"
+	hunk-header-decoration-style = "#5e81ac" box ul
+	file-style = "#81a1c1" bold
+	file-decoration-style = "#5e81ac" ul
+	line-numbers-minus-style = "#bf616a"
+	line-numbers-plus-style = "#a3be8c"
+	line-numbers-zero-style = "#4c566a"
+	blame-palette = "#2e3440" "#3b4252" "#434c5e" "#4c566a"
+
+[merge]
+	conflictstyle = diff3
+
+[diff]
+	colorMoved = default
+	algorithm = histogram
+
+[diff "difftastic"]
+	command = difft
+
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+
+[difftool]
+	prompt = false
+
+[alias]
+	# Delta-based commands (default)
+	d = diff
+	ds = diff --staged
+	dw = diff --word-diff
+
+	# Difftastic commands (structural diff)
+	dft = difftool --tool=difftastic
+	dfts = difftool --tool=difftastic --staged
+	dlog = "-c diff.external=difft log -p --ext-diff"
 
 [init]
 	defaultBranch = main

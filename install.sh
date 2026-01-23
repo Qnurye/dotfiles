@@ -79,6 +79,11 @@ info "Linking Ghostty configuration..."
 mkdir -p "$HOME/.config/ghostty"
 backup_and_link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 
+# Link Lazygit configuration
+info "Linking Lazygit configuration..."
+mkdir -p "$HOME/Library/Application Support/lazygit"
+backup_and_link "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+
 # Link AI agent configurations
 info "Linking AI agent configurations..."
 backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
