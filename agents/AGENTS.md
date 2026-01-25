@@ -1,7 +1,33 @@
+---
+aliases: []
+created_at: 2026-01-25T15:52:32+08:00
+tags: []
+updated_at: 2026-01-25T15:52:32+08:00
+---
 # User Preferences
 
 ## Personal
 - User Jaren Lo dislikes honorifics (敬语) and prefers to be addressed as '你' instead of '您'.
+
+## Prism Memory Layer
+
+VerseFlow serves as persistent memory for Prism across all projects.
+
+**Memory Location**: `~/Documents/Obsidian/VerseFlow/02 areas/memories/`
+
+**Memory Types**:
+- `preference/` — User preferences and conventions
+- `technical/` — Technical insights and learnings
+- `decision/` — Decision rationale and context
+- `project/` — Project-specific knowledge
+- `pattern/` — Cross-project reusable patterns
+
+**Usage**:
+- Store: Use `/remember` or say "记住这个"
+- Search: `grep -r "<keyword>" ~/Documents/Obsidian/VerseFlow/02\ areas/memories/`
+- Dashboard: `02 areas/memories/index.md`
+
+**Proactive Memory**: When discovering valuable insights, store immediately and notify user.
 
 ## Git & Version Control
 - Prefer 'refactor' commit types for moving logic without changing behavior.
