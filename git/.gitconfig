@@ -79,8 +79,8 @@
 [push]
 	autoSetupRemote = true
 [user]
-	name = Luo Wenjie
-	email = luowenjie@adastralab.ai
+	name = Jaren Lo
+	email = qnurye@gmail.com
 	signingkey = DDEC5D86A0F3E645
 
 [includeIf "gitdir:~/work/"]
