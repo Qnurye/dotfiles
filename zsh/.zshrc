@@ -124,3 +124,6 @@ _dotfiles_auto_sync() {
 }
 _dotfiles_auto_sync
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# OpenClaw Completion
+source <(openclaw completion --shell zsh)
