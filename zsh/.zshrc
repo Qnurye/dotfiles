@@ -24,7 +24,6 @@ source $ZSH/oh-my-zsh.sh
 
 # Aliases
 alias vim="nvim"
-alias wt="ccmanager"
 
 # Spaceship prompt (if using)
 SPACESHIP_TIME_SHOW="true"
@@ -126,5 +125,4 @@ _dotfiles_auto_sync() {
 _dotfiles_auto_sync
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
-# OpenClaw Completion
-source <(/Users/qnurye/.local/share/fnm/node-versions/v25.5.0/installation/bin/openclaw completion --shell zsh)
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
