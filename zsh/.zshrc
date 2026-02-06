@@ -126,3 +126,6 @@ _dotfiles_auto_sync
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+# OpenClaw Completion
+source "/Users/qnurye/.openclaw/completions/openclaw.zsh"
