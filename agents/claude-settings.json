@@ -18,13 +18,7 @@
   "hooks": {
     "SessionStart": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.agents/hooks/session-start.sh",
-            "timeout": 10
-          }
-        ]
+        "hooks": []
       }
     ]
   },
