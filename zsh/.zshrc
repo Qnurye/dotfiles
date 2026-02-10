@@ -24,6 +24,7 @@ source $ZSH/oh-my-zsh.sh
 
 # Aliases
 alias vim="nvim"
+wtc() { wt switch --base "$(git branch --show-current)" -x claude --create "$1" -- --permission-mode acceptEdits "${@:2}"; }
 
 # Spaceship prompt (if using)
 SPACESHIP_TIME_SHOW="true"

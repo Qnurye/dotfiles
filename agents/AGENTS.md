@@ -34,6 +34,9 @@ VerseFlow serves as persistent memory for Prism across all projects.
 - Prefer `gh` CLI to access GitHub.
 - Git pull strategy: rebase.
 - GPG signing enabled for commits.
+- **No git commit**: Never run `git commit` directly. Jaren must review and commit.
+- **No peer interaction**: Never use `gh pr review`, `gh pr comment`, `gh issue comment`, `gh pr merge`, `gh pr reply`, or any command that interacts with real people. Jaren must review first.
+- **Prepare, don't execute**: For commits and PR interactions, prepare the content and present it for Jaren's approval.
 
 ## Development Environment
 
