@@ -4,6 +4,9 @@
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
 {
+  "edit_predictions": {
+    "provider": "copilot",
+  },
   "git_panel": {
     "tree_view": false,
   },
@@ -122,9 +125,6 @@
         "font_style": "italic",
       },
     },
-  },
-  "features": {
-    "edit_prediction_provider": "copilot",
   },
   "lsp": {
     "eslint": {
