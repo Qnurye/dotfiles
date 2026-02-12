@@ -18,6 +18,7 @@ plugins=(
   npm
   history
   git
+  tmux
 )
 
 source $ZSH/oh-my-zsh.sh
