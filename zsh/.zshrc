@@ -26,6 +26,7 @@ source $ZSH/oh-my-zsh.sh
 # Aliases
 alias vim="nvim"
 wtc() { wt switch --base "$(git branch --show-current)" -x claude --create "$1" -- --permission-mode acceptEdits "${@:2}"; }
+alias tns='tmux new-session -d -s'
 
 # Spaceship prompt (if using)
 SPACESHIP_TIME_SHOW="true"
@@ -94,7 +95,7 @@ brew() {
   return $ret
 }
 
-# Dotfiles auto-sync (every 2 days)
+# Dotfiles auto-sync (every 2 hours)
 _dotfiles_auto_sync() {
   local DOTFILES_DIR="$HOME/dotfiles"
   local SYNC_MARKER="$DOTFILES_DIR/.last_sync"
