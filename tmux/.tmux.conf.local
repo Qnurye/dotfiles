@@ -46,6 +46,18 @@ tmux_conf_theme_status_right=" #{prefix} %R | %d %b | #H "
 # ============ 窗口标题 ============
 tmux_conf_theme_terminal_title="#S · #W"
 
+# ============ 终端特性 ============
+# 真彩色 + Ghostty 支持
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-ghostty:Tc,xterm-256color:Tc"
+
+# 现代键盘协议 (kitty/CSI-u)
+set -s extended-keys on
+set -as terminal-features 'xterm-ghostty:clipboard:ccolour:cstyle:focus:title:extkeys'
+
+# OSC 52 剪贴板同步 (远程 ttyd 也能复制到本地)
+set -g set-clipboard on
+
 # ============ 鼠标 ============
 set -g mouse on
 
@@ -73,6 +85,12 @@ set -g @resurrect-capture-pane-contents 'on'
 
 # tmux-prefix-highlight: 状态栏显示
 set -g @prefix_highlight_show_copy_mode 'on'
+
+# ============ Pane resize (Alt+h/j/k/l) ============
+bind -n M-h resize-pane -L 3
+bind -n M-j resize-pane -D 3
+bind -n M-k resize-pane -U 3
+bind -n M-l resize-pane -R 3
 
 # 初始化 TPM（必须在最后）
 run '~/.tmux/plugins/tpm/tpm'
