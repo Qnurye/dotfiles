@@ -31,6 +31,7 @@ copy-on-select = true
 # ============ Shell 集成 ============
 shell-integration = detect
 confirm-close-surface = false
+command = /opt/homebrew/bin/tmux new -A -s main
 
 # ============ macOS ============
 macos-titlebar-style = tabs
@@ -46,3 +47,21 @@ quick-terminal-autohide = true
 
 # ============ 链接 ============
 link-url = true
+
+# ============ tmux ============
+# 让 Ghostty 的 shell integration 正确穿透 tmux
+shell-integration-features = cursor,sudo,title
+
+# ============ macOS 编辑快捷键 ============
+# Cmd+Left → Home (行首)
+keybind = super+left=text:\x01
+# Cmd+Right → End (行尾)
+keybind = super+right=text:\x05
+# Cmd+Backspace → 删除到行首 (Ctrl-U)
+keybind = super+backspace=text:\x15
+# Alt+Left → 前一个词 (ESC+b)
+keybind = alt+left=text:\x1bb
+# Alt+Right → 后一个词 (ESC+f)
+keybind = alt+right=text:\x1bf
+# Alt+Backspace → 删除前一个词 (Ctrl-W)
+keybind = alt+backspace=text:\x17

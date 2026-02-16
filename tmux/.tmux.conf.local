@@ -1,10 +1,10 @@
 # ============ Base overrides (surgical) ============
-# prefix only C-a
+# prefix: Ctrl+Space
 set -gu prefix2
 unbind C-a
 unbind C-b
-set -g prefix C-a
-bind C-a send-prefix
+set -g prefix C-Space
+bind C-Space send-prefix
 
 # keep cwd on new session/window
 tmux_conf_new_session_retain_current_path=true
@@ -41,7 +41,13 @@ tmux_conf_theme_right_separator_sub="|"
 
 # plain status content (no nerd symbols)
 tmux_conf_theme_status_left=" #S "
-tmux_conf_theme_status_right=" %R | %d %b | #H "
+tmux_conf_theme_status_right=" #{prefix} %R | %d %b | #H "
+
+# ============ 窗口标题 ============
+tmux_conf_theme_terminal_title="#S · #W"
+
+# ============ 鼠标 ============
+set -g mouse on
 
 # ============ TPM 插件 ============
 set -g @plugin 'tmux-plugins/tpm'
