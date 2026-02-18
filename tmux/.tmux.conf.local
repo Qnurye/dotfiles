@@ -1,10 +1,11 @@
 # ============ Base overrides (surgical) ============
-# prefix: Ctrl+Space
+# prefix: Ctrl-\ (0x1c) — no conflict with readline/Cmd, works with Ghostty text:
 set -gu prefix2
 unbind C-a
 unbind C-b
-set -g prefix C-Space
-bind C-Space send-prefix
+unbind C-Space
+set -g prefix 'C-\'
+bind 'C-\' send-prefix
 
 # keep cwd on new session/window
 tmux_conf_new_session_retain_current_path=true
@@ -58,6 +59,13 @@ set -as terminal-features 'xterm-ghostty:clipboard:ccolour:cstyle:focus:title:ex
 # OSC 52 剪贴板同步 (远程 ttyd 也能复制到本地)
 set -g set-clipboard on
 
+# ============ Pane 边框 ============
+set -g pane-border-lines simple
+# 非活跃 pane: 暗灰
+set -g pane-border-style "fg=#3a4150"
+# 活跃 pane: 亮蓝色
+set -g pane-active-border-style "fg=#7aa2f7"
+
 # ============ 鼠标 ============
 set -g mouse on
 
@@ -86,11 +94,14 @@ set -g @resurrect-capture-pane-contents 'on'
 # tmux-prefix-highlight: 状态栏显示
 set -g @prefix_highlight_show_copy_mode 'on'
 
-# ============ Pane resize (Alt+h/j/k/l) ============
+# ============ Pane resize (Alt+h/j/k/l, 用右 Option 键) ============
 bind -n M-h resize-pane -L 3
 bind -n M-j resize-pane -D 3
 bind -n M-k resize-pane -U 3
 bind -n M-l resize-pane -R 3
+
+# ============ Kill pane 无确认 (prefix + X) ============
+bind X kill-pane
 
 # 初始化 TPM（必须在最后）
 run '~/.tmux/plugins/tpm/tpm'

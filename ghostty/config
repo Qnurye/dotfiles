@@ -53,30 +53,30 @@ link-url = true
 # 让 Ghostty 的 shell integration 正确穿透 tmux
 shell-integration-features = cursor,sudo,title
 
-# ============ tmux Cmd 快捷键 (prefix = Ctrl-Space = 0x00) ============
+# ============ tmux Cmd 快捷键 (prefix = Ctrl-\ = 0x1c) ============
 # Cmd+T → 新窗口 (prefix + c)
-keybind = super+t=text:\x00\x63
-# Cmd+W → 关闭 pane (prefix + x)
-keybind = super+w=text:\x00\x78
+keybind = super+t=text:\x1c\x63
+# Cmd+W → 关闭 pane (prefix + X, 无确认)
+keybind = super+w=text:\x1c\x58
 # Cmd+Z → zoom toggle (prefix + z)
-keybind = super+z=text:\x00\x7a
-# Cmd+1~9 → 切换 tmux 窗口
-keybind = super+one=text:\x00\x31
-keybind = super+two=text:\x00\x32
-keybind = super+three=text:\x00\x33
-keybind = super+four=text:\x00\x34
-keybind = super+five=text:\x00\x35
-keybind = super+six=text:\x00\x36
-keybind = super+seven=text:\x00\x37
-keybind = super+eight=text:\x00\x38
-keybind = super+nine=text:\x00\x39
-# Cmd+Shift+[ / ] → 前/后窗口 (prefix + p / n)
-keybind = super+shift+left_bracket=text:\x00\x70
-keybind = super+shift+right_bracket=text:\x00\x6e
+keybind = super+z=text:\x1c\x7a
+# Cmd+1~9 → 切换 tmux 窗口 (用 digit_N 覆盖 Ghostty 默认的 goto_tab)
+keybind = super+digit_1=text:\x1c\x31
+keybind = super+digit_2=text:\x1c\x32
+keybind = super+digit_3=text:\x1c\x33
+keybind = super+digit_4=text:\x1c\x34
+keybind = super+digit_5=text:\x1c\x35
+keybind = super+digit_6=text:\x1c\x36
+keybind = super+digit_7=text:\x1c\x37
+keybind = super+digit_8=text:\x1c\x38
+keybind = super+digit_9=text:\x1c\x39
+# Cmd+[ / ] → 前/后窗口 (prefix + p / n)
+keybind = super+left_bracket=text:\x1c\x70
+keybind = super+right_bracket=text:\x1c\x6e
 # Cmd+D → 水平分屏 (prefix + -)
-keybind = super+d=text:\x00\x2d
+keybind = super+d=text:\x1c\x2d
 # Cmd+Shift+D → 垂直分屏 (prefix + |) — 用 _ 因为 oh-my-tmux 绑定
-keybind = super+shift+d=text:\x00\x5f
+keybind = super+shift+d=text:\x1c\x5f
 
 # ============ macOS 编辑快捷键 ============
 # Cmd+Left → Home (行首)
