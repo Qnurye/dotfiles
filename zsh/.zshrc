@@ -130,5 +130,15 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
+# Yazi — shell wrapper (退出后自动 cd 到浏览的目录)
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
 # OpenClaw Completion
 source "/Users/qnurye/.openclaw/completions/openclaw.zsh"
