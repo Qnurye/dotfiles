@@ -52,6 +52,7 @@ brew "lazygit"
 brew "libev"
 brew "libpq"
 brew "mosh"
+brew "neonctl"
 brew "neovim"
 brew "nmap"
 brew "ollama", restart_service: :changed
