@@ -1,3 +1,6 @@
+# ============ Homebrew PATH (fix tpm detection) ============
+set-environment -g PATH "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+
 # ============ Base overrides (surgical) ============
 # prefix: Ctrl-\ (0x1c) — no conflict with readline/Cmd, works with Ghostty text:
 set -gu prefix2
@@ -53,7 +56,7 @@ set -g default-terminal "tmux-256color"
 set -ag terminal-overrides ",xterm-ghostty:Tc,xterm-256color:Tc"
 
 # 现代键盘协议 (kitty/CSI-u)
-set -s extended-keys on
+set -s extended-keys always
 set -as terminal-features 'xterm-ghostty:clipboard:ccolour:cstyle:focus:title:extkeys'
 
 # OSC 52 剪贴板同步 (远程 ttyd 也能复制到本地)

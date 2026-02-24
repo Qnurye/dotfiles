@@ -91,3 +91,7 @@ keybind = alt+left=text:\x1bb
 keybind = alt+right=text:\x1bf
 # Alt+Backspace → 删除前一个词 (Ctrl-W)
 keybind = alt+backspace=text:\x17
+
+# ============ Claude Code 换行修复 ============
+# Shift+Enter → 发送换行符 (绕过 tmux extended-keys 问题)
+keybind = shift+enter=text:\x0a
