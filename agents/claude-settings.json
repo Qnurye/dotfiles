@@ -33,7 +33,8 @@
     "ralph-loop@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
-    "worktrunk@worktrunk": true
+    "worktrunk@worktrunk": false,
+    "feature-dev@claude-plugins-official": false
   },
   "skipDangerousModePermissionPrompt": true
 }
