@@ -53,7 +53,9 @@ tmux_conf_theme_terminal_title="#S · #W"
 # ============ 终端特性 ============
 # 真彩色 + Ghostty 支持
 set -g default-terminal "tmux-256color"
-set -ag terminal-overrides ",xterm-ghostty:Tc,xterm-256color:Tc"
+set -ag terminal-overrides ",xterm-ghostty:Tc,xterm-256color:Tc,tmux-256color:Tc"
+set -ag terminal-features ",xterm-ghostty:extkeys"
+set -g allow-passthrough on
 
 # 现代键盘协议 (kitty/CSI-u)
 set -s extended-keys always
