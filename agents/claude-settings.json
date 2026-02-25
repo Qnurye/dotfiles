@@ -36,5 +36,6 @@
     "worktrunk@worktrunk": false,
     "feature-dev@claude-plugins-official": false
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "alwaysThinkingEnabled": false
 }
