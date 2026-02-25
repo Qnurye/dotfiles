@@ -41,7 +41,9 @@
     "dark": "Symbols Icon Theme",
   },
   "agent": {
-    "always_allow_tool_actions": true,
+    "tool_permissions": {
+      "default": "allow"
+    },
     "default_profile": "write",
     "commit_message_model": {
       "provider": "copilot_chat",
