@@ -9,7 +9,7 @@
     "provider": "copilot",
   },
   "git_panel": {
-    "tree_view": false,
+    "tree_view": true,
   },
   "auto_update": false,
   "lsp_document_colors": "background",
