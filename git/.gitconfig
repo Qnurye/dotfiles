@@ -11,6 +11,7 @@
 
 [gpg]
 	program = /opt/homebrew/bin/gpg
+	format = openpgp
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
@@ -81,7 +82,7 @@
 [user]
 	name = Jaren Lo
 	email = qnurye@gmail.com
-	signingkey = DDEC5D86A0F3E645
+	signingkey = 459330D6FB08598D9FCF6BE7DDEC5D86A0F3E645
 
 [includeIf "gitdir:~/work/"]
     path = ~/.work.gitconfig
