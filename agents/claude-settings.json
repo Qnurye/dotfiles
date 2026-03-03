@@ -22,12 +22,30 @@
     "SessionStart": [
       {
         "hooks": []
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/qnurye/.claude/hooks/gsd-check-update.js\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/qnurye/.claude/hooks/gsd-context-monitor.js\""
+          }
+        ]
       }
     ]
   },
   "statusLine": {
     "type": "command",
-    "command": "wt list statusline --format=claude-code"
+    "command": "node \"/Users/qnurye/.claude/hooks/gsd-statusline.js\""
   },
   "enabledPlugins": {
     "ralph-loop@claude-plugins-official": true,
