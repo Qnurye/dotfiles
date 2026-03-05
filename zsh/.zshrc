@@ -95,7 +95,7 @@ brew() {
         local count=0
         for app in /Applications/*.app; do
           if xattr -l "$app" 2>/dev/null | grep -q "com.apple.quarantine"; then
-            sudo xattr -rd com.apple.quarantine "$app" && ((count++))
+            xattr -rd com.apple.quarantine "$app" 2>/dev/null && ((count++))
           fi
         done
         if (( count > 0 )); then
