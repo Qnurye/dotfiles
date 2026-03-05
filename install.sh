@@ -104,6 +104,19 @@ if [[ -f "$DOTFILES_DIR/homebrew/Brewfile" ]]; then
     fi
 fi
 
+# Upgrade all Homebrew packages
+info "Upgrading Homebrew packages..."
+brew upgrade -f -g || warn "Some packages failed to upgrade"
+
+# Remove Apple quarantine from Homebrew cask applications
+info "Removing Apple quarantine from Homebrew applications..."
+for app in /Applications/*.app; do
+    if xattr -l "$app" 2>/dev/null | grep -q "com.apple.quarantine"; then
+        sudo xattr -rd com.apple.quarantine "$app"
+        info "Removed quarantine from $(basename "$app")"
+    fi
+done
+
 # Post-install reminders
 echo ""
 echo "============================================"
