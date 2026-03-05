@@ -90,6 +90,20 @@ brew() {
           echo "✓ Brewfile updated"
         fi
         ;;
+      upgrade)
+        echo "\n🔓 Removing quarantine from Applications..."
+        local count=0
+        for app in /Applications/*.app; do
+          if xattr -l "$app" 2>/dev/null | grep -q "com.apple.quarantine"; then
+            sudo xattr -rd com.apple.quarantine "$app" && ((count++))
+          fi
+        done
+        if (( count > 0 )); then
+          echo "✓ Removed quarantine from $count app(s)"
+        else
+          echo "✓ No quarantined apps found"
+        fi
+        ;;
     esac
   fi
   return $ret
