@@ -74,22 +74,12 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # Cargo/Rust
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
-# Brew hook - auto sync Brewfile after install/uninstall
+# Brew hook - auto remove quarantine after upgrade
 brew() {
-  local BREWFILE="$HOME/dotfiles/homebrew/Brewfile"
   command brew "$@"
   local ret=$?
-  if [[ $ret -eq 0 && -d "$HOME/dotfiles" ]]; then
+  if [[ $ret -eq 0 ]]; then
     case "$1" in
-      install|uninstall|remove|rmtree|autoremove)
-        echo "\n📦 Syncing Brewfile..."
-        command brew bundle dump --file="$BREWFILE" --force
-        if git -C "$HOME/dotfiles" diff --quiet "$BREWFILE" 2>/dev/null; then
-          echo "✓ Brewfile unchanged"
-        else
-          echo "✓ Brewfile updated"
-        fi
-        ;;
       upgrade)
         echo "\n🔓 Removing quarantine from Applications..."
         local count=0

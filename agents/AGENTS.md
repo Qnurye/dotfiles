@@ -54,7 +54,7 @@ VerseFlow serves as persistent memory for Prism across all projects.
 - Terminal: Neovim (`vim` is aliased to `nvim`)
 
 ### Package Managers
-- Homebrew for system packages (auto-syncs Brewfile after install/uninstall)
+- Homebrew for system packages
 - pnpm for Node.js projects
 - Bun available as alternative
 
