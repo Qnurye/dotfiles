@@ -3,3 +3,5 @@
 *.local
 !.tmux.conf.local
 .last_sync
+.last_fetch
+.sync_conflict

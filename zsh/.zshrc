@@ -110,25 +110,93 @@ _dotfiles_auto_sync() {
   local now=$(date +%s)
   local last_sync=0
   [[ -f "$SYNC_MARKER" ]] && last_sync=$(cat "$SYNC_MARKER")
+  (( now - last_sync < SYNC_INTERVAL )) && return
 
-  if (( now - last_sync >= SYNC_INTERVAL )); then
+  local git="git -C $DOTFILES_DIR"
+
+  # Fetch remote quietly in background; check result on next invocation
+  local fetch_marker="$DOTFILES_DIR/.last_fetch"
+  if [[ ! -f "$fetch_marker" ]]; then
+    ( $git fetch --quiet 2>/dev/null && echo "$now" > "$fetch_marker" ) &!
+    return
+  fi
+
+  # Determine local and remote state
+  local has_local=false has_remote=false
+  if ! $git diff --quiet 2>/dev/null || ! $git diff --cached --quiet 2>/dev/null || \
+     [[ -n "$($git ls-files --others --exclude-standard 2>/dev/null)" ]]; then
+    has_local=true
+  fi
+  local local_head=$($git rev-parse HEAD 2>/dev/null)
+  local remote_head=$($git rev-parse @{u} 2>/dev/null)
+  local merge_base=$($git merge-base HEAD @{u} 2>/dev/null)
+  if [[ "$local_head" != "$remote_head" && "$remote_head" != "$merge_base" ]]; then
+    has_remote=true
+  fi
+
+  rm -f "$fetch_marker"
+
+  # Case 1: Nothing to do
+  if ! $has_local && ! $has_remote; then
+    echo "$now" > "$SYNC_MARKER"
+    return
+  fi
+
+  # Case 2: Only remote changes — fast-forward pull
+  if ! $has_local && $has_remote; then
+    ( cd "$DOTFILES_DIR" && git pull --rebase --quiet 2>/dev/null && echo "$now" > "$SYNC_MARKER" ) &!
+    return
+  fi
+
+  # Case 3: Only local changes — commit and push
+  if $has_local && ! $has_remote; then
     (
       cd "$DOTFILES_DIR"
-      # Pull with rebase
-      git pull --rebase --quiet 2>/dev/null
-      # Commit if there are changes
-      if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
-        git add -A
-        git commit -m "chore: auto sync dotfiles" --quiet
-      fi
-      # Push if ahead of remote
-      if git status | grep -q "Your branch is ahead"; then
-        git push --quiet 2>/dev/null
-      fi
+      git add -A
+      git commit -m "chore: auto sync dotfiles" --quiet 2>/dev/null
+      git push --quiet 2>/dev/null
       echo "$now" > "$SYNC_MARKER"
-    ) &>/dev/null &!
+    ) &!
+    return
+  fi
+
+  # Case 4: Both have changes — try rebase, detect conflicts
+  (
+    cd "$DOTFILES_DIR"
+    git add -A
+    git commit -m "chore: auto sync dotfiles" --quiet 2>/dev/null
+
+    if git rebase --quiet @{u} 2>/dev/null; then
+      # No conflicts — push
+      git push --quiet 2>/dev/null
+      echo "$now" > "$SYNC_MARKER"
+    else
+      # Conflict detected — abort and leave a marker for the user
+      git rebase --abort 2>/dev/null
+      echo "conflict" > "$DOTFILES_DIR/.sync_conflict"
+    fi
+  ) &!
+}
+
+# Prompt user if a previous sync detected conflicts
+_dotfiles_conflict_check() {
+  local conflict_marker="$HOME/dotfiles/.sync_conflict"
+  [[ ! -f "$conflict_marker" ]] && return
+
+  echo "\033[1;33m[dotfiles]\033[0m Sync conflict detected — local and remote dotfiles have diverged."
+  echo "  cd ~/dotfiles && git rebase origin/main"
+  echo ""
+  read -q "reply?Resolve now? [y/N] " 2>/dev/null
+  echo ""
+  if [[ "$reply" == "y" ]]; then
+    rm -f "$conflict_marker"
+    ( cd "$HOME/dotfiles" && git rebase @{u} )
+  else
+    echo "  Run \033[1mcd ~/dotfiles && git rebase origin/main\033[0m when ready."
   fi
 }
+
+_dotfiles_conflict_check
 _dotfiles_auto_sync
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
@@ -145,4 +213,4 @@ function y() {
 }
 
 # OpenClaw Completion
-source "/Users/qnurye/.openclaw/completions/openclaw.zsh"
+# source "/Users/qnurye/.openclaw/completions/openclaw.zsh"

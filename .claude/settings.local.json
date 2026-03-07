@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source:*)",
+      "Bash(git -C /Users/qnurye/dotfiles status)",
+      "Bash(git -C /Users/qnurye/dotfiles log --oneline -3)"
+    ]
+  }
+}

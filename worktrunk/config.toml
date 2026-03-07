@@ -1,0 +1,27 @@
+# Worktrunk User Configuration
+# Symlinked to ~/.config/worktrunk/config.toml
+
+# Worktree path template — inside the repository
+worktree-path = ".worktrees/{{ branch | sanitize }}"
+
+# LLM commit message generation
+[commit.generation]
+command = "claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
+
+# Commit staging behavior
+[commit]
+stage = "all"
+
+# List display defaults
+[list]
+full = false
+branches = false
+remotes = false
+
+# Merge defaults
+[merge]
+squash = true
+commit = true
+rebase = true
+remove = true
+verify = true

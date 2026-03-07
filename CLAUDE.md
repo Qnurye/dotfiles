@@ -28,6 +28,7 @@ brew bundle dump --file=homebrew/Brewfile --force
 | `tmux/` | `~/.tmux.conf.local` (Oh My Tmux customization) |
 | `zed/` | `~/.config/zed/settings.json` |
 | `ghostty/` | `~/.config/ghostty/config` |
+| `worktrunk/` | `~/.config/worktrunk/config.toml` |
 | `homebrew/` | Brewfile (not symlinked) |
 
 ## Conventions

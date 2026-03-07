@@ -16,36 +16,15 @@
     ],
     "deny": [],
     "ask": [],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "bypassPermissions"
   },
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": []
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/qnurye/.claude/hooks/gsd-check-update.js\""
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/qnurye/.claude/hooks/gsd-context-monitor.js\""
-          }
-        ]
-      }
-    ]
+    "SessionStart": [],
+    "PostToolUse": []
   },
   "statusLine": {
     "type": "command",
-    "command": "node \"/Users/qnurye/.claude/hooks/gsd-statusline.js\""
+    "command": "wt list statusline --format=claude-code"
   },
   "enabledPlugins": {
     "ralph-loop@claude-plugins-official": true,

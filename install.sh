@@ -63,6 +63,7 @@ backup_and_link "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 # Link Git configuration
 info "Linking Git configuration..."
 backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
+backup_and_link "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
 backup_and_link "$DOTFILES_DIR/git/.work.gitconfig" "$HOME/.work.gitconfig"
 
 # Link Tmux configuration
@@ -83,6 +84,11 @@ backup_and_link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 info "Linking Lazygit configuration..."
 mkdir -p "$HOME/Library/Application Support/lazygit"
 backup_and_link "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+
+# Link Worktrunk configuration
+info "Linking Worktrunk configuration..."
+mkdir -p "$HOME/.config/worktrunk"
+backup_and_link "$DOTFILES_DIR/worktrunk/config.toml" "$HOME/.config/worktrunk/config.toml"
 
 # Link AI agent configurations
 info "Linking AI agent configurations..."
