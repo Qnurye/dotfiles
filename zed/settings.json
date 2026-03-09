@@ -4,6 +4,20 @@
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
 {
+  "ssh_connections": [
+    {
+      "host": "do.qnury.es",
+      "username": "root",
+      "args": [],
+      "projects": [
+        {
+          "paths": [
+            "/root"
+          ]
+        }
+      ]
+    }
+  ],
   "restore_on_startup": "empty_tab",
   "edit_predictions": {
     "provider": "copilot",
