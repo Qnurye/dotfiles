@@ -42,6 +42,11 @@
     "dark": "Symbols Icon Theme",
   },
   "agent": {
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-opus-4.6",
+      "enable_thinking": false
+    },
     "tool_permissions": {
       "default": "allow"
     },
