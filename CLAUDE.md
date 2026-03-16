@@ -30,7 +30,10 @@ brew bundle dump --file=homebrew/Brewfile --force
 | `zed/` | `~/.config/zed/settings.json` |
 | `ghostty/` | `~/.config/ghostty/config` |
 | `worktrunk/` | `~/.config/worktrunk/config.toml` |
+| `agents/skills/` | `~/.claude/skills/*` (Claude Code skills) |
+| `agents/agents/` | `~/.claude/agents/*` (Claude Code agents) |
 | `homebrew/` | Brewfile (not symlinked) |
+| `system/` | `/etc/` overrides (copied, not symlinked) |
 
 ## Conventions
 

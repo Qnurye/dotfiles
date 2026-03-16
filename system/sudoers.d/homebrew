@@ -1,0 +1,3 @@
+# Allow admin group to run brew without password
+# Required for casks like docker-desktop that invoke sudo during upgrade
+%admin ALL=(ALL) NOPASSWD: /opt/homebrew/bin/brew

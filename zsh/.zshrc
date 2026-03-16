@@ -25,7 +25,7 @@ source $ZSH/oh-my-zsh.sh
 
 # Aliases
 alias vim="nvim"
-wtc() { wt switch --base "$(git branch --show-current)" -x claude --create "$1" -- --permission-mode acceptEdits "${@:2}"; }
+wtc() { wt switch --base "$(git branch --show-current)" -x claude --create "$1" -- --permission-mode bypassPermissions "${@:2}"; }
 alias tns='tmux new-session -d -s'
 
 # Spaceship prompt (if using)
@@ -76,6 +76,12 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Brew hook - auto remove quarantine after upgrade
 brew() {
+  # Pre-authenticate sudo for commands that may need it (e.g. docker-desktop cask)
+  case "$1" in
+    upgrade|install|reinstall)
+      sudo -v 2>/dev/null
+      ;;
+  esac
   command brew "$@"
   local ret=$?
   if [[ $ret -eq 0 ]]; then

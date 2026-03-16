@@ -27,8 +27,8 @@
     "command": "wt list statusline --format=claude-code"
   },
   "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": false,
+    "gopls-lsp@claude-plugins-official": false,
     "worktrunk@worktrunk": true,
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true
@@ -41,5 +41,6 @@
       }
     }
   },
+  "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }

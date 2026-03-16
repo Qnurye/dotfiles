@@ -4,19 +4,15 @@
 # Worktree path template — inside the repository
 worktree-path = "{{ repo_path }}/.worktrees/{{ branch | sanitize }}"
 
-# LLM commit message generation
-[commit.generation]
-command = "claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
-
 # Commit staging behavior
 [commit]
 stage = "all"
 
 # List display defaults
 [list]
-full = false
-branches = false
-remotes = false
+full = true
+branches = true
+remotes = true
 
 # Merge defaults
 [merge]
@@ -25,3 +21,62 @@ commit = true
 rebase = true
 remove = true
 verify = true
+
+[post-start]
+install = "[ -f pnpm-lock.yaml ] && pnpm install || true"
+
+[commit.generation]
+command = "MAX_THINKING_TOKENS=0 claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
+
+template = """
+Output ONLY a commit message. No backticks, no markdown, no explanation, no quotes. Just the raw commit message text.
+
+Format: type(scope): description
+
+type is one of: feat fix docs style refactor perf test build chore
+scope is optional, omit the parentheses if no scope.
+Description: imperative mood, lowercase, under 72 chars, no period.
+No body - subject line only.
+
+GOOD output example:
+feat(auth): add JWT token refresh endpoint
+BAD output (DO NOT do this):
+```feat(auth): add JWT token refresh endpoint```
+
+{% if recent_commits %}Recent commits for style:
+{% for c in recent_commits %}- {{ c }}
+{% endfor %}{% endif %}
+Branch: {{ branch }}
+Repo: {{ repo }}
+Stats: {{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""
+
+squash-template = """
+Output ONLY a commit message. No backticks, no markdown, no explanation, no quotes. Just the raw commit message text.
+
+Format: type(scope): description
+
+type is one of: feat fix docs style refactor perf test build chore
+scope is optional, omit the parentheses if no scope.
+Description: imperative mood, lowercase, under 72 chars, no period.
+Body: 3-5 bullet points MAX summarizing key changes. Each line MUST be under 80 chars — break long lines. NO full file lists. NO exceptions. Separate subject and body with a blank line.
+
+GOOD output example:
+feat(auth): add JWT token refresh endpoint
+BAD output (DO NOT do this):
+```feat(auth): add JWT token refresh endpoint```
+
+Commits being squashed:
+{% for c in commits %}- {{ c }}
+{% endfor %}
+{% if target_branch %}Target: {{ target_branch }}{% endif %}
+Branch: {{ branch }}
+Repo: {{ repo }}
+Stats: {{ git_diff_stat }}
+
+Diff:
+{{ git_diff }}
+"""

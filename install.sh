@@ -110,6 +110,35 @@ backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 mkdir -p "$HOME/.claude"
 backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
 
+# Link Claude Code skills and agents
+info "Linking Claude Code skills..."
+mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
+for skill_dir in "$DOTFILES_DIR/agents/skills"/*/; do
+    skill_name="$(basename "$skill_dir")"
+    backup_and_link "$skill_dir" "$HOME/.claude/skills/$skill_name"
+done
+for agent_file in "$DOTFILES_DIR/agents/agents"/*.md; do
+    agent_name="$(basename "$agent_file")"
+    backup_and_link "$agent_file" "$HOME/.claude/agents/$agent_name"
+done
+
+# Install sudoers overrides
+info "Installing sudoers overrides..."
+if [[ -d "$DOTFILES_DIR/system/sudoers.d" ]]; then
+    for f in "$DOTFILES_DIR/system/sudoers.d"/*; do
+        local_name="$(basename "$f")"
+        dest="/etc/sudoers.d/$local_name"
+        if ! diff -q "$f" "$dest" &>/dev/null; then
+            sudo cp "$f" "$dest"
+            sudo chmod 0440 "$dest"
+            sudo chown root:wheel "$dest"
+            info "Installed sudoers.d/$local_name"
+        else
+            info "sudoers.d/$local_name already up to date"
+        fi
+    done
+fi
+
 # Install Homebrew packages
 if [[ -f "$DOTFILES_DIR/homebrew/Brewfile" ]]; then
     info "Installing Homebrew packages (this may take a while)..."
