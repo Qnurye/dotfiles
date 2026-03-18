@@ -1,273 +1,246 @@
 ---
 name: diverge
-description: Generate multiple independent implementation plans in parallel for a given task, then review and compare them.
-argument-hint: <task description>
+description: Divergent planning — explore multiple implementation directions for a goal, refine with user input, then generate executable launcher scripts for each chosen approach.
+argument-hint: <goal description or GitHub issue URL>
 disable-model-invocation: true
 ---
 
-# Diverge — Parallel Plan Generation
+# Diverge — Divergent Planning Skill
 
-Generate multiple independent plans for a task, expand each via isolated team agents, then review and compare.
+Explore multiple implementation directions for a goal through grounded research, interactive refinement, and parallel detailed planning. Output is a set of one-click launcher scripts the user can run to begin implementation.
 
 ## Input
 
-The task description is: `$ARGUMENTS`
+The user's goal is: `$ARGUMENTS`
 
-If no arguments provided, ask the user for a task description.
+If no arguments provided, ask the user for a goal description. The goal can be free-form text or a GitHub issue URL — parse either naturally.
 
-## Planning Lenses
+---
 
-Each plan is assigned a lens that constrains its architectural direction. Available lenses:
+## Phase 0: Context Grounding
 
-- **Simplicity-first** — Minimize moving parts. Prefer fewer files, less abstraction, direct solutions.
-- **Performance-first** — Optimize for speed/efficiency. Accept more complexity if it measurably improves performance.
-- **Extensibility-first** — Design for future change. Prefer abstractions, interfaces, plugin points.
-- **Minimal-change** — Smallest possible diff. Reuse existing patterns, avoid refactoring.
-
-Choose lenses that create **maximum tension** for the specific task. For a bug fix, "minimal-change" vs "simplicity-first" creates useful tension. For a new feature, "extensibility-first" vs "performance-first" is often more informative.
-
-## Step 0: Context Grounding
-
-### Step 0a: Gather Mechanical Context
-
-Run the following command and capture its output as `<mechanical_context>`:
+### 0a. Run the grounding script
 
 ```bash
-bash ~/.claude/skills/diverge/gather-context.sh
+bash ${CLAUDE_SKILL_DIR}/scripts/gather-context.sh
 ```
 
-This script validates prerequisites (agent teams flag, git availability) and outputs: project name, branch, repo root, tech stack, directory structure, and CLAUDE.md contents. **If it exits non-zero, stop and report the error to the user.**
+Parse the output:
+- If `PREREQ_FAILED` — stop and show the listed errors to the user. Do not proceed.
+- If `CONTEXT_EMPTY` — warn the user that no project documents were found, but continue.
+- If `PREREQ_OK` — capture the `CONTEXT_FILE=<path>` line. Read that file to load the grounded context.
 
-### Step 0b: Identify Key Files and Finalize Bundle
+### 0b. Deep research
 
-1. Review `<mechanical_context>` to understand the project structure and tech stack.
-2. Using the task description, identify **3-5 files most relevant** to the task. Use Grep/Glob to locate candidates, then read them with the Read tool. If a file exceeds 300 lines, read only the first 100 lines and note the truncation.
-3. Synthesize a **Constraints** summary from the CLAUDE.md content in `<mechanical_context>` — extract only what is relevant to this specific task.
-4. Assemble the final **context bundle** by combining `<mechanical_context>` with the key files:
+Evaluate whether the grounded context is sufficient to understand the user's goal. Consider:
+- Does the context cover the relevant parts of the codebase?
+- Are there references to systems, APIs, or patterns not explained in the docs?
+
+If gaps exist, use the `Agent` tool with `subagent_type: Explore` to perform autonomous exploration. The agent's prompt should target the specific gap and request a markdown summary of findings.
+
+Append the sub-agent's findings to the context file (`CONTEXT_FILE`).
+
+---
+
+## Phase 1: Edge Clarification
+
+Review the goal against the grounded context. Identify ambiguities, unstated assumptions, and decision points that could lead to fundamentally different implementations.
+
+For each edge case or ambiguity:
+1. Present the issue clearly
+2. Use `AskUserQuestion` to let the user choose:
+   - **Single-select**: when the options are mutually exclusive, use `options` to present a list where the user picks one
+   - **Multi-select**: when the user may want to combine options, use `multiSelectOptions` to present a checklist
+   - Always include a final option like "Other (explain)" so the user is not boxed in
+3. Record the user's choice before moving to the next edge
+
+Loop until no more edges remain. Then append all resolved decisions to the context file:
 
 ```markdown
-<mechanical_context output>
+---
 
-- **Constraints:** <task-relevant summary from CLAUDE.md or "none found">
+## Resolved Decisions
 
-### Key Files
-<file_path_1>
-```<language>
-<file contents (or first 100 lines if truncated)>
-```
-... (repeat for each key file)
+- **<Issue 1>**: <User's choice> — <rationale if given>
+- **<Issue 2>**: <User's choice>
+- ...
 ```
 
-Hold the assembled context bundle in memory — it will be injected into every team-agent prompt in Step 3.
+---
 
-## Step 1: Generate Abstract Plans
+## Slug Convention
 
-### Step 1a: Initial Generation
+Throughout this skill, `<goal-slug>` and `<direction-slug>` refer to URL-safe identifiers derived from the goal text and direction names. Rules:
+- Lowercase, replace spaces and special characters with hyphens
+- Remove consecutive hyphens, trim leading/trailing hyphens
+- Truncate to 40 characters
+- Generate slugs once (in this phase and Phase 2) and reuse them in all later phases
 
-Generate exactly **2 plans**, each assigned a distinct lens from the pool. Pick lenses that create the most tension for this task.
+---
 
-Each plan should:
-- Take a distinct architectural or strategic direction
-- Be independent — no plan should depend on or reference another
-- Be described in 3-5 bullet points (high-level only, no implementation details)
-- Have a short descriptive name (e.g., "Event-Driven Architecture", "Monolithic Refactor")
-- Have a proposed worktree branch name using `plan/<kebab-case-name>` convention
-- Include a `**Lens:** <name>` field
+## Phase 2: Abstract Planning
 
-### Step 1b: Diversity Check
+Generate N high-level implementation directions (typically 2-4). Each direction should:
+- Take a distinct architectural or strategic approach
+- Be independent — no direction should reference another
+- Be described in 3-5 bullet points (high-level only)
+- Have a short descriptive name
+- Include key tradeoffs (what you gain, what you give up)
+- Include a risk assessment
 
-Evaluate the 2 plans against this checklist:
+### Diversity check
 
-| Question | yes=2 | partially=1 | no=0 |
-|----------|-------|-------------|------|
-| Do they modify the same set of files? | | | |
-| Do they use the same architectural pattern? | | | |
-| Would implementing Plan A produce code that looks similar to Plan B? | | | |
+Ensure directions are meaningfully different. If two directions would produce similar code, similar file changes, or similar architecture — replace one. Fewer distinct directions beat many similar ones.
 
-Sum the scores:
-- **0–2:** Plans are sufficiently diverse. Proceed to Step 2.
-- **3–4:** Moderate overlap. Generate **1 more** plan with an unused lens.
-- **5–6:** Too similar. Generate **2 more** plans with unused lenses.
+### User selection
 
-### Step 1c: Additional Plans (conditional)
+Present all directions in a comparison format. Then ask the user to select one or more directions to expand into detailed plans. The user may also:
+- Request modifications to a direction before selecting
+- Ask for an additional direction not yet proposed
+- Ask clarifying questions
 
-If triggered by Step 1b, generate additional plans with the constraint: "This plan MUST differ from existing plans in at least one of: (a) which files it modifies, (b) the architectural pattern it uses, (c) the sequencing of implementation steps." Assign unused lenses.
+---
 
-### Quality Rules
+## Phase 3: Detailed Planning
 
-- **Every plan must earn its place.** If an approach doesn't change implementation decisions, don't include it.
-- **Avoid padding.** Superficial variations (e.g., same architecture with a different library) do not count as distinct.
-- **Total plans: 2–4.** The adaptive check ensures this range naturally.
+For each selected direction, create the planning infrastructure:
 
-## Step 2: Set Up Plan Directories
+### 3a. Create tasks, team, and spawn teammates
 
-Create the output directory and write each abstract plan:
+1. Use `TaskCreate` to create one task per selected direction, named after the direction.
 
-```
-/tmp/plans/<project>/<feat>/
-├── plan-1/abstract.md
-├── plan-2/abstract.md
-└── ...  (as many as generated)
-```
+2. Use `TeamCreate` to create the team (name: `diverge-planning`, description based on the goal).
 
-Each `abstract.md` must contain ONLY that plan's name, lens, branch name, and bullet points. Do NOT include other plans' details.
+3. Use the `Agent` tool to spawn each teammate into the team:
+   - For each selected direction, spawn one teammate with `subagent_type: diverge-plan-writer`, `team_name: diverge-planning`, and `name: writer-<direction-slug>`
+   - Spawn one `subagent_type: diverge-devils-advocate`, `team_name: diverge-planning`, `name: advocate`
 
-## Step 3: Delegate to Team Agents
+### 3b. Send assignments to diverge-plan-writers
 
-For each plan, invoke the `Agent` tool as a **named team agent**. Fire all agents **in a single parallel batch**.
-
-### Prompt Template
-
-Each team agent receives a single prompt string constructed by concatenating:
+For each spawned writer, use `SendMessage` to deliver the assignment:
 
 ```
-You are a focused planning agent.
+## Your Assignment
 
-## Planning Lens: <lens_name>
-<lens_description>
-Your detailed plan MUST reflect this lens. When making design decisions,
-consistently favor this lens's priorities. Explicitly call out where this
-lens influenced your choices.
+**Context file**: <CONTEXT_FILE path>
+**Direction name**: <name>
+**Direction summary**:
+<the 3-5 bullet points from the abstract plan>
 
-<context_bundle>
+**Original goal**: <user's goal>
 
-Your task:
-Expand the abstract plan at `<absolute_path>/plan-N/abstract.md` into a detailed implementation plan.
+**Output path**: /tmp/diverge/<goal-slug>/plans/<direction-slug>.md
 
-The original task is: <task_description>
-
-## Rules
-- Do NOT reference or speculate about alternative approaches.
-- Be specific: include file paths, function names, data structures, step-by-step instructions.
-- Include potential edge cases and how to handle them.
-- Estimate relative complexity per step (low/medium/high).
-- The plan should be detailed enough for a coding agent to execute without ambiguity.
-
-## Output Format
-Write `detailed-plan.md` in the SAME directory as the abstract plan (`<absolute_path>/plan-N/`), using this structure:
-
-# [Plan Name]
-
-## Overview
-One paragraph summary of the approach.
-
-## Steps
-
-### 1. [Step Title]
-- **Complexity:** low/medium/high
-- **Details:** ...
-- **Files:** ...
-- **Edge cases:** ...
-
-## Dependencies
-External libraries or services needed.
-
-## Risks
-What could go wrong and mitigations.
+Read the context file first, then write the detailed plan to the output path.
+When finished, send the plan to the diverge-devils-advocate teammate for validation.
 ```
 
-Where `<context_bundle>` is the full context bundle assembled in Step 0, injected verbatim.
+### 3c. DA ↔ Writer loop
 
-### Invocation
+The diverge-plan-writer and diverge-devils-advocate teammates handle this autonomously:
+1. Writer completes the detailed plan and sends it to the DA
+2. DA validates against alignment, completeness, feasibility, coherence
+3. If issues found — DA sends feedback to the writer, who revises and resubmits
+4. If approved — writer marks their task complete
 
-Call the `Agent` tool once per plan, **all in the same message** (parallel batch), with:
-- `name`: `"plan-writer-N"` (e.g., `"plan-writer-1"`, `"plan-writer-2"`)
-- `prompt`: the assembled prompt string above
-- `subagent_type`: `"plan-writer"`
+Do NOT intervene in this loop. Wait for all tasks to complete.
 
-### Isolation
+---
 
-Each agent only sees its own `abstract.md` path and the shared context bundle. Agents must not reference each other's paths or plans.
+## Phase 4: Final Review
 
-### Completion
+Once all diverge-plan-writer tasks are complete:
 
-Wait for **all** team agents to finish before proceeding to Step 4. If an agent fails to write `detailed-plan.md`, note the missing file during Step 4 review and flag it rather than failing.
+### 4a. Read all detailed plans
 
-## Step 4: Review and Compare
+Read each plan from `/tmp/diverge/<goal-slug>/plans/<direction-slug>.md`.
 
-Once all team agents have completed, read each `plan-N/detailed-plan.md` and present:
+### 4b. Cross-comparison
 
-### Comparison Table
+Present a comparison table:
 
-Dynamically size the table to the number of plans generated:
+| | Direction 1 | Direction 2 | ... |
+|---|---|---|---|
+| **Approach** | 1-line summary | 1-line summary | |
+| **Pros** | ... | ... | |
+| **Cons** | ... | ... | |
+| **Complexity** | low/med/high | low/med/high | |
+| **Risk** | ... | ... | |
+| **DA verdict** | approved / approved with notes | ... | |
 
-|                | Plan 1: [Name] | Plan 2: [Name] | ... |
-| -------------- | -------------- | -------------- | --- |
-| **Lens**       | lens name      | lens name      | ... |
-| **Approach**   | 1-line summary | 1-line summary | ... |
-| **Pros**       | ...            | ...            | ... |
-| **Cons**       | ...            | ...            | ... |
-| **Complexity** | low/med/high   | low/med/high   | ... |
-| **Risk**       | ...            | ...            | ... |
+### 4c. Recommendation
 
-### Recommendation
+Provide your recommendation with reasoning. If multiple directions were selected, explain which is strongest and why.
 
-Give your recommendation with reasoning.
+---
 
-### Evaluation Enhancement (optional)
+## Phase 5: Generate Launchers
 
-Ask the user which evaluation mode they prefer:
+For each detailed plan, determine the branch type from the plan content (feat/fix/refactor/chore) and generate a launcher script.
 
-1. **Quick score** — Structured criteria-based scoring (fast, no extra agents)
-2. **Deep debate** — Adversarial advocate/critic agents per plan (thorough, spawns 2N agents)
-3. **Skip** — Proceed with the comparison as-is
+### 5a. Write the init prompt
 
-Default to **Skip** if the user does not choose.
+For each plan, write a prompt file to `/tmp/diverge/<goal-slug>/prompts/<direction-slug>.md`:
 
-#### Option 1: Quick Score
+```markdown
+You are an Implementor orchestrating plan execution in an isolated worktree.
 
-Score each plan on a 1–5 scale for:
-- **Feasibility:** Can this be implemented with the current codebase and constraints?
-- **Completeness:** Does the plan cover edge cases and error handling?
-- **Clarity:** Could a coding agent execute this without asking questions?
-- **Risk:** How well are risks identified and mitigated? (5 = low risk)
+## Context
+Read the grounding context at: <CONTEXT_FILE path>
 
-Append scores to the comparison table. Flag any plan with average below 3.0 and note its key weakness.
+## Plan
+Read the detailed plan at: /tmp/diverge/<goal-slug>/plans/<direction-slug>.md
 
-#### Option 2: Deep Debate
+## Execution
 
-For each plan, spawn **2 team agents** in a single parallel batch:
+Use TaskCreate to decompose the plan into phases. Use TeamCreate to form
+an implementation team. Each phase becomes a task.
 
-- **Advocate** (`advocate-N`): Read the detailed plan. Write a 3-5 paragraph argument for why this plan is the best choice. Focus on strengths, alignment with constraints, implementation elegance. Write to `<path>/advocate.md`.
-- **Critic** (`critic-N`): Read the detailed plan. Write a 3-5 paragraph critique identifying weaknesses, risks, hidden costs, and fragile assumptions. Be specific — reference concrete steps. Write to `<path>/critique.md`.
+Your team MUST include a Devil's Advocate phase as the final task. This
+phase verifies:
+- All plan steps were executed correctly
+- The result satisfies the original goal
+- No regressions or unintended side effects
 
-After all agents complete, read all `advocate.md` and `critique.md` files. Synthesize a **Debate Summary** per plan:
-- **Strongest argument for:** (1-2 sentences)
-- **Most concerning weakness:** (1-2 sentences)
-- **Net assessment:** (your judgment weighing both sides)
+Other phases are derived from the detailed plan's phase structure. Assign
+teammates to phases based on the work required.
 
-**Note:** Deep debate spawns 2 agents per plan. For 4 plans, that means 8 parallel agents. Choose this only for high-stakes architectural decisions.
+Begin implementation immediately after reading the context and plan.
+```
 
-### Exec Commands
-
-For each plan, output a ready-to-run command using `wtc` (alias for `wt switch --base <current_branch> -x claude --create`):
+### 5b. Generate the launcher script
 
 ```bash
-# Plan 1: [Name]
-wtc plan/<branch> -- "read /tmp/plans/<project>/<feat>/plan-1/detailed-plan.md for instruction"
-
-# Plan 2: [Name]
-wtc plan/<branch> -- "read /tmp/plans/<project>/<feat>/plan-2/detailed-plan.md for instruction"
-
-# ...
+bash ${CLAUDE_SKILL_DIR}/scripts/generate-launcher.sh \
+  --goal "<goal-slug>" \
+  --approach "<direction-slug>" \
+  --branch-type "<feat|fix|refactor|chore>" \
+  --prompt-file "/tmp/diverge/<goal-slug>/prompts/<direction-slug>.md"
 ```
 
-Always use **absolute paths** (e.g., `/tmp/plans/voyager/fix-textbox-stale/plan-1/detailed-plan.md`).
+### 5c. Present to user
 
-Derive `<project>` from the git repo name (e.g., `voyager`). Derive `<feat>` from the task — use a short kebab-case slug (e.g., `fix-textbox-stale`, `add-auth`).
+List all generated launcher scripts:
 
-## Step 5: Save Summary
+```
+## Ready to execute
 
-Write the comparison, recommendation, evaluation results (if any), and exec commands to `/tmp/plans/<project>/<feat>/comparison.md`.
+Run any of these to begin implementation in an isolated worktree:
+
+  /tmp/diverge/<goal-slug>/<direction-slug>.sh
+
+Each script:
+1. Creates a new worktree branched from the current branch
+2. Launches Claude Code with the full implementation prompt
+3. Claude will autonomously execute the detailed plan using agent teams
+```
+
+---
 
 ## Notes
 
-- Plans are fully isolated — no cross-contamination between approaches
-- All artifacts saved under `/tmp/plans/` (ephemeral, cleared on reboot)
-- Branch names follow `plan/<kebab-case>` convention for easy identification with `wt list`
-- **Precision matters more than breadth** — fewer high-quality, distinct plans beat many similar ones
-- Planning lenses ensure structural diversity by forcing different architectural priorities per plan
-- `gather-context.sh` handles mechanical context gathering; LLM handles task-specific judgment (key file selection, constraint synthesis)
-- Context bundle from Step 0 is passed verbatim to every team agent — this is the sole mechanism ensuring grounded, project-aware plan generation
-- Evaluation enhancement (quick score / deep debate) is optional and user-selected — default is skip
-- Prerequisites (agent teams flag, git) are validated by `gather-context.sh` at the start — the skill fails fast if anything is missing
+- The context file is the single shared artifact across all phases — grounding, edges, and decisions accumulate there
+- Plan-writers and DA operate autonomously within their team — do not micromanage
+- Launcher scripts are self-contained — no dependency on user shell config
+- All artifacts live under `/tmp/diverge/` — ephemeral, cleared on reboot
+- Branch naming follows repo location conventions (see `generate-launcher.sh`)
