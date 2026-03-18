@@ -105,7 +105,7 @@ Present all directions in a comparison format. Then ask the user to select one o
 
 For each selected direction, create the planning infrastructure:
 
-### 3a. Create tasks, team, and spawn teammates
+### 3a. Create tasks, team, and spawn writers
 
 1. Use `TaskCreate` to create one task per selected direction, named after the direction.
 
@@ -113,7 +113,6 @@ For each selected direction, create the planning infrastructure:
 
 3. Use the `Agent` tool to spawn each teammate into the team:
    - For each selected direction, spawn one teammate with `subagent_type: diverge-plan-writer`, `team_name: diverge-planning`, and `name: writer-<direction-slug>`
-   - Spawn one `subagent_type: diverge-devils-advocate`, `team_name: diverge-planning`, `name: advocate`
 
 ### 3b. Send assignments to diverge-plan-writers
 
@@ -132,15 +131,15 @@ For each spawned writer, use `SendMessage` to deliver the assignment:
 **Output path**: /tmp/diverge/<goal-slug>/plans/<direction-slug>.md
 
 Read the context file first, then write the detailed plan to the output path.
-When finished, send the plan to the diverge-devils-advocate teammate for validation.
+When finished, spawn a Devil's Advocate sub-agent to validate your plan internally.
 ```
 
-### 3c. DA ↔ Writer loop
+### 3c. Internal validation
 
-The diverge-plan-writer and diverge-devils-advocate teammates handle this autonomously:
-1. Writer completes the detailed plan and sends it to the DA
-2. DA validates against alignment, completeness, feasibility, coherence
-3. If issues found — DA sends feedback to the writer, who revises and resubmits
+Each plan-writer handles validation autonomously by spawning its own Devil's Advocate sub-agent:
+1. Writer completes the detailed plan
+2. Writer spawns a `diverge-devils-advocate` sub-agent to review the plan
+3. If rejected — writer revises and spawns a new DA sub-agent (up to 3 rounds)
 4. If approved — writer marks their task complete
 
 Do NOT intervene in this loop. Wait for all tasks to complete.
@@ -208,15 +207,17 @@ teammates to phases based on the work required.
 Begin implementation immediately after reading the context and plan.
 ```
 
-### 5b. Generate the launcher script
+### 5b. Generate all launcher scripts
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/generate-launcher.sh \
   --goal "<goal-slug>" \
-  --approach "<direction-slug>" \
+  --approaches "<slug-1>,<slug-2>,<slug-3>" \
   --branch-type "<feat|fix|refactor|chore>" \
-  --prompt-file "/tmp/diverge/<goal-slug>/prompts/<direction-slug>.md"
+  --prompts-dir "/tmp/diverge/<goal-slug>/prompts"
 ```
+
+This generates all launchers in a single call. Each approach must have a corresponding `<slug>.md` file in the prompts directory.
 
 ### 5c. Present to user
 
