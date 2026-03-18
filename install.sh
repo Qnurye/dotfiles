@@ -109,9 +109,10 @@ backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 mkdir -p "$HOME/.claude"
 backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
+backup_and_link "$DOTFILES_DIR/agents/RTK.md" "$HOME/.claude/RTK.md"
 
-# Link Claude Code skills and agents
-info "Linking Claude Code skills..."
+# Link Claude Code skills and agents (canonical location: ~/.claude/skills)
+info "Linking Claude Code skills and agents..."
 mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
 for skill_dir in "$DOTFILES_DIR/agents/skills"/*/; do
     skill_name="$(basename "$skill_dir")"
@@ -121,6 +122,13 @@ for agent_file in "$DOTFILES_DIR/agents/agents"/*.md; do
     agent_name="$(basename "$agent_file")"
     backup_and_link "$agent_file" "$HOME/.claude/agents/$agent_name"
 done
+
+# Link other agents' skills to ~/.claude/skills (central hub)
+info "Linking agent skills to central hub..."
+mkdir -p "$HOME/.agents" "$HOME/.gemini" "$HOME/.codex"
+backup_and_link "$HOME/.claude/skills" "$HOME/.agents/skills"
+backup_and_link "$HOME/.claude/skills" "$HOME/.gemini/skills"
+backup_and_link "$HOME/.claude/skills" "$HOME/.codex/skills"
 
 # Install sudoers overrides
 info "Installing sudoers overrides..."

@@ -58,3 +58,5 @@
 ### Response Guidelines
 - **Avoid**: "Please tell me which file..." or "I don't know..."
 - **Prefer**: "I found relevant logic in `path/to/file`. Based on my analysis, I suggest..."
+
+@RTK.md

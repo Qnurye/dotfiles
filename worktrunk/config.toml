@@ -12,7 +12,7 @@ stage = "all"
 [list]
 full = true
 branches = true
-remotes = true
+remotes = false
 
 # Merge defaults
 [merge]
