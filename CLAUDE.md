@@ -23,7 +23,8 @@ brew bundle dump --file=homebrew/Brewfile --force
 
 | Directory | Links to |
 |-----------|----------|
-| `zsh/` | `~/.zshrc`, `~/.zprofile`, `~/.zshenv` |
+| `fish/` | `~/.config/fish/config.fish`, `conf.d/`, `functions/` |
+| `zsh/` | `~/.zshrc`, `~/.zprofile`, `~/.zshenv` (legacy) |
 | `git/` | `~/.gitconfig` |
 | `tmux/` | `~/.tmux.conf.local` (Oh My Tmux customization) |
 | `zed/` | `~/.config/zed/settings.json` |

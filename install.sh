@@ -40,7 +40,7 @@ if ! command -v brew &>/dev/null; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Install Oh My Zsh if not present
+# Install Oh My Zsh if not present (legacy, kept for fallback)
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     info "Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -54,11 +54,23 @@ if [[ ! -f "$HOME/.tmux.conf" ]] || ! grep -q "gpakosz" "$HOME/.tmux.conf" 2>/de
     ln -sf .tmux/.tmux.conf
 fi
 
-# Link ZSH configurations
+# Link ZSH configurations (legacy, kept for fallback)
 info "Linking ZSH configurations..."
 backup_and_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
 backup_and_link "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
 backup_and_link "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
+
+# Link Fish configurations
+info "Linking Fish configurations..."
+mkdir -p "$HOME/.config/fish/conf.d"
+mkdir -p "$HOME/.config/fish/functions"
+backup_and_link "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
+for f in "$DOTFILES_DIR/fish/conf.d/"*.fish; do
+    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/conf.d/$(basename "$f")"
+done
+for f in "$DOTFILES_DIR/fish/functions/"*.fish; do
+    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/functions/$(basename "$f")"
+done
 
 # Link Git configuration
 info "Linking Git configuration..."
@@ -125,5 +137,9 @@ echo ""
 echo "2. If using GPG signing:"
 echo "   git config --global user.signingkey 'YOUR_GPG_KEY'"
 echo ""
-echo "3. Restart your terminal or run: source ~/.zshrc"
+echo "3. Set Fish as default shell:"
+echo "   echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells"
+echo "   chsh -s /opt/homebrew/bin/fish"
+echo ""
+echo "4. Or restart your terminal with: source ~/.zshrc (for zsh)"
 echo ""
