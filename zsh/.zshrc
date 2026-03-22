@@ -76,17 +76,11 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Brew hook - auto remove quarantine after upgrade
 brew() {
-  # Pre-authenticate sudo for commands that may need it (e.g. docker-desktop cask)
-  case "$1" in
-    upgrade|install|reinstall)
-      sudo -v 2>/dev/null
-      ;;
-  esac
   command brew "$@"
   local ret=$?
   if [[ $ret -eq 0 ]]; then
     case "$1" in
-      upgrade)
+      upgrade|install|reinstall)
         echo "\n🔓 Removing quarantine from Applications..."
         local count=0
         for app in /Applications/*.app; do

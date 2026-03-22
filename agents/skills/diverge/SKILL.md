@@ -177,49 +177,20 @@ Provide your recommendation with reasoning. If multiple directions were selected
 
 For each detailed plan, determine the branch type from the plan content (feat/fix/refactor/chore) and generate a launcher script.
 
-### 5a. Write the init prompt
-
-For each plan, write a prompt file to `/tmp/diverge/<goal-slug>/prompts/<direction-slug>.md`:
-
-```markdown
-You are an Implementor orchestrating plan execution in an isolated worktree.
-
-## Context
-Read the grounding context at: <CONTEXT_FILE path>
-
-## Plan
-Read the detailed plan at: /tmp/diverge/<goal-slug>/plans/<direction-slug>.md
-
-## Execution
-
-Use TaskCreate to decompose the plan into phases. Use TeamCreate to form
-an implementation team. Each phase becomes a task.
-
-Your team MUST include a Devil's Advocate phase as the final task. This
-phase verifies:
-- All plan steps were executed correctly
-- The result satisfies the original goal
-- No regressions or unintended side effects
-
-Other phases are derived from the detailed plan's phase structure. Assign
-teammates to phases based on the work required.
-
-Begin implementation immediately after reading the context and plan.
-```
-
-### 5b. Generate all launcher scripts
+### 5a. Generate all launcher scripts
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/generate-launcher.sh \
   --goal "<goal-slug>" \
   --approaches "<slug-1>,<slug-2>,<slug-3>" \
   --branch-type "<feat|fix|refactor|chore>" \
-  --prompts-dir "/tmp/diverge/<goal-slug>/prompts"
+  --context-file "<CONTEXT_FILE path>" \
+  --plans-dir "/tmp/diverge/<goal-slug>/plans"
 ```
 
-This generates all launchers in a single call. Each approach must have a corresponding `<slug>.md` file in the prompts directory.
+This generates all launchers in a single call. Each approach must have a corresponding `<slug>.md` plan file in the plans directory. The script embeds the init prompt (with context and plan paths) directly into each launcher — no intermediate prompt files needed.
 
-### 5c. Present to user
+### 5b. Present to user
 
 List all generated launcher scripts:
 

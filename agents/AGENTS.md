@@ -15,18 +15,12 @@
 
 ## Development Environment
 
-### System
-- macOS on Apple Silicon (ARM64)
-- Shell: Zsh with Oh My Zsh
-
 ### Languages & Runtimes
-- Python 3 (via Homebrew)
-- Node.js (via FNM, with pnpm as preferred package manager)
-- Go, Rust, Deno also available
+- Deno, Bun, Node.js, Go, Rust
 
 ### Editors
-- Primary: Zed, Cursor
-- Terminal: Neovim (`vim` is aliased to `nvim`)
+- Primary: Zed
+- Terminal: Neovim
 
 ### Package Managers
 - Homebrew for system packages
@@ -34,8 +28,8 @@
 - Bun available as alternative
 
 ## Project Structure
-- Personal projects: `~/Projects/`
-- Work projects: `~/work/` (uses separate Git identity: Wenjie Luo)
+- Personal projects: `~/repositories/personal`
+- Work projects: `~/repositories/work` (uses separate Git identity: Wenjie Luo)
 - Dotfiles: `~/dotfiles/` (all configs managed via symlinks)
 
 ## Tool Preferences
