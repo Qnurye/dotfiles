@@ -47,9 +47,6 @@ in
     users.${config.myConfig.username} = import ../../modules/home;
   };
 
-  # Nix settings
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   # System defaults
   system.stateVersion = 5;
 }

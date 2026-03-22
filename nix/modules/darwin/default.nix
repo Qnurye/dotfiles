@@ -5,6 +5,9 @@
     ./homebrew.nix
   ];
 
+  # Let Determinate Nix manage the daemon; avoid conflicts with nix-darwin
+  nix.enable = false;
+
   # Common darwin settings
   programs.fish.enable = true;
 
