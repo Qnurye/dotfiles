@@ -4,7 +4,7 @@
 
 | Host | Type | Hostname | Status | Target Date |
 |------|------|----------|--------|-------------|
-| Personal Mac (Air) | nix-darwin | `bowl-air` | ✅ Coexistence verified | 2026-03-23 |
+| Personal Mac (Air) | nix-darwin | `bowl-air` | ✅ All tags active | 2026-03-23 |
 | Work Mac | nix-darwin | `heavybowl-ii` | Pending | 2026-03-24 |
 
 ## Migration Steps (per host)
