@@ -26,7 +26,8 @@ function _dotfiles_auto_sync
     # Fetch remote quietly in background
     set -l fetch_marker "$DOTFILES_DIR/.last_fetch"
     if not test -f "$fetch_marker"
-        fish -c "eval $git fetch --quiet 2>/dev/null; and echo $now > $fetch_marker" &
+        echo $now > $fetch_marker
+        fish -c "eval $git fetch --quiet 2>/dev/null; or rm -f $fetch_marker" &
         disown
         return
     end
