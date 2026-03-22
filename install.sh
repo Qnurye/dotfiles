@@ -170,6 +170,15 @@ install_nix() {
         fi
     fi
 
+    # Move conflicting /etc files out of the way for nix-darwin activation
+    local etc_files=(bashrc zshrc zprofile)
+    for f in "${etc_files[@]}"; do
+        if [[ -f "/etc/$f" && ! -f "/etc/$f.before-nix-darwin" ]]; then
+            info "Backing up /etc/$f → /etc/$f.before-nix-darwin"
+            sudo mv "/etc/$f" "/etc/$f.before-nix-darwin"
+        fi
+    done
+
     info "Activating nix-darwin configuration..."
     local hostname
     hostname=$(scutil --get LocalHostName 2>/dev/null || hostname -s)
