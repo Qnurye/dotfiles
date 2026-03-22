@@ -42,28 +42,29 @@ Packages in tags vs Brewfile. Checked = in a tag, unchecked = not yet migrated.
 
 - [x] bat, fd, fzf, ripgrep, yazi, neovim, tmux, eza, zoxide, tree
 - [x] git, curl, wget, jq, gnupg, coreutils
-- [x] lazygit, direnv, git-lfs, delta, difftastic
+- [x] lazygit, direnv, git-lfs, delta, difftastic, worktrunk, pinentry_mac
 - [x] gh, go, gopls, gotools, go-tools (staticcheck)
-- [x] rustup, fnm, deno, python3, uv, ruff
+- [x] rustup, rust-analyzer, fnm, deno, python3, uv, ruff, poetry
 - [x] fish
-- [ ] act, actionlint
-- [ ] atomicparsley, automake
-- [ ] cagent, clang-format, cloudflared, convmv
-- [ ] displayplacer, docker, docker-compose, duckdb, duti
-- [ ] ffmpeg, fonttools
-- [ ] gemini-cli
-- [ ] himalaya, hub-tool
-- [ ] imagemagick, jpegoptim
-- [ ] kubernetes-cli
-- [ ] libev, libpq, libtool
-- [ ] marked, mosh
-- [ ] neonctl, nmap
-- [ ] ollama, oxipng
-- [ ] pandoc, pinentry-mac, pkgconf, pngquant, poetry, poppler
-- [ ] python@3.12, python@3.9
-- [ ] resvg, sevenzip, signal-cli
-- [ ] tailscale, ttyd, typst
-- [ ] unar, watch, woff2, worktrunk, zopfli, zstd
+- [x] act, actionlint
+- [x] ffmpeg, imagemagick, atomicparsley, jpegoptim, oxipng, pngquant, resvg, woff2, zopfli, fonttools
+- [x] cloudflared, mosh, nmap, tailscale
+- [x] duckdb, pandoc, poppler, typst
+- [x] himalaya, signal-cli
+- [x] convmv, duti, unar, watch, zstd, p7zip, ttyd
+- [x] automake, clang-tools, libtool, pkgconf, libev, libpq
+- [x] kubectl, docker, docker-compose
+- [x] ollama
+
+Not in nixpkgs (stay in homebrew):
+- [ ] displayplacer, marked, neonctl, fisher
+- [ ] gemini-cli, cagent
+
+Skipped (redundant or wrong match):
+- hub-tool (Docker Hub CLI, not in nixpkgs)
+- vc (wrong package match)
+- python@3.12, python@3.9 (covered by python3)
+- ffmpeg-full, imagemagick-full (covered by ffmpeg, imagemagick)
 
 ### Casks
 
