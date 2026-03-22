@@ -4,7 +4,7 @@
 
 | Host | Type | Hostname | Status | Target Date |
 |------|------|----------|--------|-------------|
-| Personal Mac (Air) | nix-darwin | `bowl-air` | Pending | 2026-03-23 |
+| Personal Mac (Air) | nix-darwin | `bowl-air` | ✅ Coexistence verified | 2026-03-23 |
 | Work Mac | nix-darwin | `heavybowl-ii` | Pending | 2026-03-24 |
 
 ## Migration Steps (per host)
@@ -15,18 +15,18 @@
 ./install.sh nix
 ```
 
-- [ ] bowl-air
+- [x] bowl-air (2026-03-23)
 - [ ] work mac
 
 ### 2. Verify coexistence
 
 After `darwin-rebuild switch`, confirm:
 
-- [ ] Nix-managed packages available in `$PATH`
-- [ ] Homebrew packages still intact (cleanup=none)
-- [ ] Dotfile symlinks correct (`ls -la ~/.config/fish/config.fish`)
-- [ ] Fish shell works normally
-- [ ] GPG signing works
+- [x] Nix-managed packages available in `$PATH` (bowl-air)
+- [x] Homebrew packages still intact (cleanup=none) (bowl-air)
+- [x] Dotfile symlinks correct — home-manager manages all (bowl-air)
+- [x] Fish shell works normally (bowl-air)
+- [x] GPG signing works (bowl-air)
 
 ### 3. Verify work mac
 
@@ -43,7 +43,7 @@ Packages in tags vs Brewfile. Checked = in a tag, unchecked = not yet migrated.
 - [x] bat, fd, fzf, ripgrep, yazi, neovim, tmux, eza, zoxide, tree
 - [x] git, curl, wget, jq, gnupg, coreutils
 - [x] lazygit, direnv, git-lfs, delta, difftastic
-- [x] gh, go, gopls, gotools, staticcheck
+- [x] gh, go, gopls, gotools, go-tools (staticcheck)
 - [x] rustup, fnm, deno, python3, uv, ruff
 - [x] fish
 - [ ] act, actionlint

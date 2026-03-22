@@ -4,6 +4,9 @@
 # Homebrew
 eval (/opt/homebrew/bin/brew shellenv)
 
+# Nix (re-add after brew shellenv resets PATH)
+fish_add_path --prepend /run/current-system/sw/bin /nix/var/nix/profiles/default/bin $HOME/.nix-profile/bin /etc/profiles/per-user/$USER/bin
+
 # PATH
 fish_add_path $HOME/go/bin
 fish_add_path /opt/homebrew/opt/libpq/bin
