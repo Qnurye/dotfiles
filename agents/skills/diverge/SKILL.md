@@ -42,19 +42,58 @@ Append the sub-agent's findings to the context file (`CONTEXT_FILE`).
 
 ---
 
-## Phase 1: Edge Clarification
+## Phase 1: Edge Clarification (Multi-Round)
 
-Review the goal against the grounded context. Identify ambiguities, unstated assumptions, and decision points that could lead to fundamentally different implementations.
+Iteratively clarify the user's goal through layered rounds until the specification is fully resolved. This phase focuses exclusively on **intent, goals, and behavior/interaction rules** — never ask about technical implementation details, architecture choices, or non-functional requirements (performance, compatibility, etc.). Technical details belong in the plans (Phase 3).
 
-For each edge case or ambiguity:
-1. Present the issue clearly
-2. Use `AskUserQuestion` to let the user choose:
-   - **Single-select**: when the options are mutually exclusive, use `options` to present a list where the user picks one
-   - **Multi-select**: when the user may want to combine options, use `multiSelectOptions` to present a checklist
-   - Always include a final option like "Other (explain)" so the user is not boxed in
-3. Record the user's choice before moving to the next edge
+### Allowed question topics
 
-Loop until no more edges remain. Then append all resolved decisions to the context file:
+- **User intent / goals**: "What effect do you want to achieve?", "What motivated this change?"
+- **Behavior / interaction rules**: "When X happens, what should the outcome be?", "What does the user see/experience?"
+
+### Prohibited question topics (defer to plans)
+
+- Architecture, data structures, file organization
+- Performance, scalability, compatibility constraints
+- Library/framework choices, API design
+- Priorities or tradeoffs between competing concerns
+
+### Round structure
+
+Each round follows a layered progression. The AI decides how many questions to ask per round based on the number of ambiguities found — there is no fixed limit.
+
+**Round 1 — Scope & Goals**: Review the goal against grounded context. Ask about high-level intent, target audience, core scenarios, and desired outcomes.
+
+**Round 2+ — Behavior & Boundaries**: Based on previous answers, probe deeper into behavioral rules, edge cases in user-facing flows, and boundary conditions. Each round focuses on new ambiguities surfaced by prior answers.
+
+### Round execution
+
+For each round:
+
+1. Analyze the goal + context + all prior answers to identify remaining ambiguities
+2. For each ambiguity, use `AskUserQuestion`:
+   - **Single-select**: when options are mutually exclusive
+   - **Multi-select**: when the user may combine options
+   - The tool automatically provides an "Other" escape hatch
+3. Record the user's choices
+
+### Convergence check
+
+After each round, evaluate: did the user's answers surface any new ambiguities or unresolved behavioral questions?
+
+- **Yes** → begin a new round targeting those new ambiguities
+- **No** → proceed to termination
+
+### Termination: spec summary + user confirmation
+
+When no new ambiguities remain, present a **complete specification summary** — a plain-language description of every resolved decision organized by topic. Then use `AskUserQuestion` to ask the user for final confirmation:
+
+- "Looks complete" → proceed to Phase 2
+- "I want to add/change something" → start a new round with the user's additions
+
+### Persist decisions
+
+Append all resolved decisions to the context file after termination:
 
 ```markdown
 ---

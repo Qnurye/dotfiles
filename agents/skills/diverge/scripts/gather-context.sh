@@ -65,16 +65,20 @@ KNOWN_DOCS=(
 )
 
 # Collect existing docs, deduplicate by content hash
-declare -A seen_hashes
+# (Uses a flat list instead of associative array for bash 3 compatibility on macOS)
+seen_hashes=""
 found_docs=()
 
 for doc in "${KNOWN_DOCS[@]}"; do
   [[ -f "$doc" ]] || continue
   hash=$(shasum -a 256 "$doc" | cut -d' ' -f1)
-  if [[ -z "${seen_hashes[$hash]:-}" ]]; then
-    seen_hashes[$hash]="$doc"
-    found_docs+=("$doc")
-  fi
+  case "$seen_hashes" in
+    *"$hash"*) ;;  # already seen
+    *)
+      seen_hashes="${seen_hashes} ${hash}"
+      found_docs+=("$doc")
+      ;;
+  esac
 done
 
 # Always create context file (even if empty) so downstream phases have a valid path
