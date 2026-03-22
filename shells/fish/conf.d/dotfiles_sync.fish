@@ -13,6 +13,7 @@ function _dotfiles_auto_sync
     set -l DOTFILES_DIR "$HOME/dotfiles"
     set -l SYNC_MARKER "$DOTFILES_DIR/.last_sync"
     set -l SYNC_INTERVAL 7200 # 2 hours
+    set -l LOCK_FILE "$DOTFILES_DIR/.sync_lock"
 
     test -d "$DOTFILES_DIR/.git"; or return
 
@@ -21,13 +22,20 @@ function _dotfiles_auto_sync
     test -f "$SYNC_MARKER"; and set last_sync (cat "$SYNC_MARKER")
     test (math $now - $last_sync) -lt $SYNC_INTERVAL; and return
 
+    # Prevent concurrent sync: skip if another sync is running (stale lock expires after 5 min)
+    if test -f "$LOCK_FILE"
+        set -l lock_time (cat "$LOCK_FILE" 2>/dev/null; or echo 0)
+        test (math $now - $lock_time) -lt 300; and return
+    end
+    echo $now > "$LOCK_FILE"
+
     set -l git "git -C $DOTFILES_DIR"
 
     # Fetch remote quietly in background
     set -l fetch_marker "$DOTFILES_DIR/.last_fetch"
     if not test -f "$fetch_marker"
         echo $now > $fetch_marker
-        fish -c "eval $git fetch --quiet 2>/dev/null; or rm -f $fetch_marker" &
+        fish -c "eval $git fetch --quiet 2>/dev/null; or rm -f $fetch_marker; rm -f $LOCK_FILE" &
         disown
         return
     end
@@ -52,19 +60,20 @@ function _dotfiles_auto_sync
     # Case 1: Nothing to do
     if test "$has_local" = false -a "$has_remote" = false
         echo $now > "$SYNC_MARKER"
+        rm -f "$LOCK_FILE"
         return
     end
 
     # Case 2: Only remote changes
     if test "$has_local" = false -a "$has_remote" = true
-        fish -c "cd $DOTFILES_DIR; and git pull --rebase --quiet 2>/dev/null; and echo $now > $SYNC_MARKER" &
+        fish -c "cd $DOTFILES_DIR; and git pull --rebase --quiet 2>/dev/null; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
         disown
         return
     end
 
     # Case 3: Only local changes
     if test "$has_local" = true -a "$has_remote" = false
-        fish -c "cd $DOTFILES_DIR; and git add -A; and git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null; and git push --quiet 2>/dev/null; and echo $now > $SYNC_MARKER" &
+        fish -c "cd $DOTFILES_DIR; and git add -A; and git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null; and git push --quiet 2>/dev/null; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
         disown
         return
     end
@@ -76,11 +85,12 @@ function _dotfiles_auto_sync
         git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null
         if git rebase --quiet '@{u}' 2>/dev/null
             git push --quiet 2>/dev/null
-            echo $now > $SYNC_MARKER
         else
             git rebase --abort 2>/dev/null
             echo conflict > $DOTFILES_DIR/.sync_conflict
         end
+        echo (date +%s) > $SYNC_MARKER
+        rm -f $LOCK_FILE
     " &
     disown
 end
