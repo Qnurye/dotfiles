@@ -22,6 +22,9 @@ rebase = true
 remove = true
 verify = true
 
+[pre-remove]
+claude-sessions = "~/.claude/skills/diverge/scripts/migrate-sessions.sh --worktree-path {{ worktree_path }} --main-path {{ primary_worktree_path }}"
+
 [post-start]
 install = "[ -f pnpm-lock.yaml ] && pnpm install || true"
 

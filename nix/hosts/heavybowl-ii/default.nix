@@ -36,6 +36,10 @@ in
   # Wire resolved casks into homebrew
   homebrew.casks = map (name: { name = name; }) resolved.casks;
 
+  # Declare the primary user for nix-darwin activation and home-manager
+  system.primaryUser = config.myConfig.username;
+  users.users.${config.myConfig.username}.home = "/Users/${config.myConfig.username}";
+
   # home-manager configuration
   home-manager = {
     useGlobalPkgs = true;
