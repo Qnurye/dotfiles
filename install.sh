@@ -153,6 +153,35 @@ install_agents() {
     backup_and_link "$HOME/.claude/skills" "$HOME/.codex/skills"
 }
 
+install_nix() {
+    # Check for Xcode Command Line Tools
+    if ! xcode-select -p &>/dev/null; then
+        error "Xcode Command Line Tools required. Install with: xcode-select --install"
+        return 1
+    fi
+
+    # Install Nix if not present
+    if ! command -v nix &>/dev/null; then
+        info "Installing Nix via Determinate Systems installer..."
+        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+        # Source nix in current shell
+        if [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
+            . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        fi
+    fi
+
+    info "Activating nix-darwin configuration..."
+    local hostname
+    hostname=$(scutil --get LocalHostName 2>/dev/null || hostname -s)
+
+    if command -v darwin-rebuild &>/dev/null; then
+        darwin-rebuild switch --flake "$DOTFILES_DIR/nix#$hostname"
+    else
+        info "First run: bootstrapping nix-darwin..."
+        nix run nix-darwin -- switch --flake "$DOTFILES_DIR/nix#$hostname"
+    fi
+}
+
 install_system() {
     info "Installing sudoers overrides..."
     if [[ -d "$DOTFILES_DIR/system/sudoers.d" ]]; then
@@ -184,15 +213,16 @@ if [[ $# -eq 0 ]]; then
     install_worktrunk
     install_agents
     install_system
+    install_nix
 else
     for arg in "$@"; do
         case "$arg" in
-            fish|git|tmux|zed|ghostty|lazygit|worktrunk|agents|system|homebrew)
+            fish|git|tmux|zed|ghostty|lazygit|worktrunk|agents|system|homebrew|nix)
                 "install_$arg"
                 ;;
             *)
                 error "Unknown module: $arg"
-                echo "Available: fish git tmux zed ghostty lazygit worktrunk agents system homebrew"
+                echo "Available: fish git tmux zed ghostty lazygit worktrunk agents system homebrew nix"
                 exit 1
                 ;;
         esac
