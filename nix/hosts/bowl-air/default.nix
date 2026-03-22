@@ -11,6 +11,8 @@ in
   # Host identity
   networking.hostName = "bowl-air";
 
+  myConfig.username = "qnurye";
+
   # Tags for this machine
   myConfig.tags = [
     "shell/fish"
@@ -42,7 +44,7 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    users.qnurye = import ../../modules/home;
+    users.${config.myConfig.username} = import ../../modules/home;
   };
 
   # Nix settings

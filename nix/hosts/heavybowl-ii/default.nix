@@ -11,6 +11,8 @@ in
   # Host identity
   networking.hostName = "heavybowl-ii";
 
+  myConfig.username = "qnurye";
+
   # Tags for this machine
   myConfig.tags = [
     "work/base"
@@ -38,7 +40,7 @@ in
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    users.qnurye = import ../../modules/home;
+    users.${config.myConfig.username} = import ../../modules/home;
   };
 
   # Nix settings
