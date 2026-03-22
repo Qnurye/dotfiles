@@ -43,11 +43,23 @@ command -q fnm; and fnm env --use-on-cd --shell fish | source
 # direnv
 command -q direnv; and direnv hook fish | source
 
-# autojump
-test -f /opt/homebrew/share/autojump/autojump.fish; and source /opt/homebrew/share/autojump/autojump.fish
-
 # worktrunk
 command -q wt; and command wt config shell init fish | source
+
+# Worktrunk abbreviations
+abbr -a wts 'wt switch'
+abbr -a wtsc 'wt switch --create'
+abbr -a wtl 'wt list'
+abbr -a wtr 'wt remove'
+abbr -a wtm 'wt merge'
+# wt step
+abbr -a wtc 'wt step commit'
+abbr -a wtsq 'wt step squash'
+abbr -a wtrb 'wt step rebase'
+abbr -a wtsp 'wt step push'
+abbr -a wtd 'wt step diff'
+abbr -a wtfe 'wt step for-each'
+abbr -a wtpr 'wt step prune'
 
 # Aliases
 alias vim nvim

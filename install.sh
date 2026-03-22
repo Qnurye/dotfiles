@@ -71,6 +71,13 @@ done
 for f in "$DOTFILES_DIR/fish/functions/"*.fish; do
     [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/functions/$(basename "$f")"
 done
+backup_and_link "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
+
+# Install Fish plugins (fisher is installed via Homebrew)
+if command -v fish &>/dev/null && fish -c "type -q fisher" 2>/dev/null; then
+    info "Installing Fish plugins..."
+    fish -c "fisher update" 2>/dev/null
+fi
 
 # Link Git configuration
 info "Linking Git configuration..."

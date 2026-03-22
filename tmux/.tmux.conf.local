@@ -82,6 +82,8 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'wfxr/tmux-fzf-url'
 
 # ============ 插件配置 ============
 
@@ -98,6 +100,13 @@ set -g @resurrect-capture-pane-contents 'on'
 
 # tmux-prefix-highlight: 状态栏显示
 set -g @prefix_highlight_show_copy_mode 'on'
+
+# tmux-fzf: prefix + F 打开 (搜索 session/window/pane/命令等)
+set -g @tmux-fzf-launch-key 'F'
+
+# tmux-fzf-url: prefix + u 提取 pane 中的 URL 并打开
+set -g @fzf-url-bind 'u'
+set -g @fzf-url-open "open"
 
 # ============ Pane resize (Alt+h/j/k/l, 用右 Option 键) ============
 bind -n M-h resize-pane -L 3
