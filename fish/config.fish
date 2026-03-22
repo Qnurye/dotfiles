@@ -43,9 +43,6 @@ command -q fnm; and fnm env --use-on-cd --shell fish | source
 # direnv
 command -q direnv; and direnv hook fish | source
 
-# worktrunk
-command -q wt; and command wt config shell init fish | source
-
 # Worktrunk abbreviations
 abbr -a wts 'wt switch'
 abbr -a wtsc 'wt switch --create'

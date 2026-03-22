@@ -64,12 +64,16 @@ backup_and_link "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 info "Linking Fish configurations..."
 mkdir -p "$HOME/.config/fish/conf.d"
 mkdir -p "$HOME/.config/fish/functions"
+mkdir -p "$HOME/.config/fish/completions"
 backup_and_link "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
 for f in "$DOTFILES_DIR/fish/conf.d/"*.fish; do
     [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/conf.d/$(basename "$f")"
 done
 for f in "$DOTFILES_DIR/fish/functions/"*.fish; do
     [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/functions/$(basename "$f")"
+done
+for f in "$DOTFILES_DIR/fish/completions/"*.fish; do
+    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/completions/$(basename "$f")"
 done
 backup_and_link "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
 
