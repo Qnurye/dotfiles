@@ -231,10 +231,13 @@ This generates all launchers in a single call. Each approach must have a corresp
 
 ### 5b. Present to user
 
-List all generated launcher scripts:
+List all generated launcher scripts with the workspace path for plan review:
 
 ```
 ## Ready to execute
+
+Workspace: /tmp/diverge/<goal-slug>/
+Plans are at: /tmp/diverge/<goal-slug>/plans/
 
 Run any of these to begin implementation in an isolated worktree:
 
@@ -243,7 +246,7 @@ Run any of these to begin implementation in an isolated worktree:
 Each script:
 1. Creates a new worktree branched from the current branch
 2. Launches Claude Code with the full implementation prompt
-3. Claude will autonomously execute the detailed plan using agent teams
+3. After Claude exits, your terminal stays in the worktree directory
 ```
 
 ---

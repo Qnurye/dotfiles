@@ -156,7 +156,24 @@ PROMPT_TEMPLATE
     echo 'PROMPT_EOF'
     echo ')'
     echo ''
-    echo 'wt switch --base "$BASE_BRANCH" -x claude --create "$BRANCH_NAME" -- --permission-mode bypassPermissions "$PROMPT"'
+    # Create worktree, resolve its path, run claude inside it, then
+    # exec into user's shell so cmd+t / new tabs inherit the worktree cwd.
+    cat <<'LAUNCHER_BODY'
+wt switch --base "$BASE_BRANCH" --create "$BRANCH_NAME"
+
+# Resolve worktree path from wt list
+WT_PATH=$(wt list --format=json | jq -r --arg b "$BRANCH_NAME" '.[] | select(.branch == $b) | .path')
+if [[ -z "$WT_PATH" || ! -d "$WT_PATH" ]]; then
+  echo "Error: could not resolve worktree path for branch $BRANCH_NAME" >&2
+  exit 1
+fi
+
+cd "$WT_PATH"
+claude --permission-mode bypassPermissions "$PROMPT"
+
+# Stay in the worktree after claude exits
+exec "${SHELL:-/bin/bash}"
+LAUNCHER_BODY
   } >> "$output_file"
 
   chmod +x "$output_file"
