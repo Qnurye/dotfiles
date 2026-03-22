@@ -175,10 +175,10 @@ install_nix() {
     hostname=$(scutil --get LocalHostName 2>/dev/null || hostname -s)
 
     if command -v darwin-rebuild &>/dev/null; then
-        darwin-rebuild switch --flake "$DOTFILES_DIR/nix#$hostname"
+        sudo darwin-rebuild switch --flake "$DOTFILES_DIR/nix#$hostname"
     else
         info "First run: bootstrapping nix-darwin..."
-        nix run nix-darwin -- switch --flake "$DOTFILES_DIR/nix#$hostname"
+        sudo nix run nix-darwin -- switch --flake "$DOTFILES_DIR/nix#$hostname"
     fi
 }
 
