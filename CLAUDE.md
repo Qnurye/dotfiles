@@ -9,8 +9,12 @@ macOS dotfiles repository using symlink-based configuration management. The `ins
 ## Commands
 
 ```bash
-# Full installation (Homebrew, Oh My Zsh, Oh My Tmux, symlinks, packages)
+# Full installation (Homebrew, Fish, Oh My Tmux, symlinks, packages)
 ./install.sh
+
+# Install specific module only
+./install.sh fish
+./install.sh git tmux
 
 # Install/update Homebrew packages only
 brew bundle --file=homebrew/Brewfile
@@ -23,13 +27,13 @@ brew bundle dump --file=homebrew/Brewfile --force
 
 | Directory | Links to |
 |-----------|----------|
-| `fish/` | `~/.config/fish/config.fish`, `conf.d/`, `functions/` |
-| `zsh/` | `~/.zshrc`, `~/.zprofile`, `~/.zshenv` (legacy) |
-| `git/` | `~/.gitconfig` |
-| `tmux/` | `~/.tmux.conf.local` (Oh My Tmux customization) |
-| `zed/` | `~/.config/zed/settings.json` |
-| `ghostty/` | `~/.config/ghostty/config` |
-| `worktrunk/` | `~/.config/worktrunk/config.toml` |
+| `shells/fish/` | `~/.config/fish/config.fish`, `conf.d/`, `functions/` |
+| `editors/zed/` | `~/.config/zed/settings.json` |
+| `terminals/ghostty/` | `~/.config/ghostty/config` |
+| `terminals/tmux/` | `~/.tmux.conf.local` (Oh My Tmux customization) |
+| `vcs/git/` | `~/.gitconfig`, `~/.gitignore_global`, `~/.work.gitconfig` |
+| `vcs/lazygit/` | `~/Library/Application Support/lazygit/config.yml` |
+| `tools/worktrunk/` | `~/.config/worktrunk/config.toml` |
 | `agents/skills/` | `~/.claude/skills/*` (central hub, other agents symlink here) |
 | `agents/agents/` | `~/.claude/agents/*` (Claude Code agents) |
 | `homebrew/` | Brewfile (not symlinked) |

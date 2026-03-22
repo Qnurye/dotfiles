@@ -33,143 +33,171 @@ backup_and_link() {
     info "Linked $src -> $dest"
 }
 
-# Install Homebrew if not present
+# Install Homebrew if not present (prerequisite for everything)
 if ! command -v brew &>/dev/null; then
     info "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Install Oh My Zsh if not present (legacy, kept for fallback)
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-    info "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
+# --- Module functions ---
 
-# Install Oh My Tmux if not present
-if [[ ! -f "$HOME/.tmux.conf" ]] || ! grep -q "gpakosz" "$HOME/.tmux.conf" 2>/dev/null; then
-    info "Installing Oh My Tmux..."
-    cd "$HOME"
-    git clone https://github.com/gpakosz/.tmux.git
-    ln -sf .tmux/.tmux.conf
-fi
-
-# Link ZSH configurations (legacy, kept for fallback)
-info "Linking ZSH configurations..."
-backup_and_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
-backup_and_link "$DOTFILES_DIR/zsh/.zprofile" "$HOME/.zprofile"
-backup_and_link "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
-
-# Link Fish configurations
-info "Linking Fish configurations..."
-mkdir -p "$HOME/.config/fish/conf.d"
-mkdir -p "$HOME/.config/fish/functions"
-mkdir -p "$HOME/.config/fish/completions"
-backup_and_link "$DOTFILES_DIR/fish/config.fish" "$HOME/.config/fish/config.fish"
-for f in "$DOTFILES_DIR/fish/conf.d/"*.fish; do
-    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/conf.d/$(basename "$f")"
-done
-for f in "$DOTFILES_DIR/fish/functions/"*.fish; do
-    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/functions/$(basename "$f")"
-done
-for f in "$DOTFILES_DIR/fish/completions/"*.fish; do
-    [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/completions/$(basename "$f")"
-done
-backup_and_link "$DOTFILES_DIR/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
-
-# Install Fish plugins (fisher is installed via Homebrew)
-if command -v fish &>/dev/null && fish -c "type -q fisher" 2>/dev/null; then
-    info "Installing Fish plugins..."
-    fish -c "fisher update" 2>/dev/null
-fi
-
-# Link Git configuration
-info "Linking Git configuration..."
-backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-backup_and_link "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-backup_and_link "$DOTFILES_DIR/git/.work.gitconfig" "$HOME/.work.gitconfig"
-
-# Link Tmux configuration
-info "Linking Tmux configuration..."
-backup_and_link "$DOTFILES_DIR/tmux/.tmux.conf.local" "$HOME/.tmux.conf.local"
-
-# Link Zed configuration
-info "Linking Zed configuration..."
-mkdir -p "$HOME/.config/zed"
-backup_and_link "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
-
-# Link Ghostty configuration
-info "Linking Ghostty configuration..."
-mkdir -p "$HOME/.config/ghostty"
-backup_and_link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
-
-# Link Lazygit configuration
-info "Linking Lazygit configuration..."
-mkdir -p "$HOME/Library/Application Support/lazygit"
-backup_and_link "$DOTFILES_DIR/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
-
-# Link Worktrunk configuration
-info "Linking Worktrunk configuration..."
-mkdir -p "$HOME/.config/worktrunk"
-backup_and_link "$DOTFILES_DIR/worktrunk/config.toml" "$HOME/.config/worktrunk/config.toml"
-
-# Link AI agent configurations
-info "Linking AI agent configurations..."
-backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
-backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
-backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
-mkdir -p "$HOME/.claude"
-backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
-backup_and_link "$DOTFILES_DIR/agents/RTK.md" "$HOME/.claude/RTK.md"
-
-# Link Claude Code skills and agents (canonical location: ~/.claude/skills)
-info "Linking Claude Code skills and agents..."
-mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
-for skill_dir in "$DOTFILES_DIR/agents/skills"/*/; do
-    skill_name="$(basename "$skill_dir")"
-    backup_and_link "$skill_dir" "$HOME/.claude/skills/$skill_name"
-done
-for agent_file in "$DOTFILES_DIR/agents/agents"/*.md; do
-    agent_name="$(basename "$agent_file")"
-    backup_and_link "$agent_file" "$HOME/.claude/agents/$agent_name"
-done
-
-# Link other agents' skills to ~/.claude/skills (central hub)
-info "Linking agent skills to central hub..."
-mkdir -p "$HOME/.agents" "$HOME/.gemini" "$HOME/.codex"
-backup_and_link "$HOME/.claude/skills" "$HOME/.agents/skills"
-backup_and_link "$HOME/.claude/skills" "$HOME/.gemini/skills"
-backup_and_link "$HOME/.claude/skills" "$HOME/.codex/skills"
-
-# Install sudoers overrides
-info "Installing sudoers overrides..."
-if [[ -d "$DOTFILES_DIR/system/sudoers.d" ]]; then
-    for f in "$DOTFILES_DIR/system/sudoers.d"/*; do
-        local_name="$(basename "$f")"
-        dest="/etc/sudoers.d/$local_name"
-        if ! diff -q "$f" "$dest" &>/dev/null; then
-            sudo cp "$f" "$dest"
-            sudo chmod 0440 "$dest"
-            sudo chown root:wheel "$dest"
-            info "Installed sudoers.d/$local_name"
+install_homebrew() {
+    if [[ -f "$DOTFILES_DIR/homebrew/Brewfile" ]]; then
+        info "Installing Homebrew packages (this may take a while)..."
+        read -p "Install all Homebrew packages? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            brew bundle --file="$DOTFILES_DIR/homebrew/Brewfile"
         else
-            info "sudoers.d/$local_name already up to date"
+            info "Skipping Homebrew packages. Run 'brew bundle --file=$DOTFILES_DIR/homebrew/Brewfile' later."
         fi
+    fi
+}
+
+install_fish() {
+    info "Linking Fish configurations..."
+    mkdir -p "$HOME/.config/fish/conf.d"
+    mkdir -p "$HOME/.config/fish/functions"
+    mkdir -p "$HOME/.config/fish/completions"
+    backup_and_link "$DOTFILES_DIR/shells/fish/config.fish" "$HOME/.config/fish/config.fish"
+    for f in "$DOTFILES_DIR/shells/fish/conf.d/"*.fish; do
+        [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/conf.d/$(basename "$f")"
+    done
+    for f in "$DOTFILES_DIR/shells/fish/functions/"*.fish; do
+        [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/functions/$(basename "$f")"
+    done
+    for f in "$DOTFILES_DIR/shells/fish/completions/"*.fish; do
+        [[ -f "$f" ]] && backup_and_link "$f" "$HOME/.config/fish/completions/$(basename "$f")"
+    done
+    backup_and_link "$DOTFILES_DIR/shells/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
+
+    # Install Fish plugins (fisher is installed via Homebrew)
+    if command -v fish &>/dev/null && fish -c "type -q fisher" 2>/dev/null; then
+        info "Installing Fish plugins..."
+        fish -c "fisher update" 2>/dev/null
+    fi
+}
+
+install_git() {
+    info "Linking Git configuration..."
+    backup_and_link "$DOTFILES_DIR/vcs/git/.gitconfig" "$HOME/.gitconfig"
+    backup_and_link "$DOTFILES_DIR/vcs/git/.gitignore_global" "$HOME/.gitignore_global"
+    backup_and_link "$DOTFILES_DIR/vcs/git/.work.gitconfig" "$HOME/.work.gitconfig"
+}
+
+install_tmux() {
+    # Install Oh My Tmux if not present
+    if [[ ! -f "$HOME/.tmux.conf" ]] || ! grep -q "gpakosz" "$HOME/.tmux.conf" 2>/dev/null; then
+        info "Installing Oh My Tmux..."
+        cd "$HOME"
+        git clone https://github.com/gpakosz/.tmux.git
+        ln -sf .tmux/.tmux.conf
+        cd "$DOTFILES_DIR"
+    fi
+
+    info "Linking Tmux configuration..."
+    backup_and_link "$DOTFILES_DIR/terminals/tmux/.tmux.conf.local" "$HOME/.tmux.conf.local"
+}
+
+install_zed() {
+    info "Linking Zed configuration..."
+    mkdir -p "$HOME/.config/zed"
+    backup_and_link "$DOTFILES_DIR/editors/zed/settings.json" "$HOME/.config/zed/settings.json"
+}
+
+install_ghostty() {
+    info "Linking Ghostty configuration..."
+    mkdir -p "$HOME/.config/ghostty"
+    backup_and_link "$DOTFILES_DIR/terminals/ghostty/config" "$HOME/.config/ghostty/config"
+}
+
+install_lazygit() {
+    info "Linking Lazygit configuration..."
+    mkdir -p "$HOME/Library/Application Support/lazygit"
+    backup_and_link "$DOTFILES_DIR/vcs/lazygit/config.yml" "$HOME/Library/Application Support/lazygit/config.yml"
+}
+
+install_worktrunk() {
+    info "Linking Worktrunk configuration..."
+    mkdir -p "$HOME/.config/worktrunk"
+    backup_and_link "$DOTFILES_DIR/tools/worktrunk/config.toml" "$HOME/.config/worktrunk/config.toml"
+}
+
+install_agents() {
+    info "Linking AI agent configurations..."
+    mkdir -p "$HOME/.claude" "$HOME/.gemini"
+    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
+    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
+    backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
+    backup_and_link "$DOTFILES_DIR/agents/RTK.md" "$HOME/.claude/RTK.md"
+
+    # Link Claude Code skills and agents (canonical location: ~/.claude/skills)
+    info "Linking Claude Code skills and agents..."
+    mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
+    for skill_dir in "$DOTFILES_DIR/agents/skills"/*/; do
+        skill_name="$(basename "$skill_dir")"
+        backup_and_link "$skill_dir" "$HOME/.claude/skills/$skill_name"
+    done
+    for agent_file in "$DOTFILES_DIR/agents/agents"/*.md; do
+        agent_name="$(basename "$agent_file")"
+        backup_and_link "$agent_file" "$HOME/.claude/agents/$agent_name"
+    done
+
+    # Link other agents' skills to ~/.claude/skills (central hub)
+    info "Linking agent skills to central hub..."
+    mkdir -p "$HOME/.agents" "$HOME/.codex"
+    backup_and_link "$HOME/.claude/skills" "$HOME/.agents/skills"
+    backup_and_link "$HOME/.claude/skills" "$HOME/.gemini/skills"
+    backup_and_link "$HOME/.claude/skills" "$HOME/.codex/skills"
+}
+
+install_system() {
+    info "Installing sudoers overrides..."
+    if [[ -d "$DOTFILES_DIR/system/sudoers.d" ]]; then
+        for f in "$DOTFILES_DIR/system/sudoers.d"/*; do
+            local_name="$(basename "$f")"
+            dest="/etc/sudoers.d/$local_name"
+            if ! diff -q "$f" "$dest" &>/dev/null; then
+                sudo cp "$f" "$dest"
+                sudo chmod 0440 "$dest"
+                sudo chown root:wheel "$dest"
+                info "Installed sudoers.d/$local_name"
+            else
+                info "sudoers.d/$local_name already up to date"
+            fi
+        done
+    fi
+}
+
+# --- Main ---
+
+if [[ $# -eq 0 ]]; then
+    install_homebrew
+    install_fish
+    install_git
+    install_tmux
+    install_zed
+    install_ghostty
+    install_lazygit
+    install_worktrunk
+    install_agents
+    install_system
+else
+    for arg in "$@"; do
+        case "$arg" in
+            fish|git|tmux|zed|ghostty|lazygit|worktrunk|agents|system|homebrew)
+                "install_$arg"
+                ;;
+            *)
+                error "Unknown module: $arg"
+                echo "Available: fish git tmux zed ghostty lazygit worktrunk agents system homebrew"
+                exit 1
+                ;;
+        esac
     done
 fi
-
-# Install Homebrew packages
-if [[ -f "$DOTFILES_DIR/homebrew/Brewfile" ]]; then
-    info "Installing Homebrew packages (this may take a while)..."
-    read -p "Install all Homebrew packages? [y/N] " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        brew bundle --file="$DOTFILES_DIR/homebrew/Brewfile"
-    else
-        info "Skipping Homebrew packages. Run 'brew bundle --file=$DOTFILES_DIR/homebrew/Brewfile' later."
-    fi
-fi
-
 
 # Post-install reminders
 echo ""
@@ -178,16 +206,14 @@ echo "Installation complete!"
 echo "============================================"
 echo ""
 echo "Next steps:"
-echo "1. Configure Git user:"
-echo "   git config --global user.name 'Your Name'"
-echo "   git config --global user.email 'your@email.com'"
-echo ""
-echo "2. If using GPG signing:"
-echo "   git config --global user.signingkey 'YOUR_GPG_KEY'"
-echo ""
-echo "3. Set Fish as default shell:"
+echo "1. Set Fish as default shell:"
 echo "   echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells"
 echo "   chsh -s /opt/homebrew/bin/fish"
 echo ""
-echo "4. Or restart your terminal with: source ~/.zshrc (for zsh)"
+echo "2. Configure Git user:"
+echo "   git config --global user.name 'Your Name'"
+echo "   git config --global user.email 'your@email.com'"
+echo ""
+echo "3. If using GPG signing:"
+echo "   git config --global user.signingkey 'YOUR_GPG_KEY'"
 echo ""
