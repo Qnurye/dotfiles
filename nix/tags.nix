@@ -33,7 +33,7 @@ with pkgs; {
   };
 
   "dev/go" = {
-    packages = [ go gopls gotools staticcheck ];
+    packages = [ go gopls gotools go-tools ];
     casks = [];
     deps = [ "dev/base" ];
   };
