@@ -20,9 +20,50 @@ with pkgs; {
     packages = [
       bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
       lazygit direnv git-lfs delta difftastic
+      worktrunk pinentry_mac
     ];
     casks = [];
     deps = [ "base" ];
+  };
+
+  "cli/ci" = {
+    packages = [ act actionlint ];
+    casks = [];
+    deps = [ "dev/base" ];
+  };
+
+  "cli/media" = {
+    packages = [
+      ffmpeg imagemagick atomicparsley jpegoptim
+      oxipng pngquant resvg woff2 zopfli
+      python3Packages.fonttools
+    ];
+    casks = [];
+    deps = [];
+  };
+
+  "cli/net" = {
+    packages = [ cloudflared mosh nmap tailscale ];
+    casks = [];
+    deps = [];
+  };
+
+  "cli/data" = {
+    packages = [ duckdb pandoc poppler typst ];
+    casks = [];
+    deps = [];
+  };
+
+  "cli/mail" = {
+    packages = [ himalaya signal-cli ];
+    casks = [];
+    deps = [];
+  };
+
+  "cli/misc" = {
+    packages = [ convmv duti unar watch zstd p7zip ttyd ];
+    casks = [];
+    deps = [];
   };
 
   # ── Development: Base ───────────────────────────────────────
@@ -39,7 +80,7 @@ with pkgs; {
   };
 
   "dev/rust" = {
-    packages = [ rustup ];
+    packages = [ rustup rust-analyzer ];
     casks = [];
     deps = [ "dev/base" ];
   };
@@ -51,13 +92,31 @@ with pkgs; {
   };
 
   "dev/python" = {
-    packages = [ python3 uv ruff ];
+    packages = [ python3 uv ruff poetry ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/deno" = {
     packages = [ deno ];
+    casks = [];
+    deps = [ "dev/base" ];
+  };
+
+  "dev/c" = {
+    packages = [ automake clang-tools libtool pkgconf libev libpq ];
+    casks = [];
+    deps = [ "dev/base" ];
+  };
+
+  "dev/k8s" = {
+    packages = [ kubectl ];
+    casks = [];
+    deps = [ "dev/base" ];
+  };
+
+  "dev/docker" = {
+    packages = [ docker docker-compose ];
     casks = [];
     deps = [ "dev/base" ];
   };
@@ -108,7 +167,7 @@ with pkgs; {
   };
 
   "apps/llm" = {
-    packages = [];
+    packages = [ ollama ];
     casks = [ "claude" "claude-code" "codex" ];
     deps = [];
   };
