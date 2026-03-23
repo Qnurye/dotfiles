@@ -48,8 +48,14 @@ with pkgs; {
     deps = [];
   };
 
+  "cli/ai" = {
+    packages = [ llama-cpp ];
+    casks = [];
+    deps = [];
+  };
+
   "cli/data" = {
-    packages = [ duckdb pandoc poppler typst ];
+    packages = [ duckdb pandoc poppler typst qpdf ];
     casks = [];
     deps = [];
   };
@@ -168,7 +174,7 @@ with pkgs; {
 
   "apps/llm" = {
     packages = [ ollama ];
-    casks = [ "claude" "claude-code" "codex" ];
+    casks = [ "claude" "claude-code" "codex" "codex-app" ];
     deps = [];
   };
 
@@ -180,7 +186,7 @@ with pkgs; {
 
   "apps/dev" = {
     packages = [];
-    casks = [ "docker-desktop" ];
+    casks = [ "docker-desktop" "gitbutler" "tower" ];
     deps = [ "dev/base" ];
   };
 
@@ -201,6 +207,7 @@ with pkgs; {
     casks = [
       "appcleaner" "shottr" "sf-symbols" "corelocationcli"
       "typeless" "google-chrome" "bitwarden" "wpsoffice" "folo"
+      "linearmouse" "piclist" "raindropio"
     ];
     deps = [];
   };
@@ -210,5 +217,11 @@ with pkgs; {
     packages = [];
     casks = [];
     deps = [ "dev/base" "apps/editors" ];
+  };
+
+  "work/cloud" = {
+    packages = [ doctl ];
+    casks = [ "gcloud-cli" ];
+    deps = [ "work/base" ];
   };
 }

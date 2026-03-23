@@ -26,6 +26,7 @@
     # Casks are injected by the darwin module from resolver output.
     # Additional brews from third-party taps that aren't in nixpkgs:
     brews = [
+      # Third-party taps
       "antoniorodr/memo/memo"
       "benngarcia/tap/cwt"
       "steipete/tap/gogcli"
@@ -37,6 +38,10 @@
       "steipete/tap/summarize"
       "steipete/tap/wacli"
       "yakitrak/yakitrak/obsidian-cli"
+      # Homebrew-core (not in nixpkgs)
+      "cagent"
+      "docker-agent"
+      "rtk"
     ];
   };
 }
