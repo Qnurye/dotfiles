@@ -19,7 +19,7 @@ with pkgs; {
   "cli/tools" = {
     packages = [
       bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
-      lazygit direnv git-lfs delta difftastic
+      lazygit direnv git-lfs delta difftastic jj
       worktrunk pinentry_mac
     ];
     casks = [];

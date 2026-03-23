@@ -41,7 +41,7 @@ set -gx HOMEBREW_BOTTLE_DOMAIN "https://mirrors.ustc.edu.cn/homebrew-bottles"
 set -gx HOMEBREW_API_DOMAIN "https://mirrors.ustc.edu.cn/homebrew-bottles/api"
 
 # fnm (Fast Node Manager)
-command -q fnm; and fnm env --use-on-cd --shell fish | source
+command -q fnm; and fnm env --use-on-cd --log-level quiet --shell fish | source
 
 # direnv
 command -q direnv; and direnv hook fish | source
