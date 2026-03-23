@@ -17,6 +17,7 @@ in
   myConfig.tags = [
     "work/base"
     "work/cloud"
+    "cli/tools"
     "shell/fish"
     "dev/go"
     "dev/rust"
