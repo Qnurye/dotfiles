@@ -104,6 +104,13 @@ Packages installed on heavybowl-ii that are likely no longer needed:
 
 Also auto-removed: 56 orphaned dependencies (llama.cpp, whisper-cpp, tesseract, etc.).
 
+## Mirrors & Acceleration
+
+- [x] nixpkgs input: Tsinghua mirror (`mirrors.tuna.tsinghua.edu.cn/git/nixpkgs.git`) (2026-03-24)
+- [x] Binary cache: USTC substituter (`mirrors.ustc.edu.cn/nix-channels/store`) (2026-03-24)
+- [x] GitHub API token: 1Password (`op://Personal/Nix GitHub Token/password`) → `nix/setup-nix-conf.fish` (2026-03-24)
+- [x] Fish helpers: `nix-up` (update + rebuild), `nix-add` (search + install) (2026-03-24)
+
 ## Cutover Checklist
 
 When all packages are in tags:

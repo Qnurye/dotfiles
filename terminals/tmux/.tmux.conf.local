@@ -1,8 +1,7 @@
-# ============ Homebrew PATH (fix tpm detection) ============
+# ── PATH ─────────────────────────────────────────────────────────
 set-environment -g PATH "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 
-# ============ Base overrides (surgical) ============
-# prefix: Ctrl-\ (0x1c) — no conflict with readline/Cmd, works with Ghostty text:
+# ── Prefix: Ctrl-\ ──────────────────────────────────────────────
 set -gu prefix2
 unbind C-a
 unbind C-b
@@ -10,15 +9,12 @@ unbind C-Space
 set -g prefix 'C-\'
 bind 'C-\' send-prefix
 
-# keep cwd on new session/window
+# ── Oh My Tmux variables ────────────────────────────────────────
 tmux_conf_new_session_retain_current_path=true
 tmux_conf_new_window_retain_current_path=true
-
-# copy mode -> macOS clipboard
 tmux_conf_copy_to_os_clipboard=true
 
-# ============ Theme overrides (muted, no nerd glyphs) ============
-# low-saturation palette
+# ── Theme ────────────────────────────────────────────────────────
 tmux_conf_theme_colour_1="#1f2329"
 tmux_conf_theme_colour_2="#2a2f38"
 tmux_conf_theme_colour_3="#9aa4b2"
@@ -37,44 +33,31 @@ tmux_conf_theme_colour_15="#1f2329"
 tmux_conf_theme_colour_16="#2a2f38"
 tmux_conf_theme_colour_17="#d0d7de"
 
-# remove fancy separators/icons feel
 tmux_conf_theme_left_separator_main=""
 tmux_conf_theme_left_separator_sub="|"
 tmux_conf_theme_right_separator_main=""
 tmux_conf_theme_right_separator_sub="|"
 
-# plain status content (no nerd symbols)
 tmux_conf_theme_status_left=" #S "
 tmux_conf_theme_status_right=" #{prefix} %R | %d %b | #H "
-
-# ============ 窗口标题 ============
 tmux_conf_theme_terminal_title="#S · #W"
 
-# ============ 终端特性 ============
-# 真彩色 + Ghostty 支持
+# ── Terminal ─────────────────────────────────────────────────────
 set -g default-terminal "tmux-256color"
 set -ag terminal-overrides ",xterm-ghostty:Tc,xterm-256color:Tc,tmux-256color:Tc"
 set -ag terminal-features ",xterm-ghostty:extkeys"
 set -g allow-passthrough on
-
-# 现代键盘协议 (kitty/CSI-u)
 set -s extended-keys always
 set -as terminal-features 'xterm-ghostty:clipboard:ccolour:cstyle:focus:title:extkeys'
-
-# OSC 52 剪贴板同步 (远程 ttyd 也能复制到本地)
 set -g set-clipboard on
 
-# ============ Pane 边框 ============
+# ── Pane ─────────────────────────────────────────────────────────
 set -g pane-border-lines simple
-# 非活跃 pane: 暗灰
 set -g pane-border-style "fg=#3a4150"
-# 活跃 pane: 亮蓝色
 set -g pane-active-border-style "fg=#7aa2f7"
-
-# ============ 鼠标 ============
 set -g mouse on
 
-# ============ TPM 插件 ============
+# ── Plugins ──────────────────────────────────────────────────────
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
@@ -85,37 +68,23 @@ set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
 set -g @plugin 'sainnhe/tmux-fzf'
 set -g @plugin 'wfxr/tmux-fzf-url'
 
-# ============ 插件配置 ============
-
-# tmux-continuum: 每 15 分钟自动保存
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
-
-# tmux-resurrect: 恢复 Neovim/Vim session
 set -g @resurrect-strategy-nvim 'session'
 set -g @resurrect-strategy-vim 'session'
-
-# tmux-resurrect: 恢复 pane 内容
 set -g @resurrect-capture-pane-contents 'on'
-
-# tmux-prefix-highlight: 状态栏显示
 set -g @prefix_highlight_show_copy_mode 'on'
-
-# tmux-fzf: prefix + F 打开 (搜索 session/window/pane/命令等)
 set -g @tmux-fzf-launch-key 'F'
-
-# tmux-fzf-url: prefix + u 提取 pane 中的 URL 并打开
 set -g @fzf-url-bind 'u'
 set -g @fzf-url-open "open"
 
-# ============ Pane resize (Alt+h/j/k/l, 用右 Option 键) ============
+# ── Custom bindings ──────────────────────────────────────────────
 bind -n M-h resize-pane -L 3
 bind -n M-j resize-pane -D 3
 bind -n M-k resize-pane -U 3
 bind -n M-l resize-pane -R 3
-
-# ============ Kill pane 无确认 (prefix + X) ============
 bind X kill-pane
+bind Z run-shell 'zed "#{pane_current_path}"'
 
-# 初始化 TPM（必须在最后）
+# ── TPM (must be last) ──────────────────────────────────────────
 run '~/.tmux/plugins/tpm/tpm'

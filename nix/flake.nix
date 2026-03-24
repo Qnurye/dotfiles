@@ -2,7 +2,7 @@
   description = "Qnurye's dotfiles — nix-darwin + home-manager";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "git+https://mirrors.nju.edu.cn/git/nixpkgs.git?ref=nixpkgs-unstable&shallow=1";
 
     nix-darwin = {
       url = "github:LnL7/nix-darwin";

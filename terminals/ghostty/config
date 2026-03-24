@@ -77,6 +77,7 @@ keybind = super+right_bracket=text:\x1c\x6e
 keybind = super+d=text:\x1c\x2d
 # Cmd+Shift+D → 垂直分屏 (prefix + |) — 用 _ 因为 oh-my-tmux 绑定
 keybind = super+shift+d=text:\x1c\x5f
+keybind = super+s=text:\x1c\x73
 
 # ============ macOS 编辑快捷键 ============
 # Cmd+Left → Home (行首)
@@ -91,6 +92,9 @@ keybind = alt+left=text:\x1bb
 keybind = alt+right=text:\x1bf
 # Alt+Backspace → 删除前一个词 (Ctrl-W)
 keybind = alt+backspace=text:\x17
+
+# ============ Cmd+E → Zed 打开当前目录 (prefix + Z) ============
+keybind = super+e=text:\x1c\x5a
 
 # ============ Claude Code 换行修复 ============
 # Shift+Enter → 发送换行符 (绕过 tmux extended-keys 问题)
