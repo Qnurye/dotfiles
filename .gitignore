@@ -5,3 +5,4 @@
 .last_sync
 .last_fetch
 .sync_conflict
+.sync_lock
