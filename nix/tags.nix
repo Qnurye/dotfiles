@@ -19,7 +19,7 @@ with pkgs; {
   "cli/tools" = {
     packages = [
       bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
-      lazygit direnv git-lfs delta difftastic jujutsu
+      lazygit (direnv.overrideAttrs (old: { env = (old.env or {}) // { CGO_ENABLED = 1; }; })) git-lfs delta difftastic jujutsu
       worktrunk pinentry_mac
     ];
     casks = [];
