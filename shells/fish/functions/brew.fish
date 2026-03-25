@@ -27,39 +27,58 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                     end
                 end
 
+                # Detect bottle platform prefix once
+                if test (uname -m) = arm64
+                    set -l plat_filter '^arm64_'
+                else
+                    set -l plat_filter '^(ventura|sonoma|sequoia|monterey)'
+                end
+
                 for pkg in $packages
-                    # Resolve cache path and download URL
-                    if test $use_cask -eq 1
-                        set -l cache_path (brew --cache --cask $pkg 2>/dev/null)
-                        set -l url (brew info --json=v2 --cask $pkg 2>/dev/null \
-                                    | jq -r '.casks[0].url // empty')
+                    set -l cache_path ''
+                    set -l url ''
+                    set -l is_cask $use_cask
+
+                    if test $is_cask -eq 1
+                        # Explicit --cask: resolve as cask
+                        set cache_path (brew --cache --cask $pkg 2>/dev/null)
+                        set url (brew info --json=v2 --cask $pkg 2>/dev/null \
+                                 | jq -r '.casks[0].url // empty')
                     else
-                        set -l cache_path (brew --cache $pkg 2>/dev/null)
-                        # Detect bottle platform prefix
-                        if test (uname -m) = arm64
-                            set -l plat_filter '^arm64_'
-                        else
-                            set -l plat_filter '^(ventura|sonoma|sequoia|monterey)'
+                        # Try formula first
+                        set cache_path (brew --cache $pkg 2>/dev/null)
+                        set url (brew info --json=v2 $pkg 2>/dev/null \
+                                 | jq -r --arg f "$plat_filter" \
+                                     '(.formulae[0].bottle.stable.files // {})
+                                      | to_entries[]
+                                      | select(.key | test($f))
+                                      | .value.url' \
+                                 | head -1)
+
+                        # Fallback: try as cask if formula URL is empty
+                        if test -z "$url"
+                            set cache_path (brew --cache --cask $pkg 2>/dev/null)
+                            set url (brew info --json=v2 --cask $pkg 2>/dev/null \
+                                     | jq -r '.casks[0].url // empty')
+                            set is_cask 1
                         end
-                        set -l url (brew info --json=v2 $pkg 2>/dev/null \
-                                    | jq -r --arg f "$plat_filter" \
-                                        '.formulae[0].bottle.stable.files
-                                         | to_entries[]
-                                         | select(.key | test($f))
-                                         | .value.url' \
-                                    | head -1)
                     end
+
+                    # Normalize cache path — strip .aria2/.incomplete suffix
+                    set cache_path (string replace -r '\.(aria2|incomplete)$' '' $cache_path)
 
                     # Skip if already cached or URL unresolvable
                     if test -z "$cache_path" -o -z "$url"
                         continue
                     end
+                    # Clean up stale partial downloads
+                    rm -f "$cache_path.aria2" "$cache_path.incomplete"
                     if test -e "$cache_path"
                         continue
                     end
 
                     # Rewrite URL to use USTC mirror if configured
-                    if test -n "$HOMEBREW_BOTTLE_DOMAIN"
+                    if test -n "$HOMEBREW_BOTTLE_DOMAIN"; and test $is_cask -eq 0
                         set url (string replace 'https://ghcr.io/v2/homebrew' "$HOMEBREW_BOTTLE_DOMAIN" $url)
                     end
 
@@ -71,6 +90,9 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         --min-split-size=1M \
                         --allow-overwrite=false \
                         --auto-file-renaming=false \
+                        --console-log-level=warn \
+                        --summary-interval=0 \
+                        --download-result=hide \
                         --dir=(dirname $cache_path) \
                         --out=(basename $cache_path) \
                         $url
