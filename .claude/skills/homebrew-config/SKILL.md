@@ -1,33 +1,86 @@
 ---
-description: Homebrew Brewfile package management. Use when modifying, generating, or troubleshooting the Brewfile (adding/removing packages, taps, casks, Mac App Store apps, VS Code extensions).
+description: Homebrew package management via nix-darwin. Use when modifying, generating, or troubleshooting Homebrew taps, brews, and casks declared in nix-darwin config (not a standalone Brewfile).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob
 ---
 
-# Homebrew Brewfile
+# Homebrew via nix-darwin
 
-## Config Location
-- Dotfiles path: `homebrew/Brewfile`
-- Install: `brew bundle --file=homebrew/Brewfile`
-- Dump current: `brew bundle dump --file=homebrew/Brewfile --force`
-- Check: `brew bundle check --file=homebrew/Brewfile`
-- Cleanup unlisted: `brew bundle cleanup --file=homebrew/Brewfile`
+## Architecture
 
-## Format & Syntax
-- Ruby-based DSL; `#` for comments
-- Ruby conditionals supported (e.g., `if OS.mac?`)
-- Section order: tap -> brew -> cask -> vscode -> go/cargo/uv
+This repo manages Homebrew **through nix-darwin**, not a standalone Brewfile.
+
+- **Casks** are declared per-tag in `nix/tags.nix` (e.g., `casks = [ "ghostty" ];`)
+- **Taps and brews** (third-party formulae not in nixpkgs) are declared in `nix/modules/darwin/homebrew.nix`
+- The resolver (`nix/lib/resolver.nix`) collects casks from all active tags
+- Per-host configs (`nix/hosts/*/default.nix`) wire resolved casks into `homebrew.casks`
+- Most CLI packages are nix packages in `tags.nix` `packages` lists, NOT Homebrew formulae
+
+> **Legacy**: `homebrew/Brewfile` exists but is deprecated and will be removed after full nix-darwin cutover. Do not use it for new packages.
+
+## Config Locations
+
+| File | Purpose |
+|------|---------|
+| `nix/modules/darwin/homebrew.nix` | Taps, brews (third-party), onActivation settings |
+| `nix/tags.nix` | Casks per tag (resolved automatically) |
+| `nix/hosts/*/default.nix` | Tag selection per host; wires `resolved.casks` into `homebrew.casks` |
+| `nix/lib/resolver.nix` | Tag dependency resolver (packages + casks) |
+| `homebrew/Brewfile` | **Legacy** -- do not modify |
+
+## Commands
+
+```bash
+# Rebuild (applies all homebrew changes)
+sudo darwin-rebuild switch --flake ~/dotfiles/nix
+
+# Shortcut fish function
+nix-up                    # flake update + darwin-rebuild switch
+
+# Search and add a package interactively
+nix-add <query>           # search nixpkgs/casks -> pick tag -> rebuild
+```
+
+## How to Add a Homebrew Package
+
+### Adding a cask (GUI app or font)
+1. Find the appropriate tag in `nix/tags.nix` (e.g., `"apps/utils"`, `"fonts/extra"`)
+2. Add the cask name to that tag's `casks` list
+3. Rebuild with `darwin-rebuild switch`
+
+### Adding a brew (CLI formula not in nixpkgs)
+1. If it needs a third-party tap, add the tap to `homebrew.taps` in `nix/modules/darwin/homebrew.nix`
+2. Add the formula to `homebrew.brews` in the same file
+3. Rebuild with `darwin-rebuild switch`
+
+### Adding a nix package (preferred for CLI tools)
+1. Add to the appropriate tag's `packages` list in `nix/tags.nix`
+2. Rebuild -- no Homebrew involvement needed
+
+## Current onActivation Settings
+
+```nix
+onActivation = {
+  cleanup = "none";    # Will switch to "zap" after migration completes
+  autoUpdate = true;
+  upgrade = true;
+};
+```
+
+- `cleanup = "none"` prevents accidental removal during migration
+- Target: `cleanup = "zap"` for fully declarative management
 
 ## Instructions
-1. Read the current Brewfile first
-2. Maintain alphabetical ordering within each section
-3. Add taps before formulae that depend on them
-4. Third-party tap formulae go after core brew entries
-5. For services, use `restart_service: :changed` unless always-restart is needed
+1. Always read the relevant nix files before making changes
+2. Prefer nix packages over Homebrew brews whenever possible
+3. Only use Homebrew for: casks (GUI apps/fonts) and brews not available in nixpkgs
+4. Maintain alphabetical ordering within lists
+5. Add taps before formulae that depend on them
 6. Never remove entries without user confirmation
 
 ## Reference
-See [reference.md](reference.md) for directive syntax and options.
+See [reference.md](reference.md) for Brewfile directive syntax (useful for understanding `homebrew.nix` options).
 
 ## Official Documentation
-https://docs.brew.sh/Brew-Bundle-and-Brewfile
+- nix-darwin homebrew module: https://daiderd.com/nix-darwin/manual/index.html
+- Brew Bundle: https://docs.brew.sh/Brew-Bundle-and-Brewfile

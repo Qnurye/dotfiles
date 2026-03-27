@@ -1,56 +1,73 @@
-# Homebrew Brewfile Reference
+# Homebrew via nix-darwin Reference
 
-## Directives
+## nix-darwin Homebrew Module
 
-### `tap` - Third-party repositories
-```ruby
-tap "user/repo"
-tap "user/repo", "https://custom-git-url.git"
+### `homebrew.taps` - Third-party repositories
+```nix
+homebrew.taps = [
+  "user/repo"
+];
 ```
 
-### `brew` - CLI formulae
-```ruby
-brew "package"
-brew "package", args: ["with-openssl"]
-brew "postgresql@16", restart_service: true
-brew "ollama", restart_service: :changed
-brew "mysql@5.6", link: true, conflicts_with: ["mysql"]
-brew "package", start_service: true
-brew "package", postinstall: "echo done"
-```
-Options: `args`, `restart_service` (true / :changed), `start_service`, `link` (true / :overwrite), `conflicts_with` (array), `postinstall`
-
-### `cask` - GUI applications
-```ruby
-cask "firefox"
-cask "firefox", args: { appdir: "~/Applications" }
-cask "opera", greedy: true
-```
-Options: `args` (hash), `greedy`
-
-Global defaults: `cask_args appdir: "~/Applications", require_sha: true`
-
-### `mas` - Mac App Store (requires `mas` CLI)
-```ruby
-mas "Xcode", id: 497799835
+### `homebrew.brews` - CLI formulae (only for packages not in nixpkgs)
+```nix
+homebrew.brews = [
+  "package"
+  "user/tap/formula"    # third-party tap formula
+];
 ```
 
-### `vscode` - VS Code / Cursor extensions
-```ruby
-vscode "ms-python.python"
+### `homebrew.casks` - GUI applications (injected from tags.nix)
+Casks are declared in `nix/tags.nix` per tag and auto-resolved:
+```nix
+# In nix/tags.nix:
+"apps/utils" = {
+  packages = [];
+  casks = [ "appcleaner" "shottr" ];
+  deps = [];
+};
+```
+The resolver collects all casks from active tags, and per-host config wires them:
+```nix
+# In nix/hosts/*/default.nix:
+homebrew.casks = map (name: { name = name; }) resolved.casks;
 ```
 
-### Other package managers
-```ruby
-go "github.com/user/package"
-cargo "ripgrep"
-uv "ruff"
-flatpak "org.app.Name", remote: "flathub-beta"
+### `homebrew.onActivation` - Lifecycle settings
+```nix
+homebrew.onActivation = {
+  cleanup = "none";     # "none" | "uninstall" | "zap"
+  autoUpdate = true;    # run `brew update` on activation
+  upgrade = true;       # run `brew upgrade` on activation
+};
 ```
 
-## Conditional Logic
-```ruby
-brew "gnupg" if OS.mac?
-brew "glibc" if OS.linux?
-cask "java" unless system "/usr/libexec/java_home", "--failfast"
+## Current State
+
+### Taps (in `homebrew.nix`)
 ```
+antoniorodr/memo, benngarcia/tap, homebrew/services,
+jakehilborn/jakehilborn, nektos/tap, steipete/tap, yakitrak/yakitrak
+```
+
+### Brews (in `homebrew.nix` -- not available in nixpkgs)
+Third-party tap formulae:
+```
+antoniorodr/memo/memo, benngarcia/tap/cwt, steipete/tap/{gogcli,goplaces,imsg,peekaboo,remindctl,sag,summarize,wacli}, yakitrak/yakitrak/obsidian-cli
+```
+Homebrew-core (not in nixpkgs):
+```
+cagent, docker-agent, rtk
+```
+
+## Brewfile Syntax Reference (legacy, for context)
+
+The legacy `homebrew/Brewfile` uses Ruby DSL. These options map to nix-darwin equivalents:
+
+| Brewfile | nix-darwin |
+|----------|------------|
+| `tap "user/repo"` | `homebrew.taps = [ "user/repo" ];` |
+| `brew "pkg"` | `homebrew.brews = [ "pkg" ];` |
+| `cask "app"` | Add to tag's `casks` list in `nix/tags.nix` |
+| `brew "pkg", restart_service: true` | Not directly supported; use launchd in nix-darwin |
+| `mas "App", id: 123` | `homebrew.masApps = { "App" = 123; };` |

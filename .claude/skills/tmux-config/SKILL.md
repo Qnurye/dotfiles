@@ -7,8 +7,9 @@ allowed-tools: Read, Edit, Grep, Glob
 # Tmux Configuration
 
 ## Config Locations
-- Dotfiles path: `tmux/.tmux.conf` (Oh My Tmux base -- DO NOT MODIFY), `tmux/.tmux.conf.local` (user overrides)
-- Symlinked to: `~/.tmux.conf`, `~/.tmux.conf.local`
+- Dotfiles path: `terminals/tmux/.tmux.conf.local` (user overrides)
+- Symlinked to: `~/.tmux.conf.local` (via nix home-manager `dotfiles.nix`)
+- Oh My Tmux base (`~/.tmux.conf`) is installed separately -- DO NOT MODIFY and not tracked in this repo
 - All customization goes in `.tmux.conf.local`
 
 ## Format & Syntax
@@ -19,7 +20,7 @@ allowed-tools: Read, Edit, Grep, Glob
 - Oh My Tmux `tmux_conf_*` variables use shell-style assignment, not `set -g`
 
 ## Instructions
-1. Read `tmux/.tmux.conf.local` first
+1. Read `terminals/tmux/.tmux.conf.local` first
 2. NEVER edit `.tmux.conf` -- it is the Oh My Tmux base
 3. Use `set -g` for globals, `bind`/`unbind` for keys
 4. Oh My Tmux theme variables (`tmux_conf_*`) are shell-style assignments

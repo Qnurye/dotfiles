@@ -1,6 +1,21 @@
 # Tmux Configuration Reference
 
+## Current Setup Summary
+
+- **Prefix**: `C-\` (Ctrl+Backslash) -- default `C-b` and `C-a` are unbound
+- **Terminal**: Ghostty (`xterm-ghostty`) with true color and extended keys
+- **Theme**: Dark (OneDark-inspired palette)
+- **Mouse**: Enabled
+- **Plugins**: Managed via TPM
+
 ## Key Configuration Categories
+
+### PATH
+- `set-environment -g PATH` -- ensures Homebrew paths are available inside tmux
+
+### Prefix
+- Prefix set to `C-\` via `set -g prefix 'C-\'`
+- `prefix2` is unset; `C-a`, `C-b`, `C-Space` are all unbound
 
 ### Display
 - `default-terminal`, `terminal-overrides`, `terminal-features` -- terminal capabilities
@@ -24,9 +39,17 @@
 - `set-clipboard on` -- OSC 52 passthrough
 - `tmux_conf_copy_to_os_clipboard=true` (Oh My Tmux)
 
+### Terminal & Passthrough
+- `default-terminal "tmux-256color"`
+- `terminal-overrides` with `Tc` (true color) for ghostty, xterm-256color, tmux-256color
+- `terminal-features` with `extkeys`, `clipboard`, `ccolour`, `cstyle`, `focus`, `title` for ghostty
+- `allow-passthrough on` -- allows applications to send escape sequences through tmux
+- `extended-keys always` -- modern key encoding
+- `set-clipboard on` -- OSC 52 clipboard integration
+
 ### Pane Styling
-- `pane-border-style`, `pane-active-border-style`
-- `pane-border-lines` (single/double/heavy/simple/number)
+- `pane-border-lines simple`
+- `pane-border-style "fg=#3a4150"`, `pane-active-border-style "fg=#7aa2f7"`
 
 ### Plugins (TPM)
 - `set -g @plugin 'author/plugin-name'`
@@ -35,7 +58,46 @@
 
 ### Misc
 - `history-limit`, `escape-time`, `repeat-time`
-- `focus-events on`, `allow-passthrough on`
+- `focus-events on`
+
+## Installed Plugins
+
+| Plugin | Purpose |
+|--------|---------|
+| `tmux-plugins/tpm` | Plugin manager |
+| `tmux-plugins/tmux-sensible` | Sensible defaults |
+| `tmux-plugins/tmux-resurrect` | Save/restore sessions across restarts |
+| `tmux-plugins/tmux-continuum` | Auto-save sessions (every 15 min), auto-restore |
+| `tmux-plugins/tmux-yank` | System clipboard integration |
+| `christoomey/vim-tmux-navigator` | Seamless vim/tmux pane navigation |
+| `tmux-plugins/tmux-prefix-highlight` | Show prefix state in status bar |
+| `sainnhe/tmux-fzf` | Fuzzy finder integration (`<prefix> F`) |
+| `wfxr/tmux-fzf-url` | Open URLs from terminal output (`<prefix> u`) |
+
+### Plugin Options
+
+| Option | Value | Plugin |
+|--------|-------|--------|
+| `@continuum-restore` | `on` | tmux-continuum |
+| `@continuum-save-interval` | `15` | tmux-continuum |
+| `@resurrect-strategy-nvim` | `session` | tmux-resurrect |
+| `@resurrect-strategy-vim` | `session` | tmux-resurrect |
+| `@resurrect-capture-pane-contents` | `on` | tmux-resurrect |
+| `@prefix_highlight_show_copy_mode` | `on` | tmux-prefix-highlight |
+| `@tmux-fzf-launch-key` | `F` | tmux-fzf |
+| `@fzf-url-bind` | `u` | tmux-fzf-url |
+| `@fzf-url-open` | `open` | tmux-fzf-url |
+
+## Custom Keybindings
+
+| Binding | Action |
+|---------|--------|
+| `M-h` (no prefix) | Resize pane left 3 |
+| `M-j` (no prefix) | Resize pane down 3 |
+| `M-k` (no prefix) | Resize pane up 3 |
+| `M-l` (no prefix) | Resize pane right 3 |
+| `<prefix> X` | Kill pane (no confirmation) |
+| `<prefix> Z` | Open current pane path in Zed |
 
 ## Oh My Tmux Variables
 
@@ -53,6 +115,20 @@ Shell-style variables set in `.tmux.conf.local` (parsed by the base config):
 | `tmux_conf_theme_status_left/right` | Status bar content |
 | `tmux_conf_theme_terminal_title` | Terminal title format |
 
-### Useful shortcuts
+### Current Theme Palette
+
+| Slot | Hex | Role |
+|------|-----|------|
+| colour_1 | `#1f2329` | Dark background |
+| colour_2 | `#2a2f38` | Lighter background |
+| colour_3 | `#9aa4b2` | Muted foreground |
+| colour_4 | `#7aa2f7` | Accent blue |
+| colour_5 | `#e5c07b` | Accent yellow |
+| colour_6 | `#1f2329` | Dark background (alt) |
+| colour_7 | `#d0d7de` | Light foreground |
+| colour_8-16 | Various | Supporting tones |
+| colour_17 | `#d0d7de` | Light foreground (alt) |
+
+### Useful Shortcuts
 - `<prefix> e` -- edit `.tmux.conf.local` in $EDITOR
 - `<prefix> r` -- reload configuration

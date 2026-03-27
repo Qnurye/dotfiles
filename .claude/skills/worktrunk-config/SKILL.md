@@ -7,7 +7,7 @@ allowed-tools: Read, Edit, Grep, Glob
 # Worktrunk Configuration
 
 ## Config Locations
-- User config dotfiles path: `worktrunk/config.toml`
+- User config dotfiles path: `tools/worktrunk/config.toml`
 - Symlinked to: `~/.config/worktrunk/config.toml`
 - Project config: `.config/wt.toml` (per-repo, committed)
 
@@ -17,15 +17,16 @@ allowed-tools: Read, Edit, Grep, Glob
 - Nested sections use `[section]` or `[section.subsection]` tables
 - Template variables use Jinja-like `{{ variable }}` syntax
 - Filters: `{{ branch | sanitize }}`, `{{ branch | sanitize_db }}`, `{{ branch | hash_port }}`
+- Functions: `{{ worktree_path_of_branch("main") }}`
 - Environment variable overrides: `WORKTRUNK_` prefix, double underscores for nesting
 
 ## Instructions
-1. Read the current config at `worktrunk/config.toml` first
+1. Read the current config at `tools/worktrunk/config.toml` first
 2. Preserve existing structure and comments
-3. User config holds personal preferences (worktree paths, LLM commit settings, list/merge defaults)
+3. User config holds personal preferences (worktree paths, LLM commit settings, list/merge defaults, user hooks)
 4. Project config holds team-shared settings (hooks, dev server URLs, CI platform)
-5. Template variables: `{{ repo }}`, `{{ branch }}`, `{{ repo_path }}`, `{{ worktree_path }}`
-6. Hook types: `post-create`, `post-start`, `post-switch`, `pre-merge`, `pre-commit`, `post-merge`, `pre-remove`, `post-remove`
+5. User hooks run before project hooks and don't require approval
+6. Hook types: `post-create`, `post-start`, `post-switch`, `pre-commit`, `pre-merge`, `post-merge`, `pre-remove`, `post-remove`
 7. The Claude Code plugin is configured separately in `agents/claude-settings.json` under `enabledPlugins`
 
 ## Reference
@@ -33,6 +34,8 @@ See [reference.md](reference.md) for full configuration options, hook types, and
 
 ## Official Documentation
 - Main docs: https://worktrunk.dev/worktrunk/
+- Config: https://worktrunk.dev/config/
 - Hooks: https://worktrunk.dev/hook/
+- LLM commits: https://worktrunk.dev/llm-commits/
 - Claude Code integration: https://worktrunk.dev/claude-code/
 - CLI help: `wt --help`, `wt config --help`

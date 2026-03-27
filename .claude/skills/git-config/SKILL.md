@@ -7,10 +7,11 @@ allowed-tools: Read, Edit, Grep, Glob
 # Git Configuration
 
 ## Config Locations
-- Dotfiles path: `git/.gitconfig`, `git/.work.gitconfig`
-- Symlinked to: `~/.gitconfig`, `~/.work.gitconfig`
+- Dotfiles path: `vcs/git/.gitconfig`, `vcs/git/.work.gitconfig`, `vcs/git/.gitignore_global`
+- Symlinked to: `~/.gitconfig`, `~/.work.gitconfig`, `~/.gitignore_global`
+- Symlinks managed in `nix/modules/home/dotfiles.nix`
 - Personal: Jaren Lo <qnurye@gmail.com>
-- Work: Wenjie Luo (via `includeIf "gitdir:~/work/"`)
+- Work: Wenjie Luo <luowenjie@adastralab.ai> (via `includeIf "gitdir:**/*work*/"`)
 
 ## Format & Syntax
 - INI-like: `[section]` or `[section "subsection"]`
@@ -20,20 +21,21 @@ allowed-tools: Read, Edit, Grep, Glob
 
 ## Conditional Includes
 ```ini
-[includeIf "gitdir:~/work/"]
+[includeIf "gitdir:**/*work*/"]
     path = ~/.work.gitconfig
 ```
-- Trailing slash required on `gitdir:` to match subdirectories recursively
+- `**/*work*/` matches any repo path containing "work" as a directory component
 - `gitdir/i:` for case-insensitive matching
 - Included path is relative to the file containing the `includeIf`
 
 ## Instructions
-1. Read `git/.gitconfig` and `git/.work.gitconfig` first
+1. Read `vcs/git/.gitconfig` and `vcs/git/.work.gitconfig` first
 2. Use correct INI section syntax
 3. Work-specific settings go in `.work.gitconfig`
 4. Preserve existing aliases, delta theme, and LFS config
 5. Indent keys with a tab to match existing style
 6. GPG signing is mandatory -- do not disable it
+7. Both personal and work identities have separate GPG signing keys
 
 ## Reference
 See [reference.md](reference.md) for configuration categories and options.

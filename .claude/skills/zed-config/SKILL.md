@@ -7,8 +7,9 @@ allowed-tools: Read, Edit, Grep, Glob
 # Zed Configuration
 
 ## Config Location
-- Dotfiles path: `zed/settings.json`
-- Symlinked to: `~/.config/zed/settings.json`
+- Dotfiles path: `editors/zed/settings.json`
+- Deployed to: `~/.config/zed/settings.json` (via nix-darwin home-manager, defined in `nix/modules/home/dotfiles.nix`)
+- Only `settings.json` is managed in dotfiles; keymap/tasks/themes are Zed-local
 - Open in Zed: `Cmd+Alt+,`
 
 ## Format & Syntax
@@ -18,12 +19,13 @@ allowed-tools: Read, Edit, Grep, Glob
 - Per-project overrides: `.zed/settings.json` at project root
 
 ## Instructions
-1. Read the current config at `zed/settings.json` first
+1. Read the current config at `editors/zed/settings.json` first
 2. Ensure valid JSONC syntax
 3. Use valid option names per the official docs
 4. Preserve existing structure and comment style
-5. For language overrides: `"languages": { "LanguageName": { ... } }`
-6. For LSP overrides: `"lsp": { "server_name": { "settings": { ... } } }`
+5. After editing, remind user to rebuild: `sudo darwin-rebuild switch --flake ~/dotfiles/nix`
+6. For language overrides: `"languages": { "LanguageName": { ... } }`
+7. For LSP overrides: `"lsp": { "server_name": { "settings": { ... } } }`
 
 ## Reference
 See [reference.md](reference.md) for key configuration categories and options.
