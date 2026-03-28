@@ -19,5 +19,5 @@ function nix-up --description 'Update nix flake and rebuild darwin system'
     echo "Rebuilding system..."
     sudo darwin-rebuild switch --flake $flake_dir \
         --max-jobs auto \
-        --cores 0
+        --cores 0 2>&1 | nom
 end

@@ -24,6 +24,8 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         set packages (brew outdated --cask --quiet 2>/dev/null)
                     else
                         set packages (brew outdated --quiet 2>/dev/null)
+                        # Also include outdated casks (upgrade without --cask upgrades both)
+                        set -a packages (brew outdated --cask --quiet 2>/dev/null)
                     end
                 end
 
@@ -77,7 +79,7 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         continue
                     end
 
-                    # Rewrite URL to use USTC mirror if configured
+                    # Rewrite bottle URL to SJTU mirror
                     if test -n "$HOMEBREW_BOTTLE_DOMAIN"; and test $is_cask -eq 0
                         set url (string replace 'https://ghcr.io/v2/homebrew' "$HOMEBREW_BOTTLE_DOMAIN" $url)
                     end
@@ -93,6 +95,7 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         --console-log-level=warn \
                         --summary-interval=0 \
                         --download-result=hide \
+                        --user-agent='Homebrew/4.0 (Macintosh; Intel Mac OS X) curl/8.7.1' \
                         --dir=(dirname $cache_path) \
                         --out=(basename $cache_path) \
                         $url

@@ -3,7 +3,7 @@
 with pkgs; {
   # ── Foundation ──────────────────────────────────────────────
   "base" = {
-    packages = [ git curl wget jq gnupg coreutils ];
+    packages = [ git curl wget jq gnupg coreutils nix-output-monitor ];
     casks = [];
     deps = [];
   };

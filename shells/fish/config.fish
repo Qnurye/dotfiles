@@ -35,10 +35,9 @@ set -gx GPG_TTY (tty)
 set -gx EDITOR zed
 set -gx VISUAL zed
 
-set -gx HOMEBREW_BREW_GIT_REMOTE "https://mirrors.ustc.edu.cn/brew.git"
-set -gx HOMEBREW_CORE_GIT_REMOTE "https://mirrors.ustc.edu.cn/homebrew-core.git"
-set -gx HOMEBREW_BOTTLE_DOMAIN "https://mirrors.ustc.edu.cn/homebrew-bottles"
-set -gx HOMEBREW_API_DOMAIN "https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+set -gx HOMEBREW_BREW_GIT_REMOTE "https://mirrors.sjtug.sjtu.edu.cn/git/brew.git"
+set -gx HOMEBREW_CORE_GIT_REMOTE "https://mirrors.sjtug.sjtu.edu.cn/git/homebrew-core.git"
+set -gx HOMEBREW_BOTTLE_DOMAIN "https://mirror.sjtu.edu.cn/homebrew-bottles/bottles"
 
 # fnm (Fast Node Manager)
 command -q fnm; and fnm env --use-on-cd --log-level quiet --shell fish | source
