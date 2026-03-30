@@ -216,7 +216,21 @@ Provide your recommendation with reasoning. If multiple directions were selected
 
 For each detailed plan, determine the branch type from the plan content (feat/fix/refactor/chore) and generate a launcher script.
 
-### 5a. Generate all launcher scripts
+### 5a. Ask about TDD mode
+
+Use `AskUserQuestion` to ask the user:
+
+```
+Should this plan use TDD mode?
+```
+
+With options:
+- **Yes** — each phase gets a paired TDD Writer + Implementer, DA writes integration tests independently
+- **No** — standard single-implementor mode
+
+Record the user's choice for the next step.
+
+### 5b. Generate all launcher scripts
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/generate-launcher.sh \
@@ -224,12 +238,15 @@ bash ${CLAUDE_SKILL_DIR}/scripts/generate-launcher.sh \
   --approaches "<slug-1>,<slug-2>,<slug-3>" \
   --branch-type "<feat|fix|refactor|chore>" \
   --context-file "<CONTEXT_FILE path>" \
-  --plans-dir "/tmp/diverge/<goal-slug>/plans"
+  --plans-dir "/tmp/diverge/<goal-slug>/plans" \
+  # Add --tdd flag only if user chose TDD mode in 5a
 ```
+
+If the user chose TDD mode in step 5a, append `--tdd` to the command.
 
 This generates all launchers in a single call. Each approach must have a corresponding `<slug>.md` plan file in the plans directory. The script embeds the init prompt (with context and plan paths) directly into each launcher — no intermediate prompt files needed.
 
-### 5b. Present to user
+### 5c. Present to user
 
 List all generated launcher scripts with the workspace path for plan review:
 
@@ -247,6 +264,12 @@ Each script:
 1. Creates a new worktree branched from the current branch
 2. Launches Claude Code with the full implementation prompt
 3. After Claude exits, your terminal stays in the worktree directory
+```
+
+If TDD mode was selected, also note:
+```
+TDD mode enabled — each phase spawns a TDD Writer + Implementer pair.
+DA writes integration tests in a separate worktree for unbiased verification.
 ```
 
 ---
