@@ -84,7 +84,7 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         set url (string replace 'https://ghcr.io/v2/homebrew' "$HOMEBREW_BOTTLE_DOMAIN" $url)
                     end
 
-                    echo "⬇ Pre-fetching $pkg via aria2..."
+                    echo "\n⬇ Pre-fetching $pkg via aria2..."
                     mkdir -p (dirname $cache_path)
                     aria2c \
                         --max-connection-per-server=16 \
