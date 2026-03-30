@@ -159,7 +159,7 @@ PROMPT_TEMPLATE
     # Create worktree, resolve its path, run claude inside it, then
     # exec into user's shell so cmd+t / new tabs inherit the worktree cwd.
     cat <<'LAUNCHER_BODY'
-wt switch --base "$BASE_BRANCH" --create "$BRANCH_NAME"
+wt switch --base "$BASE_BRANCH" --create --no-cd "$BRANCH_NAME"
 
 # Resolve worktree path from wt list
 WT_PATH=$(wt list --format=json | jq -r --arg b "$BRANCH_NAME" '.[] | select(.branch == $b) | .path')
@@ -169,6 +169,12 @@ if [[ -z "$WT_PATH" || ! -d "$WT_PATH" ]]; then
 fi
 
 cd "$WT_PATH"
+
+# Rename tmux window to the plan slug (no-op outside tmux)
+if [[ -n "${TMUX:-}" ]]; then
+  tmux rename-window "$BRANCH_NAME"
+fi
+
 claude --permission-mode bypassPermissions "$PROMPT"
 
 # Stay in the worktree after claude exits
