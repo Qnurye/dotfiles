@@ -31,9 +31,9 @@
     "gopls-lsp@claude-plugins-official": false,
     "worktrunk@worktrunk": true,
     "context7@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": false
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
