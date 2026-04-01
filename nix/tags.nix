@@ -132,6 +132,8 @@ with pkgs; {
   "fonts/base" = {
     packages = [];
     casks = [
+      "font-commit-mono"
+      "font-commit-mono-nerd-font"
       "font-maple-mono-nf-cn"
       "font-symbols-only-nerd-font"
       "font-ibm-plex-mono"
