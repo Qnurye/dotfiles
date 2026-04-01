@@ -1,7 +1,7 @@
 # Ghostty Configuration
 
 # ============ 字体 ============
-font-family = IBM Plex Mono
+font-family = CommitMono Nerd Font
 font-size = 13
 
 # ============ 主题 ============
