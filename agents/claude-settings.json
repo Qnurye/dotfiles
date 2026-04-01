@@ -33,13 +33,20 @@
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": false,
+    "impeccable@impeccable": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
       "source": {
         "source": "github",
         "repo": "max-sixty/worktrunk"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
       }
     }
   },
