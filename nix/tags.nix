@@ -175,7 +175,7 @@ with pkgs; {
 
   "apps/llm" = {
     packages = [ ollama ];
-    casks = [ "claude" "claude-code" "codex" "codex-app" ];
+    casks = [ "claude" "claude-code@latest" "codex" "codex-app" ];
     deps = [];
   };
 
