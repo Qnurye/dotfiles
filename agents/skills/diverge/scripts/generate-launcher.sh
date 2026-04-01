@@ -121,6 +121,12 @@ Read the grounding context at: ${context_file}
 ## Plan
 Read the detailed plan at: ${plan_file}
 
+## Script Utilities
+
+All git and worktree operations must be performed via these scripts (never raw git/wt):
+
+DIVERGE_SCRIPTS="\$HOME/.claude/skills/diverge/scripts"
+
 ## TDD Execution
 
 Read the context and plan first, then execute the TDD workflow below.
@@ -135,10 +141,7 @@ one task per phase plus one task for "DA: Integration & Smoke Tests".
 Create a branch-isolated worktree for the Devil's Advocate:
 
 \`\`\`bash
-wt switch --create "\${BRANCH_NAME}-tests" --base "\${BASE_BRANCH}" --no-cd
-
-DA_WT_PATH=\$(wt list --format=json | jq -r --arg b "\${BRANCH_NAME}-tests" \\
-  '.[] | select(.branch == \$b) | .path')
+DA_WT_PATH=\$("\$DIVERGE_SCRIPTS/diverge-wt-create.sh" "\${BRANCH_NAME}-tests" "\${BASE_BRANCH}")
 \`\`\`
 
 ### Step 3: Spawn DA agent (Phase A — parallel with pairs)
@@ -152,7 +155,7 @@ prompt: |
   Plan file: ${plan_file}
   Context file: ${context_file}
   Worktree path: <DA_WT_PATH>
-  Feature branch: \${BRANCH_NAME}
+  Feature branch: \${BRANCH_NAME} (for reference only — orchestrator handles all git ops)
   Orchestrator: <your agent name>
 
   Start Phase A immediately: detect test conventions, write integration
@@ -209,12 +212,27 @@ the parallel phase.
 
 When all pairs are done:
 \`\`\`bash
-git add -A && git commit -m "wip: diverge staging checkpoint" --no-verify
+"\$DIVERGE_SCRIPTS/diverge-wip-commit.sh" "diverge staging checkpoint"
 \`\`\`
 
 ### Step 8: Trigger DA Phase B
 
-When BOTH conditions are met, send to the DA:
+When BOTH conditions are met:
+
+#### Step 8a: Merge implementation into DA worktree
+
+Before triggering Phase B, merge the feature branch into the DA worktree:
+
+\`\`\`bash
+"\$DIVERGE_SCRIPTS/diverge-merge-into-da.sh" "<DA_WT_PATH>" "\${BRANCH_NAME}"
+\`\`\`
+
+If the merge script fails (merge conflict), do NOT send MERGE_AND_VERIFY.
+Instead report the conflict to the user and pause.
+
+#### Step 8b: Signal DA
+
+Only after the merge succeeds, send to the DA:
 \`\`\`
 MERGE_AND_VERIFY
 \`\`\`
@@ -222,18 +240,36 @@ MERGE_AND_VERIFY
 ### Step 9: Handle DA review
 
 **If DA reports APPROVED:**
-1. Copy DA's test files from the tests worktree to this worktree
-   (use the paths from DA's TESTS_WRITTEN message)
-2. Clean up: \`wt -C "<DA_WT_PATH>" remove\`
-3. Report success to the user
+1. Parse paths from DA's TESTS_WRITTEN message (integration: and smoke: fields)
+2. Copy DA test files:
+   \`\`\`bash
+   "\$DIVERGE_SCRIPTS/diverge-copy-da-tests.sh" "<DA_WT_PATH>" "<WT_PATH>" <integration-path> <smoke-path>
+   \`\`\`
+3. Consolidate all commits into staged state:
+   \`\`\`bash
+   "\$DIVERGE_SCRIPTS/diverge-consolidate.sh" "\${BASE_BRANCH}"
+   \`\`\`
+4. Clean up DA worktree:
+   \`\`\`bash
+   wt -C "<DA_WT_PATH>" remove
+   \`\`\`
+5. Report success to the user. Final state: all changes staged, ready for user review
+   and commit.
 
 **If DA reports NEEDS_FIXES:**
 1. Read the findings — filter for Critical and Important issues
 2. Distribute FIX_REQUEST messages to the relevant pair agents
 3. Wait for FIX_DONE from all pairs
-4. Re-stage: \`git add -A && git commit -m "wip: diverge fix round N" --no-verify\`
-5. Send FIXES_APPLIED to DA for re-verification
-6. Maximum 2 fix rounds — after that, report remaining issues to user
+4. Stage and commit fixes:
+   \`\`\`bash
+   "\$DIVERGE_SCRIPTS/diverge-wip-commit.sh" "diverge fix round N"
+   \`\`\`
+5. Re-merge fixes into DA worktree:
+   \`\`\`bash
+   "\$DIVERGE_SCRIPTS/diverge-merge-into-da.sh" "<DA_WT_PATH>" "\${BRANCH_NAME}"
+   \`\`\`
+6. Send FIXES_APPLIED to DA for re-verification
+7. Maximum 2 fix rounds — after that, report remaining issues to user
 
 ### Step 10: Final cleanup
 
