@@ -1,7 +1,7 @@
 # Ghostty Configuration
 
 # ============ 字体 ============
-font-family = Maple Mono NF CN
+font-family = IBM Plex Mono
 font-size = 13
 
 # ============ 主题 ============

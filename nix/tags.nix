@@ -134,6 +134,7 @@ with pkgs; {
     casks = [
       "font-maple-mono-nf-cn"
       "font-symbols-only-nerd-font"
+      "font-ibm-plex-mono"
     ];
     deps = [];
   };
