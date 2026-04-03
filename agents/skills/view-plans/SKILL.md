@@ -23,74 +23,59 @@ Translate English plan markdown files to Simplified Chinese and serve them as a 
 3. Glob `*.md` files in the resolved plans directory using the Glob tool.
    - If no `.md` files are found, print: `Error: No markdown files found in <directory>.` and STOP.
 
-## Stage B — Translate Each Plan
+## Stage B — Translate Each Plan (File-Based)
 
-For each `.md` file found in Stage A:
+Sub-agents read source files directly and write translations to independent output files. The main agent never reads or handles markdown content.
 
-1. Read the file content using the Read tool.
-2. Spawn an Agent subagent with `model: "haiku"` to translate the content. Use this prompt:
+1. Create the CN output directory:
+   ```bash
+   mkdir -p /tmp/view-plans-output/cn
+   ```
+
+2. For each `.md` file found in Stage A, spawn an Agent subagent with `model: "haiku"`. Use this prompt:
 
    ```
-   Translate the following markdown from English to Simplified Chinese (zh-CN).
+   Translate a markdown file from English to Simplified Chinese (zh-CN).
 
    Rules:
+   - Read the source file yourself using the Read tool.
    - Preserve ALL markdown formatting exactly (headers, lists, code blocks, tables, bold, italic).
    - Do NOT translate: file paths, function names, variable names, code identifiers, command-line flags, or code inside backticks.
-   - Do NOT add any preamble, explanation, or notes. Return ONLY the translated markdown.
+   - Do NOT add any preamble, explanation, or notes.
+   - Write ONLY the translated markdown to the output file using the Write tool. Do not output the content in your response.
 
-   Content to translate:
-
-   <paste file content here>
+   Source file: <absolute path to .md file>
+   Output file: /tmp/view-plans-output/cn/<same filename>
    ```
 
 3. **IMPORTANT**: Spawn ALL translation agents in parallel — use a single message with multiple Agent tool calls, one per plan file. Do NOT translate sequentially.
 
-4. Collect results: for each plan, store the original filename (without `.md` extension, used as tab label), the original EN markdown, and the CN translation.
+4. Wait for all agents to complete. Do NOT read their output files.
 
 ## Stage C — Assemble and Serve
 
 1. Copy the HTML template to the output directory:
    ```bash
-   mkdir -p /tmp/view-plans-output
-   cp ~/dotfiles/agents/skills/view-plans/template.html /tmp/view-plans-output/index.html
+   cp ~/dotfiles/agents/skills/view-plans/scripts/template.html /tmp/view-plans-output/index.html
    ```
 
-2. Build the plans JSON data structure as a string. For each plan:
-   - `name`: filename without `.md`, hyphens replaced by spaces, title-cased.
-   - `en`: original EN markdown content.
-   - `cn`: translated CN markdown content.
-
-   The JSON shape is: `{"plans": [{"name": "...", "en": "...", "cn": "..."}, ...]}`
-
-3. Write the JSON to a temporary file and use `sed` to inject it into the copied HTML, replacing the `<!-- PLANS_DATA -->` placeholder:
+2. Run the assemble script to read all EN + CN files from disk, build JSON, and inject into HTML. The main agent does NOT read any markdown files — the script handles everything:
    ```bash
-   # Write the plans JSON to a temp file via Bash heredoc or Write tool
-   # Then inject it into the HTML:
-   sed -i '' "s|<!-- PLANS_DATA -->|<script>window.__PLANS__ = $(cat /tmp/view-plans-data.json);</script>|" /tmp/view-plans-output/index.html
+   bun run ~/dotfiles/agents/skills/view-plans/scripts/assemble.ts --plans-dir <resolved plans directory>
    ```
-   Alternatively, use a Bash script with `node -e` or `bun -e` for proper JSON escaping:
-   ```bash
-   bun -e "
-     const data = JSON.parse(require('fs').readFileSync('/tmp/view-plans-data.json','utf8'));
-     let html = require('fs').readFileSync('/tmp/view-plans-output/index.html','utf8');
-     html = html.replace('<!-- PLANS_DATA -->', '<script>window.__PLANS__ = ' + JSON.stringify(data) + ';</script>');
-     require('fs').writeFileSync('/tmp/view-plans-output/index.html', html);
-   "
-   ```
-   Use the `bun -e` approach — it handles escaping correctly for markdown content with special characters.
 
-5. Launch the Bun server in the background using the Bash tool:
+3. Launch the Bun server in the background using the Bash tool:
    ```bash
-   bun run ~/dotfiles/agents/skills/view-plans/serve.ts --dir /tmp/view-plans-output --pid-file /tmp/view-plans.pid &
+   bun run ~/dotfiles/agents/skills/view-plans/scripts/serve.ts --dir /tmp/view-plans-output --pid-file /tmp/view-plans.pid &
    ```
    The server will print `Serving at http://localhost:<port>` to stdout. Capture the port number.
 
-6. Open the page in the default browser:
+4. Open the page in the default browser:
    ```bash
    open http://localhost:<port>
    ```
 
-7. Print to the user:
+5. Print to the user:
    ```
    Plans are being served at http://localhost:<port>
    Re-invoking /view-plans will automatically replace the running server.

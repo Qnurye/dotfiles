@@ -61,8 +61,9 @@ in
       ".claude/skills/diverge/scripts/migrate-sessions.sh" = mkLink "agents/skills/diverge/scripts/migrate-sessions.sh";
       ".claude/skills/pr/SKILL.md" = mkLink "agents/skills/pr/SKILL.md";
       ".claude/skills/view-plans/SKILL.md" = mkLink "agents/skills/view-plans/SKILL.md";
-      ".claude/skills/view-plans/serve.ts" = mkLink "agents/skills/view-plans/serve.ts";
-      ".claude/skills/view-plans/template.html" = mkLink "agents/skills/view-plans/template.html";
+      ".claude/skills/view-plans/scripts/assemble.ts" = mkLink "agents/skills/view-plans/scripts/assemble.ts";
+      ".claude/skills/view-plans/scripts/serve.ts" = mkLink "agents/skills/view-plans/scripts/serve.ts";
+      ".claude/skills/view-plans/scripts/template.html" = mkLink "agents/skills/view-plans/scripts/template.html";
     }
 
     # macOS-specific paths
