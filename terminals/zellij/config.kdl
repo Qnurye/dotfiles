@@ -1,0 +1,33 @@
+// Zellij Configuration
+// Docs: https://zellij.dev/documentation/
+
+// ============ General ============
+default_shell "fish"
+default_layout "compact"
+pane_frames false
+on_force_close "detach"
+session_serialization true
+serialize_pane_viewport true
+scrollback_lines_to_serialize 5000
+
+// ============ Ghostty Native ============
+// Ghostty supports kitty keyboard protocol and styled underlines
+support_kitty_keyboard_protocol true
+styled_underlines true
+rounded_corners true
+
+// ============ Mouse ============
+mouse_mode true
+copy_on_select true
+copy_command "pbcopy"
+
+// ============ UI ============
+simplified_ui false
+scroll_buffer_size 100000
+
+// ============ Theme ============
+// Match Ghostty's Atom One Dark
+theme "one-half-dark"
+
+// ============ Keybindings ============
+// Keep defaults, add Cmd passthrough from Ghostty below

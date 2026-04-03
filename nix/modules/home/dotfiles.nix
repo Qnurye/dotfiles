@@ -43,6 +43,10 @@
         source = ../../../terminals/tmux/.tmux.conf.local;
         force = true;
       };
+      ".config/zellij/config.kdl" = {
+        source = ../../../terminals/zellij/config.kdl;
+        force = true;
+      };
 
       # VCS - Git
       ".gitconfig" = {
