@@ -134,6 +134,7 @@ with pkgs; {
     casks = [
       "font-commit-mono"
       "font-commit-mono-nerd-font"
+      "font-ioskeley-mono"
       "font-maple-mono-nf-cn"
       "font-symbols-only-nerd-font"
       "font-ibm-plex-mono"

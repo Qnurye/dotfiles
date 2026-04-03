@@ -14,24 +14,33 @@ tmux_conf_new_session_retain_current_path=true
 tmux_conf_new_window_retain_current_path=true
 tmux_conf_copy_to_os_clipboard=true
 
-# ── Theme ────────────────────────────────────────────────────────
-tmux_conf_theme_colour_1="#1f2329"
-tmux_conf_theme_colour_2="#2a2f38"
-tmux_conf_theme_colour_3="#9aa4b2"
-tmux_conf_theme_colour_4="#7aa2f7"
-tmux_conf_theme_colour_5="#e5c07b"
-tmux_conf_theme_colour_6="#1f2329"
-tmux_conf_theme_colour_7="#d0d7de"
-tmux_conf_theme_colour_8="#1f2329"
-tmux_conf_theme_colour_9="#3a4150"
-tmux_conf_theme_colour_10="#3a4150"
-tmux_conf_theme_colour_11="#3a4150"
-tmux_conf_theme_colour_12="#9aa4b2"
-tmux_conf_theme_colour_13="#d0d7de"
-tmux_conf_theme_colour_14="#1f2329"
-tmux_conf_theme_colour_15="#1f2329"
-tmux_conf_theme_colour_16="#2a2f38"
-tmux_conf_theme_colour_17="#d0d7de"
+# ── Theme (follows terminal palette — adapts to light/dark) ──────
+# colour_1       = status bar bg
+# colour_2       = pane border (inactive)
+# colour_3       = inactive window fg / message fg
+# colour_4       = accent (active window bg, active pane border)
+# colour_5       = alert accent (prefix, bell)
+# colour_6/7/8   = status-left fg (3 segments)
+# colour_9/10/11 = status-left bg (3 segments)
+# colour_12/13/14= status-right fg (3 segments)
+# colour_15/16/17= status-right bg (3 segments)
+tmux_conf_theme_colour_1="default"      # status bar bg → terminal bg
+tmux_conf_theme_colour_2="colour8"      # pane border → bright black
+tmux_conf_theme_colour_3="colour8"      # inactive window fg → muted
+tmux_conf_theme_colour_4="colour4"      # accent → ANSI blue
+tmux_conf_theme_colour_5="colour3"      # alert → ANSI yellow
+tmux_conf_theme_colour_6="colour15"     # status-left seg1 fg (on blue bg)
+tmux_conf_theme_colour_7="default"      # status-left seg2 fg
+tmux_conf_theme_colour_8="default"      # status-left seg3 fg
+tmux_conf_theme_colour_9="colour4"      # status-left seg1 bg (session = blue)
+tmux_conf_theme_colour_10="default"     # status-left seg2 bg
+tmux_conf_theme_colour_11="default"     # status-left seg3 bg
+tmux_conf_theme_colour_12="colour8"     # status-right seg1 fg (muted)
+tmux_conf_theme_colour_13="default"     # status-right seg2 fg
+tmux_conf_theme_colour_14="default"     # status-right seg3 fg
+tmux_conf_theme_colour_15="default"     # status-right seg1 bg
+tmux_conf_theme_colour_16="default"     # status-right seg2 bg
+tmux_conf_theme_colour_17="default"     # status-right seg3 bg
 
 tmux_conf_theme_left_separator_main=""
 tmux_conf_theme_left_separator_sub="|"
@@ -53,8 +62,8 @@ set -g set-clipboard on
 
 # ── Pane ─────────────────────────────────────────────────────────
 set -g pane-border-lines simple
-set -g pane-border-style "fg=#3a4150"
-set -g pane-active-border-style "fg=#7aa2f7"
+set -g pane-border-style "fg=colour8"
+set -g pane-active-border-style "fg=colour4"
 set -g mouse on
 
 # ── Plugins ──────────────────────────────────────────────────────

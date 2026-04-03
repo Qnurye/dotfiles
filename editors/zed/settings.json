@@ -11,17 +11,13 @@
       "args": [],
       "projects": [
         {
-          "paths": [
-            "/root"
-          ]
+          "paths": ["/root"],
         },
         {
-          "paths": [
-            "/root/prism/clawd/skills/./"
-          ]
-        }
-      ]
-    }
+          "paths": ["/root/prism/clawd/skills/./"],
+        },
+      ],
+    },
   ],
   "restore_on_startup": "empty_tab",
   "edit_predictions": {
@@ -64,10 +60,10 @@
     "default_model": {
       "provider": "copilot_chat",
       "model": "claude-opus-4.6",
-      "enable_thinking": false
+      "enable_thinking": false,
     },
     "tool_permissions": {
-      "default": "allow"
+      "default": "allow",
     },
     "default_profile": "write",
     "commit_message_model": {

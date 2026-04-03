@@ -2,20 +2,21 @@
 
 # ============ 字体 ============
 font-family = CommitMono Nerd Font
-font-size = 13
+font-size = 15
 
 # ============ 主题 ============
-theme = light:Nord,dark:Atom One Dark
+theme = light:Atom One Light,dark:Atom One Dark
 
 # ============ 光标 ============
 cursor-style = bar
 
 # ============ 背景 ============
 background-opacity = 0.9
+background-opacity-cells = true
 background-blur = true
 
 # ============ 窗口 ============
-window-padding-x = 0
+window-padding-x = 2
 window-padding-y = 0
 window-padding-balance = true
 window-vsync = true
@@ -28,6 +29,7 @@ mouse-scroll-multiplier = precision:2,discrete:3
 
 # ============ 复制/选择 ============
 copy-on-select = true
+clipboard-read = allow
 
 # ============ Shell 集成 ============
 shell-integration = detect

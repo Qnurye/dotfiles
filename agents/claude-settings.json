@@ -49,6 +49,8 @@
       }
     }
   },
+  "theme": "auto",
+  "syntaxHighlightingDisabled": false,
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }

@@ -1,7 +1,7 @@
 ---
 description: Ghostty terminal emulator configuration. Use when modifying, generating, or troubleshooting Ghostty config (fonts, themes, keybindings, window, cursor, clipboard, shell integration, macOS settings).
 user-invocable: false
-allowed-tools: Read, Edit, Grep, Glob
+allowed-tools: Read, Edit, Grep, Glob, WebFetch
 ---
 
 # Ghostty Configuration
@@ -27,19 +27,18 @@ allowed-tools: Read, Edit, Grep, Glob
 
 ## Instructions
 1. Read the current config at `terminals/ghostty/config` first
-2. Use valid option names per the official docs
-3. Preserve existing structure and Chinese section headers
-4. Group related settings under their section headers
-5. Add brief inline comments for non-obvious settings (especially keybind hex sequences)
-6. When adding tmux keybinds, use `text:\x1c` prefix (Ctrl-\) followed by the tmux key byte
-7. Some options cannot be reloaded at runtime -- note this when relevant
-8. `mouse-scroll-multiplier` supports `precision:N,discrete:N` syntax for separate trackpad/mouse values
-
-## Reference
-See [reference.md](reference.md) for key configuration categories and options.
+2. **Fetch the latest docs** before making changes — use `WebFetch` to retrieve the relevant reference:
+   - Config options: `https://raw.githubusercontent.com/ghostty-org/website/refs/heads/main/docs/config/reference.mdx`
+   - Keybinding options: `https://raw.githubusercontent.com/ghostty-org/website/refs/heads/main/docs/config/keybind/reference.mdx`
+3. Use valid option names per the fetched docs
+4. Preserve existing structure and Chinese section headers
+5. Group related settings under their section headers
+6. Add brief inline comments for non-obvious settings (especially keybind hex sequences)
+7. When adding tmux keybinds, use `text:\x1c` prefix (Ctrl-\) followed by the tmux key byte
+8. Some options cannot be reloaded at runtime — note this when relevant
 
 ## Official Documentation
 - Config overview: https://ghostty.org/docs/config
-- Full option reference: https://ghostty.org/docs/config/reference
-- Keybinding reference: https://ghostty.org/docs/config/keybind/reference
+- Full option reference: https://raw.githubusercontent.com/ghostty-org/website/refs/heads/main/docs/config/reference.mdx
+- Keybinding reference: https://raw.githubusercontent.com/ghostty-org/website/refs/heads/main/docs/config/keybind/reference.mdx
 - CLI docs: `ghostty +show-config --default --docs`
