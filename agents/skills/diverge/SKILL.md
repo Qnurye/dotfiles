@@ -2,7 +2,6 @@
 name: diverge
 description: Divergent planning — explore multiple implementation directions for a goal, refine with user input, then generate executable launcher scripts for each chosen approach.
 argument-hint: <goal description or GitHub issue URL>
-disable-model-invocation: true
 ---
 
 # Diverge — Divergent Planning Skill
