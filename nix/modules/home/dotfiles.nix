@@ -63,6 +63,18 @@
         source = ../../../tools/worktrunk/config.toml;
         force = true;
       };
+
+      # Claude Code
+      ".claude/agents" = {
+        source = ../../../agents/agents;
+        force = true;
+        recursive = true;
+      };
+      ".claude/skills" = {
+        source = ../../../agents/skills;
+        force = true;
+        recursive = true;
+      };
     }
 
     # macOS-specific paths
