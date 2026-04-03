@@ -2,6 +2,7 @@
 *.backup
 *.local
 !.tmux.conf.local
+shells/fish/fish_variables
 .last_sync
 .last_fetch
 .sync_conflict
