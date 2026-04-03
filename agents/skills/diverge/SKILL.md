@@ -42,67 +42,91 @@ Append the sub-agent's findings to the context file (`CONTEXT_FILE`).
 
 ---
 
-## Phase 1: Edge Clarification (Multi-Round)
+## Phase 1: Edge Clarification
 
-Iteratively clarify the user's goal through layered rounds until the specification is fully resolved. This phase focuses exclusively on **intent, goals, and behavior/interaction rules** — never ask about technical implementation details, architecture choices, or non-functional requirements (performance, compatibility, etc.). Technical details belong in the plans (Phase 3).
+Iteratively clarify the user's goal until the specification is fully resolved. This phase focuses exclusively on **intent, goals, and behavior/interaction rules** — never ask about technical implementation details, architecture choices, or non-functional requirements (performance, compatibility, etc.). Technical details belong in the plans (Phase 3).
 
-### Allowed question topics
+### Topic boundaries
 
-- **User intent / goals**: "What effect do you want to achieve?", "What motivated this change?"
-- **Behavior / interaction rules**: "When X happens, what should the outcome be?", "What does the user see/experience?"
+**Allowed** (intent & behavior):
+- **Purpose**: What problem does this solve? What motivated this change?
+- **Constraints**: What limits exist? What must NOT change?
+- **Success criteria**: How do you know it's done? What does the user see/experience?
+- **Behavioral rules**: When X happens, what should the outcome be?
 
-### Prohibited question topics (defer to plans)
-
+**Prohibited** (defer to Phase 3 plans):
 - Architecture, data structures, file organization
 - Performance, scalability, compatibility constraints
 - Library/framework choices, API design
 - Priorities or tradeoffs between competing concerns
 
-### Round structure
+### Step 1: Scope assessment
 
-Each round follows a layered progression. The AI decides how many questions to ask per round based on the number of ambiguities found — there is no fixed limit.
+Before asking detailed questions, review the goal against grounded context and assess scope:
 
-**Round 1 — Scope & Goals**: Review the goal against grounded context. Ask about high-level intent, target audience, core scenarios, and desired outcomes.
+- Does the goal describe **multiple independent subsystems**? If so, flag it and propose decomposition into sub-goals. Use `AskUserQuestion` to confirm the decomposition or let the user adjust.
+- Is the goal **already narrow enough**? Proceed directly to questioning.
 
-**Round 2+ — Behavior & Boundaries**: Based on previous answers, probe deeper into behavioral rules, edge cases in user-facing flows, and boundary conditions. Each round focuses on new ambiguities surfaced by prior answers.
+If decomposed, run the remaining steps of Phase 1 for each sub-goal independently, then merge the resolved decisions into a single context file.
 
-### Round execution
+### Step 2: Structured questioning (one at a time)
 
-For each round:
+Ask clarifying questions **one per message**. This keeps the conversation natural and avoids overwhelming the user. Prefer **multiple-choice** (single-select or multi-select via `AskUserQuestion`) whenever reasonable options can be enumerated — fall back to open-ended only when the answer space is too large to enumerate.
 
-1. Analyze the goal + context + all prior answers to identify remaining ambiguities
-2. For each ambiguity, use `AskUserQuestion`:
-   - **Single-select**: when options are mutually exclusive
-   - **Multi-select**: when the user may combine options
-   - The tool automatically provides an "Other" escape hatch
-3. Record the user's choices
+Progress through three focus areas in order. Within each area, ask as many questions as needed before moving on — but skip questions whose answers are already clear from the grounded context.
 
-### Convergence check
+**Focus 1 — Purpose & Goals**: Why does this change exist? Who benefits? What are the core scenarios?
 
-After each round, evaluate: did the user's answers surface any new ambiguities or unresolved behavioral questions?
+**Focus 2 — Constraints & Boundaries**: What must remain unchanged? What is explicitly out of scope? Are there behavioral invariants?
 
-- **Yes** → begin a new round targeting those new ambiguities
-- **No** → proceed to termination
+**Focus 3 — Success Criteria & Edge Cases**: How does the user know it worked? What happens in boundary conditions? What does failure look like?
 
-### Termination: spec summary + user confirmation
+After each answer, evaluate whether it surfaces new ambiguities. If it does, follow up immediately (still one question at a time) before moving to the next focus area.
 
-When no new ambiguities remain, present a **complete specification summary** — a plain-language description of every resolved decision organized by topic. Then use `AskUserQuestion` to ask the user for final confirmation:
+### Step 3: Convergence check
+
+After all three focus areas have been covered and no new ambiguities remain, proceed to the spec summary. If the user's latest answer opens a new thread, continue questioning before summarizing.
+
+### Step 4: Spec audit (sub-agent)
+
+Before presenting the summary to the user, persist the current resolved decisions to the context file, then spawn a `diverge-spec-auditor` agent to independently evaluate readiness:
+
+```
+Agent(subagent_type: diverge-spec-auditor, prompt: """
+Context file: <CONTEXT_FILE path>
+Original goal: <user's goal>
+""")
+```
+
+- If `PASS` → proceed to Step 5.
+- If `FAIL` → use the auditor's suggested questions to ask the user for clarification (one at a time, per Step 2 rules), then re-run Step 4.
+
+Up to 3 audit rounds. If still failing after 3, present the remaining gaps to the user and let them decide whether to proceed or continue clarifying.
+
+### Step 5: Spec summary + user confirmation
+
+Present a **complete specification summary** — a plain-language description of every resolved decision organized by focus area (Purpose, Constraints, Success Criteria). Then use `AskUserQuestion` to confirm:
 
 - "Looks complete" → proceed to Phase 2
-- "I want to add/change something" → start a new round with the user's additions
+- "I want to add/change something" → return to Step 2 with the user's additions, then re-run Steps 3-5
 
 ### Persist decisions
 
-Append all resolved decisions to the context file after termination:
+Append all resolved decisions to the context file after confirmation:
 
 ```markdown
 ---
 
 ## Resolved Decisions
 
-- **<Issue 1>**: <User's choice> — <rationale if given>
-- **<Issue 2>**: <User's choice>
-- ...
+### Purpose & Goals
+- **<Decision>**: <User's choice> — <rationale if given>
+
+### Constraints & Boundaries
+- **<Decision>**: <User's choice>
+
+### Success Criteria
+- **<Decision>**: <User's choice>
 ```
 
 ---
