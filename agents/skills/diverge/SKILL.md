@@ -16,7 +16,37 @@ If no arguments provided, ask the user for a goal description. The goal can be f
 
 ---
 
+## State Machine
+
+Every phase has an explicit entry condition and exit gate. Do not advance to the next state until the exit gate is satisfied. When advancing, print the gate check visibly.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  State          Entry requires       Exit gate           │
+├─────────────────────────────────────────────────────────┤
+│  GROUNDING      script exits OK      context file exists │
+│  CLARIFYING     context file exists  spec auditor PASS   │
+│  ABSTRACTING    spec auditor PASS    user selects ≥1 dir │
+│  PLANNING       user selected dirs   all tasks complete  │
+│  REVIEWING      all tasks complete   user confirms plans  │
+│  LAUNCHING      user confirms        launchers generated  │
+└─────────────────────────────────────────────────────────┘
+```
+
+Transition format — every phase boundary must print:
+
+> ✓ Exit gate satisfied: [condition]. Advancing to [STATE].
+
+---
+
 ## Phase 0: Context Grounding
+
+**Entry requires:** Skill invoked with a goal (from `$ARGUMENTS` or user prompt).
+**Exit gate:** Context file exists at the path returned by `gather-context.sh`.
+**Prohibited in this phase:**
+- Do not ask clarifying questions about the goal
+- Do not propose directions or architecture
+- Do not skip the grounding script
 
 ### 0a. Run the grounding script
 
@@ -39,9 +69,19 @@ If gaps exist, use the `Agent` tool with `subagent_type: Explore` to perform aut
 
 Append the sub-agent's findings to the context file (`CONTEXT_FILE`).
 
+> ✓ Exit gate satisfied: context file exists. Advancing to CLARIFYING.
+
 ---
 
 ## Phase 1: Edge Clarification
+
+**Entry requires:** Context file exists and was read in Phase 0.
+**Exit gate:** Spec auditor returns PASS (or user explicitly overrides after 3 failed audits).
+**Prohibited in this phase:**
+- Do not discuss architecture, data structures, or implementation approach
+- Do not ask more than one question per message
+- Do not propose directions or plans
+- Do not advance to Phase 2 until exit gate is satisfied
 
 Iteratively clarify the user's goal until the specification is fully resolved. This phase focuses exclusively on **intent, goals, and behavior/interaction rules** — never ask about technical implementation details, architecture choices, or non-functional requirements (performance, compatibility, etc.). Technical details belong in the plans (Phase 3).
 
@@ -84,7 +124,7 @@ After each answer, evaluate whether it surfaces new ambiguities. If it does, fol
 
 ### Step 3: Convergence check
 
-After all three focus areas have been covered and no new ambiguities remain, proceed to the spec summary. If the user's latest answer opens a new thread, continue questioning before summarizing.
+After all three focus areas have been covered and no new ambiguities remain, advance to the spec audit (Step 4). If the user's latest answer opens a new thread, continue questioning before summarizing.
 
 ### Step 4: Spec audit (sub-agent)
 
@@ -97,16 +137,16 @@ Original goal: <user's goal>
 """)
 ```
 
-- If `PASS` → proceed to Step 5.
+- If `PASS` → ✓ Exit gate satisfied: spec auditor PASS. Proceed to Step 5.
 - If `FAIL` → use the auditor's suggested questions to ask the user for clarification (one at a time, per Step 2 rules), then re-run Step 4.
 
-Up to 3 audit rounds. If still failing after 3, present the remaining gaps to the user and let them decide whether to proceed or continue clarifying.
+Up to 3 audit rounds. If still failing after 3, present the remaining gaps to the user and let them decide whether to override (exit gate satisfied by explicit user override) or continue clarifying.
 
 ### Step 5: Spec summary + user confirmation
 
 Present a **complete specification summary** — a plain-language description of every resolved decision organized by focus area (Purpose, Constraints, Success Criteria). Then use `AskUserQuestion` to confirm:
 
-- "Looks complete" → proceed to Phase 2
+- "Looks complete" → ✓ Exit gate satisfied: spec auditor PASS + user confirms spec. Advancing to ABSTRACTING.
 - "I want to add/change something" → return to Step 2 with the user's additions, then re-run Steps 3-5
 
 ### Persist decisions
@@ -142,6 +182,13 @@ Throughout this skill, `<goal-slug>` and `<direction-slug>` refer to URL-safe id
 
 ## Phase 2: Abstract Planning
 
+**Entry requires:** Spec auditor PASS (or user override) and user confirmed the spec summary.
+**Exit gate:** User selects ≥1 direction to expand into detailed plans.
+**Prohibited in this phase:**
+- Do not write detailed implementation plans (that's Phase 3)
+- Do not generate launcher scripts
+- Do not spawn plan-writer agents
+
 Generate N high-level implementation directions (typically 2-4). Each direction should:
 - Take a distinct architectural or strategic approach
 - Be independent — no direction should reference another
@@ -161,9 +208,21 @@ Present all directions in a comparison format. Then ask the user to select one o
 - Ask for an additional direction not yet proposed
 - Ask clarifying questions
 
+Once the user selects ≥1 direction:
+
+> ✓ Exit gate satisfied: user selected directions. Advancing to PLANNING.
+
 ---
 
 ## Phase 3: Detailed Planning
+
+**Entry requires:** User selected ≥1 direction in Phase 2.
+**Exit gate:** All plan-writer tasks reach `completed` status.
+**Prohibited in this phase:**
+- Do not intervene in plan-writer / DA validation loops
+- Do not cancel tasks preemptively
+- Do not generate launcher scripts
+- Do not present cross-comparison (that's Phase 4)
 
 For each selected direction, create the planning infrastructure:
 
@@ -204,11 +263,24 @@ Each plan-writer handles validation autonomously by spawning its own Devil's Adv
 3. If rejected — writer revises and spawns a new DA sub-agent (up to 3 rounds)
 4. If approved — writer marks their task complete
 
-Do NOT intervene in this loop. Wait for all tasks to complete.
+Do NOT intervene in this loop.
+
+### Waiting for plan-writers
+
+Do NOT check in or message plan-writers. Wait for all tasks to reach `completed` status. If a task is still `in_progress` for an unexpectedly long time, check its output with `TaskOutput` before taking any action. Never cancel a task preemptively.
+
+> ✓ Exit gate satisfied: all plan-writer tasks completed. Advancing to REVIEWING.
 
 ---
 
 ## Phase 4: Final Review
+
+**Entry requires:** All plan-writer tasks completed (all plans written and DA-approved).
+**Exit gate:** User confirms plan selection (approves plans to launch).
+**Prohibited in this phase:**
+- Do not modify plans
+- Do not generate launcher scripts yet
+- Do not skip the cross-comparison table
 
 Once all diverge-plan-writer tasks are complete:
 
@@ -233,9 +305,20 @@ Present a comparison table:
 
 Provide your recommendation with reasoning. If multiple directions were selected, explain which is strongest and why.
 
+Ask the user to confirm. Once confirmed:
+
+> ✓ Exit gate satisfied: user confirms plans. Advancing to LAUNCHING.
+
 ---
 
 ## Phase 5: Generate Launchers
+
+**Entry requires:** User confirms plans in Phase 4.
+**Exit gate:** All launcher scripts generated and presented to the user.
+**Prohibited in this phase:**
+- Do not modify plans
+- Do not re-run clarification or planning phases
+- Do not execute the launcher scripts (user does that)
 
 For each detailed plan, determine the branch type from the plan content (feat/fix/refactor/chore) and generate a launcher script.
 
@@ -294,6 +377,8 @@ If TDD mode was selected, also note:
 TDD mode enabled — each phase spawns a TDD Writer + Implementer pair.
 DA writes integration tests in a separate worktree for unbiased verification.
 ```
+
+> ✓ Exit gate satisfied: launchers generated and presented. Skill complete.
 
 ---
 
