@@ -56,8 +56,6 @@ echo "PREREQ_OK"
 cd "$(git rev-parse --show-toplevel)"
 
 KNOWN_DOCS=(
-  "./CLAUDE.md"
-  "./AGENTS.md"
   "./GEMINI.md"
   "./README.md"
   "./openspec/project.md"
