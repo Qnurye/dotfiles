@@ -19,7 +19,7 @@ with pkgs; {
   "cli/tools" = {
     packages = [
       aria2
-      bat fd fzf ripgrep yazi neovim tmux eza zoxide tree zellij
+      bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
       lazygit (direnv.overrideAttrs (old: { env = (old.env or {}) // { CGO_ENABLED = 1; }; })) git-lfs delta difftastic jujutsu
       worktrunk pinentry_mac
     ];
@@ -75,7 +75,7 @@ with pkgs; {
 
   # ── Development: Base ───────────────────────────────────────
   "dev/base" = {
-    packages = [ gh nil ];
+    packages = [ gh nil nixd ];
     casks = [];
     deps = [ "base" "cli/tools" ];
   };
