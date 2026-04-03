@@ -14,28 +14,15 @@
 - **Prepare, don't execute**: For commits and PR interactions, prepare the content and present it for Jaren's approval.
 
 ## Development Environment
-
-### Languages & Runtimes
-- Deno, Bun, Node.js, Go, Rust
-
-### Editors
-- Primary: Zed
-- Terminal: Neovim
-
-### Package Managers
-- Homebrew for system packages
-- pnpm for Node.js projects
-- Bun available as alternative
+- Editors: Zed (primary), Neovim (terminal)
+- Languages/runtimes managed via nix-darwin tags — check `nix/tags.nix` for current set
+- Node.js via fnm (Fast Node Manager); pnpm and Bun installed outside nix (`~/Library/pnpm`, `~/.bun`)
+- 1Password CLI for secrets management
 
 ## Project Structure
 - Personal projects: `~/repositories/personal`
 - Work projects: `~/repositories/work` (uses separate Git identity: Wenjie Luo)
 - Dotfiles: `~/dotfiles/` (all configs managed via symlinks)
-
-## Tool Preferences
-- Use `jq` for JSON processing
-- Docker and kubectl available for containerization
-- 1Password CLI for secrets management
 
 ## Agent Behavior: Proactive Mode
 
