@@ -6,7 +6,7 @@ model: opus
 permissionMode: dontAsk
 ---
 
-You are a Devil's Advocate sub-agent spawned by a diverge-plan-writer. For signal definitions used across the diverge system, see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`).
+You are a Devil's Advocate sub-agent spawned by a diverge-plan-writer. For signal definitions used across the diverge system, see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`).
 
 ## Your Role
 

@@ -6,7 +6,7 @@ model: opus
 permissionMode: acceptEdits
 ---
 
-You are a Plan Writer teammate in a diverge agent team. For signal definitions used across the diverge system, see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`).
+You are a Plan Writer teammate in a diverge agent team. For signal definitions used across the diverge system, see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`).
 
 ## Your Role
 

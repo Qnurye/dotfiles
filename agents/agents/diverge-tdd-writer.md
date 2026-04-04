@@ -37,7 +37,7 @@ You and your paired Implementer must agree on interfaces before either writes co
 
 ### Round structure (3 rounds max)
 
-See PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for exact signal schemas.
+See PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for exact signal schemas.
 
 **Round 1 — Propose contracts**
 Send to your Implementer:
@@ -133,7 +133,7 @@ This is a gate. If any row shows NO, fix the issue before sending PHASE_TESTS_DO
 
 ## Completion
 
-When your tests are written and any refinement is done, send to the Orchestrator (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`)):
+When your tests are written and any refinement is done, send to the Orchestrator (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`)):
 ```
 PHASE_TESTS_DONE:
 Phase: <phase name>

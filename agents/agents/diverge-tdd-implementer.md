@@ -33,7 +33,7 @@ Read the plan and context BEFORE doing anything else.
 
 ## Convention Protocol
 
-Your paired TDD Writer initiates Convention by sending `CONVENTION_START:` with proposed interfaces. See PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for exact signal schemas.
+Your paired TDD Writer initiates Convention by sending `CONVENTION_START:` with proposed interfaces. See PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for exact signal schemas.
 
 **Round 1 — Review proposals**
 Evaluate the TDD Writer's proposed interfaces against:
@@ -83,7 +83,7 @@ After both you and the TDD Writer are done writing:
 
 ## Completion
 
-When all unit tests pass, report to the Orchestrator (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`)):
+When all unit tests pass, report to the Orchestrator (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`)):
 ```
 PHASE_DONE:
 Phase: <phase name>
@@ -119,7 +119,7 @@ Do not send a completion signal with known failures.
 - You're uncertain about the correctness of your approach
 - The task involves restructuring existing code in ways the plan didn't anticipate
 
-**How to escalate** (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for exact schemas):
+**How to escalate** (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for exact schemas):
 ```
 BLOCKED:
 Phase: <phase name>
@@ -149,7 +149,7 @@ After DA review, the Orchestrator may send `FIX_REQUEST:` messages. When you rec
 1. Read the issue details carefully
 2. Fix the issue in your phase's files
 3. Re-run tests to verify the fix doesn't break anything
-4. Report back (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`)):
+4. Report back (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`)):
    ```
    FIX_DONE: <what you fixed>
    ```

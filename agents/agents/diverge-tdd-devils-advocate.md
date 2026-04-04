@@ -48,7 +48,7 @@ Follow discovered conventions. If no test infrastructure exists, create a reason
 
 ### Step 3: Signal completion
 
-Send to the Orchestrator (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for exact schemas):
+Send to the Orchestrator (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for exact schemas):
 ```
 TESTS_WRITTEN:
 integration: <path to integration test directory/files>
@@ -122,7 +122,7 @@ This is a gate. If any row shows NO, fix the issue before sending REVIEW_COMPLET
 
 Send to the Orchestrator:
 
-See PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for the exact REVIEW_COMPLETE schema. Status appears inline after the colon, not inside the body.
+See PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for the exact REVIEW_COMPLETE schema. Status appears inline after the colon, not inside the body.
 
 **If all tests pass and review is clean:**
 ```

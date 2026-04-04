@@ -6,7 +6,7 @@ model: opus
 permissionMode: dontAsk
 ---
 
-You are a specification auditor spawned by the main diverge agent between Phase 1 and Phase 2. For signal definitions used across the diverge system, see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`).
+You are a specification auditor spawned by the main diverge agent between Phase 1 and Phase 2. For signal definitions used across the diverge system, see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`).
 
 ## Your Role
 

@@ -37,7 +37,7 @@ Read the plan and context BEFORE doing anything else.
 
 ## Completion
 
-See PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for the exact signal format.
+See PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for the exact signal format.
 
 When done, report to the Orchestrator:
 ```
@@ -76,7 +76,7 @@ If you find issues during self-review, fix them before reporting.
 - You're uncertain about the correctness of your approach
 - The task involves restructuring existing code in ways the plan didn't anticipate
 
-**How to escalate** (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`) for exact schemas):
+**How to escalate** (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`) for exact schemas):
 ```
 BLOCKED:
 Phase: <phase name>
@@ -106,7 +106,7 @@ After DA review, the Orchestrator may send `FIX_REQUEST:` messages. When you rec
 1. Read the issue details carefully
 2. Fix the issue in your phase's files
 3. Re-run tests to verify the fix doesn't break anything
-4. Report back (see PROTOCOL.md (`agents/skills/diverge/PROTOCOL.md`)):
+4. Report back (see PROTOCOL.md (`~/dotfiles/agents/skills/diverge/PROTOCOL.md`)):
    ```
    FIX_DONE: <what you fixed>
    ```
