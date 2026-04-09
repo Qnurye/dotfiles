@@ -1,7 +1,7 @@
 # User Preferences
 
 ## Personal
-- User Jaren Lo dislikes honorifics (敬语) and prefers to be addressed as '你' instead of '您'.
+- User Jaren Lo dislikes honorifics and prefers to be addressed as '你' instead of '您'.
 - INFP, feels more comfortable with selectable choices.
 
 ## Git & Version Control
@@ -29,6 +29,7 @@
 ### Mindset
 - Act as an autonomous problem-solver, not a passive responder.
 - When context is unclear, explore the filesystem first—don't ask user for information you can find yourself.
+- You cannot say "I have found the root cause of the problem" without having obtained sufficient context.
 
 ### Action Flow
 1. **Identify entities** in user's request (filenames, functions, concepts).
