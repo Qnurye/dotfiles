@@ -146,17 +146,18 @@ DA_WT_PATH=\$("\$DIVERGE_SCRIPTS/diverge-wt-create.sh" "\${BRANCH_NAME}-tests" "
 
 ### Step 3: Spawn DA agent (Phase A — parallel with pairs)
 
-Use TeamCreate to form team "diverge-implement-<goal-slug>".
+Use TeamCreate to form team "diverge-implement". **Your name in this team
+is \`orch\`** — pass this name to every agent you spawn so they can message you.
 
 Spawn the DA agent with \`subagent_type: diverge-tdd-devils-advocate\`:
 \`\`\`
-name: diverge-da-<goal-slug>
+name: da
 prompt: |
   Plan file: ${plan_file}
   Context file: ${context_file}
   Worktree path: <DA_WT_PATH>
   Feature branch: \${BRANCH_NAME} (for reference only — orchestrator handles all git ops)
-  Orchestrator: <your agent name>
+  Orchestrator: orch
 
   Start Phase A immediately: detect test conventions, write integration
   and smoke tests based on the plan. Send TESTS_WRITTEN when done.
@@ -165,28 +166,32 @@ prompt: |
 
 ### Step 4: Spawn TDD Writer + Implementer pairs (parallel)
 
-For each phase, spawn a PAIR of agents simultaneously:
+For each phase, spawn a PAIR of agents simultaneously.
+
+**Naming rule:** The \`name:\` field you give each agent and the
+\`Paired ...\` value in the other agent's prompt MUST be identical strings.
+Decide the exact names first, then use them verbatim in both places.
 
 **TDD Writer** (\`subagent_type: diverge-tdd-writer\`):
 \`\`\`
-name: diverge-tdd-<phase-slug>
+name: tdd-<phase-slug>
 prompt: |
   Phase: <phase name and full details from plan>
   Plan file: ${plan_file}
   Context file: ${context_file}
-  Paired Implementer: diverge-impl-<phase-slug>
-  Orchestrator: <your agent name>
+  Paired Implementer: impl-<phase-slug>
+  Orchestrator: orch
 \`\`\`
 
 **Implementer** (\`subagent_type: diverge-tdd-implementer\`):
 \`\`\`
-name: diverge-impl-<phase-slug>
+name: impl-<phase-slug>
 prompt: |
   Phase: <phase name and full details from plan>
   Plan file: ${plan_file}
   Context file: ${context_file}
-  Paired TDD Writer: diverge-tdd-<phase-slug>
-  Orchestrator: <your agent name>
+  Paired TDD Writer: tdd-<phase-slug>
+  Orchestrator: orch
 \`\`\`
 
 Spawn independent phases in parallel. Only serialize phases with true
@@ -201,12 +206,13 @@ If a TDD Writer sends CONVENTION_DEADLOCK:
 
 ### Step 6: Wait for all pairs (dual-gate synchronization)
 
-Track two conditions:
-- **ALL_PAIRS_DONE**: all Implementers have sent PHASE_DONE
-- **TESTS_WRITTEN**: DA has sent TESTS_WRITTEN
+Track three conditions:
+- **ALL_IMPL_DONE**: all Implementers have sent PHASE_DONE
+- **ALL_TESTS_DONE**: all TDD Writers have sent PHASE_TESTS_DONE
+- **DA_TESTS_WRITTEN**: DA has sent TESTS_WRITTEN
 
-Both must be met before proceeding. Neither side blocks the other during
-the parallel phase.
+All three must be met before proceeding. Neither side blocks the other
+during the parallel phase.
 
 ### Step 7: Stage changes
 
@@ -286,6 +292,11 @@ PHASE_DONE, PHASE_TESTS_DONE, TESTS_WRITTEN, MERGE_AND_VERIFY,
 REVIEW_COMPLETE, FIX_REQUEST, FIX_DONE, FIXES_APPLIED,
 BLOCKED, NEEDS_CONTEXT
 
+**CRITICAL: SendMessage \`to\` field must be the bare agent name only** (e.g.,
+\`impl-phase1\`, \`da\`, \`orch\`). Never include team names, prefixes, paths,
+quotes, or descriptive text — just the exact name string from the agent's
+\`name:\` field.
+
 Begin by reading the context and plan, then start execution.
 PROMPT_TEMPLATE
     else
@@ -298,6 +309,12 @@ Read the grounding context at: ${context_file}
 ## Plan
 Read the detailed plan at: ${plan_file}
 
+## Script Utilities
+
+All git and worktree operations must be performed via these scripts (never raw git/wt):
+
+DIVERGE_SCRIPTS="\$HOME/.claude/skills/diverge/scripts"
+
 ## Execution
 
 Read the context and plan first, then decompose the plan into tasks and
@@ -305,8 +322,17 @@ a team for parallel execution.
 
 ### Task decomposition
 
-Use TaskCreate to create one task per phase from the plan. Then use
-TeamCreate to form the implementation team and spawn teammates.
+Use TaskCreate to create one task per phase from the plan, plus one
+task for "DA: Verification". Then use TeamCreate to form the
+implementation team and spawn teammates.
+
+### Agent naming
+
+**Your name in this team is \`orch\`.** Use short, consistent names:
+- Implementers: \`impl-<phase-slug>\` (e.g., \`impl-api-routes\`)
+- DA: \`da\`
+
+Pass \`Orchestrator: orch\` to every spawned agent.
 
 ### Parallelism rules
 
@@ -318,6 +344,8 @@ Only serialize phases that have true data dependencies (e.g., a phase
 that modifies a file another phase reads, or a phase that depends on
 the output of another).
 
+Spawn implementers with \`subagent_type: diverge-implementer\`.
+
 ### Team communication
 
 Teammates MUST use SendMessage to coordinate:
@@ -327,13 +355,39 @@ Teammates MUST use SendMessage to coordinate:
   so dependent work can start before the upstream phase completes
 - Report blockers so the orchestrator can reassign or unblock
 
+**CRITICAL: SendMessage \`to\` field must be the bare agent name only** (e.g.,
+\`impl-phase1\`, \`da\`, \`orch\`). Never include team names, prefixes, paths,
+quotes, or descriptive text — just the exact name string from the agent's
+\`name:\` field.
+
 ### Verification
 
-The final task is ALWAYS a Devil's Advocate phase. It runs only after
-all other tasks complete and verifies:
-- All plan steps were executed correctly
-- The result satisfies the original goal
-- No regressions or unintended side effects
+After all implementation phases complete, stage a checkpoint:
+\`\`\`bash
+"\$DIVERGE_SCRIPTS/diverge-wip-commit.sh" "diverge staging checkpoint"
+\`\`\`
+
+Then spawn a DA agent (\`subagent_type: diverge-tdd-devils-advocate\`,
+name: \`da\`) to verify the implementation. The DA works in the SAME
+worktree (no separate worktree needed). Its prompt should include:
+- Plan file and context file paths
+- Worktree path: the current working directory
+- \`Orchestrator: orch\`
+- Instruction: skip Phase A (no separate test writing). Go directly to
+  Phase B — run existing tests, review code against the plan, and
+  report REVIEW_COMPLETE.
+
+Handle DA results (APPROVED / NEEDS_FIXES) the same as TDD mode.
+
+### Consolidation
+
+After DA approves (or after fix rounds), consolidate all WIP commits:
+\`\`\`bash
+"\$DIVERGE_SCRIPTS/diverge-consolidate.sh" "\${BASE_BRANCH}"
+\`\`\`
+
+Report success to the user. Final state: all changes staged, ready for
+user review and commit.
 
 Begin implementation immediately after reading the context and plan.
 PROMPT_TEMPLATE

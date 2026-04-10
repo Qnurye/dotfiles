@@ -265,6 +265,29 @@ FIXES_APPLIED: re-merge and verify
 
 ---
 
+### TEST_FEEDBACK
+- **Sender:** TDD-Implementer
+- **Receiver:** TDD-Writer (paired)
+- **Trigger:** Unit tests fail and root cause is in the test, not the implementation
+- **Required fields:**
+  - `Test`: string — name of the failing test
+  - `Issue`: string — what's wrong with the test
+  - `Evidence`: string — why this is a test issue, not an implementation bug
+- **Optional fields:**
+  - `Suggested fix`: string — optional fix suggestion
+- **Prohibited:** Must not be used to avoid fixing real implementation bugs. Must include evidence.
+
+**Wire format:**
+```
+TEST_FEEDBACK:
+Test: <test name>
+Issue: <what's wrong>
+Evidence: <why this is a test issue, not an implementation bug>
+Suggested fix: <optional>
+```
+
+---
+
 ### FIX_REQUEST
 - **Sender:** Orchestrator
 - **Receiver:** Implementer / TDD-Implementer

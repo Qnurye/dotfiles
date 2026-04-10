@@ -32,7 +32,7 @@
     "worktrunk@worktrunk": true,
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": false,
-    "superpowers@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
     "impeccable@impeccable": true,
     "codex@openai-codex": true
   },

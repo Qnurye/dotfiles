@@ -56,6 +56,7 @@ echo "PREREQ_OK"
 cd "$(git rev-parse --show-toplevel)"
 
 KNOWN_DOCS=(
+  "./CLAUDE.md"
   "./GEMINI.md"
   "./README.md"
   "./openspec/project.md"
@@ -80,7 +81,8 @@ for doc in "${KNOWN_DOCS[@]}"; do
 done
 
 # Always create context file (even if empty) so downstream phases have a valid path
-CONTEXT_FILE=$(mktemp "${TMPDIR:-/tmp}/diverge-context-XXXXXXXX")
+mkdir -p /tmp/diverge
+CONTEXT_FILE=$(mktemp "/tmp/diverge/context-XXXXXXXX")
 
 if [[ ${#found_docs[@]} -eq 0 ]]; then
   echo "# Grounded Context" > "$CONTEXT_FILE"
