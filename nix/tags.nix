@@ -22,6 +22,9 @@ with pkgs; {
       bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
       lazygit (direnv.overrideAttrs (old: { env = (old.env or {}) // { CGO_ENABLED = 1; }; })) git-lfs delta difftastic jujutsu
       worktrunk pinentry_mac
+      # Structured-data & code-mod toolbelt — see ~/.claude/CLAUDE.md "Preferred CLI Tools"
+      yq-go jd-diff-patch dasel ast-grep sd gron
+      hyperfine tokei git-absorb
     ];
     casks = [];
     deps = [ "base" ];

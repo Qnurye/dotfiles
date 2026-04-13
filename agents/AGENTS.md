@@ -9,9 +9,32 @@
 - Prefer `gh` CLI to access GitHub.
 - Git pull strategy: rebase.
 - GPG signing enabled for commits.
-- **No git commit**: Never run `git commit` directly. Jaren must review and commit.
-- **No peer interaction**: Never use `gh pr review`, `gh pr comment`, `gh issue comment`, `gh pr merge`, `gh pr reply`, or any command that interacts with real people. Jaren must review first.
-- **Prepare, don't execute**: For commits and PR interactions, prepare the content and present it for Jaren's approval.
+- **Prepare, don't execute**: stage changes and propose commit messages or PR replies for Jaren's review. Destructive and peer-interaction git/gh operations are hard-blocked by a PreToolUse hook (`~/dotfiles/agents/hooks/block-destructive-git.sh`) — don't try to work around it; ask Jaren instead.
+
+## Preferred CLI Tools
+Reach for these modern tools when a task calls for searching, filtering, or transforming data in the shell. They are faster, safer, or more ergonomic than the POSIX defaults.
+
+| Need | Use | Notes |
+|------|-----|-------|
+| Search file contents | `rg` (ripgrep) | Honors `.gitignore`; regex is PCRE-lite. Prefer the Grep tool when inside Claude Code — it wraps ripgrep. |
+| Find files | `fd` | Simpler than `find`; honors `.gitignore`. |
+| JSON query/edit | `jq` | |
+| JSON diff | `jd` | Semantic diff for JSON; better than `diff` on pretty-printed output. |
+| JSON → greppable | `gron` | `gron foo.json \| rg 'pattern'` — great for spelunking unknown schemas. |
+| YAML / TOML / XML query | `yq` | jq-compatible syntax (install `yq-go`, not the Python one). |
+| Universal data selector | `dasel` | One tool for JSON/YAML/TOML/XML/CSV when `jq`/`yq` juggling gets annoying. |
+| Structural code search/refactor | `ast-grep` (`sg`) | AST-level find-and-replace. Safer than regex for code transforms. |
+| `sed`-style replace | `sd` | Saner syntax, fewer escaping footguns. |
+| Pretty-print file | `bat` | Syntax highlight + paging. Use the Read tool inside Claude Code. |
+| Directory listing | `eza` | Replacement for `ls` with git/tree modes. |
+| Git diff pager | `delta` | Already wired into `.gitconfig`. |
+| Fuzzy selection | `fzf` | Interactive filtering in pipelines. |
+| Benchmark commands | `hyperfine` | Warmups, statistics, markdown export. |
+| Git worktrees | `wt` (worktrunk) | Jaren's worktree workflow — see `worktrunk-config` skill. |
+| Line-count / loc stats | `tokei` | Faster and more accurate than `cloc`. |
+
+**Not yet installed — install via nix-add if you need them:**
+`jd` · `yq-go` · `dasel` · `ast-grep` · `sd` · `gron` · `hyperfine` · `tokei` · `miller` (mlr, for CSV/TSV pipelines) · `xh` (curl/HTTPie replacement) · `git-absorb` (auto fixup commits). Ask Jaren before running `nix-add`.
 
 ## Development Environment
 - Editors: Zed (primary), Neovim (terminal)
