@@ -47,7 +47,7 @@ with pkgs; {
   };
 
   "cli/net" = {
-    packages = [ cloudflared mosh nmap tailscale ];
+    packages = [ cloudflared mosh nmap tailscale xh ];
     casks = [];
     deps = [];
   };
@@ -59,7 +59,7 @@ with pkgs; {
   };
 
   "cli/data" = {
-    packages = [ duckdb pandoc poppler typst qpdf ];
+    packages = [ duckdb pandoc poppler typst qpdf miller ];
     casks = [];
     deps = [];
   };
