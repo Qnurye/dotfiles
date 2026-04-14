@@ -32,8 +32,8 @@ test -f "$HOME/.local/bin/env.fish"; and source "$HOME/.local/bin/env.fish"
 set -gx GPG_TTY (tty)
 
 # Editor
-set -gx EDITOR zed
-set -gx VISUAL zed
+set -gx EDITOR "zed --wait"
+set -gx VISUAL "zed --wait"
 
 set -gx HOMEBREW_BREW_GIT_REMOTE "https://mirrors.sjtug.sjtu.edu.cn/git/brew.git"
 set -gx HOMEBREW_CORE_GIT_REMOTE "https://mirrors.sjtug.sjtu.edu.cn/git/homebrew-core.git"
