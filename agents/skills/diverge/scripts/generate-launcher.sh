@@ -421,9 +421,10 @@ trap cleanup_da EXIT
 
 cd "$WT_PATH"
 
-# Rename tmux window to the plan slug (no-op outside tmux)
-if [[ -n "${TMUX:-}" ]]; then
-  tmux rename-window "$BRANCH_NAME"
+# Rename this script's own tmux window — target $TMUX_PANE explicitly so the
+# rename can't land on whichever window happens to be visible right now.
+if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
+  tmux rename-window -t "$TMUX_PANE" "$BRANCH_NAME"
 fi
 
 claude --permission-mode bypassPermissions "$PROMPT"
@@ -444,9 +445,10 @@ fi
 
 cd "$WT_PATH"
 
-# Rename tmux window to the plan slug (no-op outside tmux)
-if [[ -n "${TMUX:-}" ]]; then
-  tmux rename-window "$BRANCH_NAME"
+# Rename this script's own tmux window — target $TMUX_PANE explicitly so the
+# rename can't land on whichever window happens to be visible right now.
+if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
+  tmux rename-window -t "$TMUX_PANE" "$BRANCH_NAME"
 fi
 
 claude --permission-mode bypassPermissions "$PROMPT"

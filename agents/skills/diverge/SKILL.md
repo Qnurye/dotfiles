@@ -28,8 +28,8 @@ Every phase has an explicit entry condition and exit gate. Do not advance to the
 │  CLARIFYING     context file exists  spec auditor PASS   │
 │  ABSTRACTING    spec auditor PASS    user selects ≥1 dir │
 │  PLANNING       user selected dirs   all tasks complete  │
-│  REVIEWING      all tasks complete   user confirms plans  │
-│  LAUNCHING      user confirms        launchers generated  │
+│  REVIEWING      all tasks complete   comparison presented │
+│  LAUNCHING      comparison presented launchers generated  │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -276,11 +276,12 @@ Do NOT check in or message plan-writers. Wait for all tasks to reach `completed`
 ## Phase 4: Final Review
 
 **Entry requires:** All plan-writer tasks completed (all plans written and DA-approved).
-**Exit gate:** User confirms plan selection (approves plans to launch).
+**Exit gate:** Cross-comparison and recommendation presented to the user.
 **Prohibited in this phase:**
 - Do not modify plans
 - Do not generate launcher scripts yet
 - Do not skip the cross-comparison table
+- Do not ask the user to pick which plans to launch — every detailed plan gets a launcher in Phase 5
 
 Once all diverge-plan-writer tasks are complete:
 
@@ -305,15 +306,15 @@ Present a comparison table:
 
 Provide your recommendation with reasoning. If multiple directions were selected, explain which is strongest and why.
 
-Ask the user to confirm. Once confirmed:
+Do not ask the user to choose — every plan in `/tmp/diverge/<goal-slug>/plans/` gets a launcher. Then immediately:
 
-> ✓ Exit gate satisfied: user confirms plans. Advancing to LAUNCHING.
+> ✓ Exit gate satisfied: comparison and recommendation presented. Advancing to LAUNCHING.
 
 ---
 
 ## Phase 5: Generate Launchers
 
-**Entry requires:** User confirms plans in Phase 4.
+**Entry requires:** Phase 4 cross-comparison and recommendation presented.
 **Exit gate:** All launcher scripts generated and presented to the user.
 **Prohibited in this phase:**
 - Do not modify plans
