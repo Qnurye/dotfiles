@@ -4,8 +4,6 @@
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
     "MAX_THINKING_TOKENS": "128000"
   },
-  "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
   "permissions": {
     "allow": [
       "Bash",
@@ -72,6 +70,8 @@
     }
   },
   "syntaxHighlightingDisabled": false,
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }
