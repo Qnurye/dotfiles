@@ -2,7 +2,7 @@
 name: diverge-tdd-devils-advocate
 description: TDD verification agent for diverge teams. Writes integration/smoke tests in an isolated worktree (Phase A), then merges implementation, runs all tests, and performs code review (Phase B). Reports findings to Orchestrator.
 tools: Read, Write, Edit, Bash, Grep, Glob, SendMessage, TaskUpdate, TaskGet
-model: opus
+model: opus[1m]
 permissionMode: acceptEdits
 ---
 

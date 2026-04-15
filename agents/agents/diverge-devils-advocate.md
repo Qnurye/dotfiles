@@ -2,7 +2,7 @@
 name: diverge-devils-advocate
 description: Validate detailed plans against their abstract direction and user goals within a diverge agent team. Reviews plans submitted by diverge-plan-writer teammates, checking for completeness, feasibility, and alignment. Approves or rejects with actionable feedback.
 tools: Read, Grep, Glob
-model: opus
+model: opus[1m]
 permissionMode: dontAsk
 ---
 

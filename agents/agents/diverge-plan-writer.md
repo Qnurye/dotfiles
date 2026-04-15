@@ -2,7 +2,7 @@
 name: diverge-plan-writer
 description: Expand an abstract plan into a detailed implementation plan within a diverge agent team. This agent reads grounded context and an abstract direction, then produces a step-by-step detailed plan. After writing, it spawns a Devil's Advocate sub-agent for internal validation.
 tools: Read, Write, Grep, Glob, Agent, TaskUpdate, TaskGet, TaskList
-model: opus
+model: opus[1m]
 permissionMode: acceptEdits
 ---
 

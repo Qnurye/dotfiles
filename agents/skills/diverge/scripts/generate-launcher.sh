@@ -95,6 +95,11 @@ for approach in "${approach_list[@]}"; do
     branch_name="${branch_type}/${approach}"
   fi
 
+  # Unique team name per launcher so parallel diverge runs don't collide on
+  # a shared "diverge-implement" team in CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS.
+  team_suffix=$(uuidgen | tr 'A-Z' 'a-z' | tr -d '-' | cut -c1-6)
+  team_name="diverge-${approach}-${team_suffix}"
+
   output_file="${output_dir}/${approach}.sh"
 
   cat > "$output_file" <<LAUNCHER_VARS
@@ -146,7 +151,7 @@ DA_WT_PATH=\$("\$DIVERGE_SCRIPTS/diverge-wt-create.sh" "\${BRANCH_NAME}-tests" "
 
 ### Step 3: Spawn DA agent (Phase A — parallel with pairs)
 
-Use TeamCreate to form team "diverge-implement". **Your name in this team
+Use TeamCreate to form team \`${team_name}\`. **Your name in this team
 is \`orch\`** — pass this name to every agent you spawn so they can message you.
 
 Spawn the DA agent with \`subagent_type: diverge-tdd-devils-advocate\`:
@@ -323,8 +328,8 @@ a team for parallel execution.
 ### Task decomposition
 
 Use TaskCreate to create one task per phase from the plan, plus one
-task for "DA: Verification". Then use TeamCreate to form the
-implementation team and spawn teammates.
+task for "DA: Verification". Then use TeamCreate to form team
+\`${team_name}\` and spawn teammates.
 
 ### Agent naming
 

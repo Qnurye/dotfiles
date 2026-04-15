@@ -2,7 +2,7 @@
 name: diverge-tdd-implementer
 description: Implement code for a single phase within a diverge TDD team. Pairs with a TDD Writer via Convention protocol to align on interfaces, then implements code to pass the TDD Writer's tests. Reports completion status to Orchestrator.
 tools: Read, Write, Edit, Bash, Grep, Glob, SendMessage, TaskUpdate, TaskGet
-model: opus
+model: opus[1m]
 permissionMode: acceptEdits
 ---
 

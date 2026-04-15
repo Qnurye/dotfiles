@@ -2,7 +2,7 @@
 name: diverge-tdd-writer
 description: Write unit tests for a single implementation phase within a diverge TDD team. Initiates Convention protocol with paired Implementer to align on interfaces before writing tests. Reports completion to Orchestrator.
 tools: Read, Write, Edit, Bash, Grep, Glob, SendMessage, TaskUpdate, TaskGet
-model: opus
+model: opus[1m]
 permissionMode: acceptEdits
 ---
 

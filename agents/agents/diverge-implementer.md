@@ -2,7 +2,7 @@
 name: diverge-implementer
 description: Implement code for a single phase within a diverge team. Implements autonomously, writes own tests, and reports completion status to Orchestrator.
 tools: Read, Write, Edit, Bash, Grep, Glob, SendMessage, TaskUpdate, TaskGet
-model: opus
+model: opus[1m]
 permissionMode: acceptEdits
 ---
 

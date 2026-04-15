@@ -2,7 +2,7 @@
 name: diverge-spec-auditor
 description: Audit whether the Phase 1 specification (context file with resolved decisions) is sufficiently clear and complete to proceed to Phase 2 abstract planning. Returns PASS or FAIL with specific gaps.
 tools: Read, Grep, Glob
-model: opus
+model: opus[1m]
 permissionMode: dontAsk
 ---
 
