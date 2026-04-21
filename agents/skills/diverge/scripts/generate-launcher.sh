@@ -108,8 +108,13 @@ set -euo pipefail
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
-BASE_BRANCH="${base_branch}"
-BRANCH_NAME="${branch_name}"
+# Exported so the launched agent (and any \$SHELL it spawns via Bash tool)
+# inherits these in its environment. Otherwise the prompt's \${BASE_BRANCH}
+# / \$DIVERGE_SCRIPTS references resolve to empty strings and the agent
+# silently falls back to wrong defaults (e.g. consolidate against main).
+export BASE_BRANCH="${base_branch}"
+export BRANCH_NAME="${branch_name}"
+export DIVERGE_SCRIPTS="\$HOME/.claude/skills/diverge/scripts"
 
 LAUNCHER_VARS
 
