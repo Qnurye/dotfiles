@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diverge Monitor</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Maple Mono NF CN", "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  background: #0d1117;
+  color: #e6edf3;
+  min-width: 800px;
+  padding: 16px 24px;
+  line-height: 1.5;
+}
+.muted { color: #8b949e; }
+
+/* Header */
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #21262d;
+}
+#direction { font-size: 1.4em; font-weight: 700; }
+#goal-slug { font-size: 1em; color: #8b949e; }
+#worktree-path { font-family: inherit; font-size: 0.85em; color: #8b949e; }
+#start-time { font-size: 0.85em; color: #8b949e; margin-left: auto; }
+#conn-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; flex-shrink: 0;
+}
+.conn-connected { background: #238636; }
+.conn-reconnecting { background: #d29922; }
+.conn-disconnected { background: #f85149; }
+.conn-gap-pulse { background: #d29922; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+#final-badge {
+  background: #238636;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Gap warning */
+#gap-warn {
+  background: #d29922;
+  color: #1c1205;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+/* Final banner */
+#final-banner {
+  background: #238636;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.1em;
+}
+
+/* Progress */
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+#progress-bar {
+  flex: 1;
+  height: 14px;
+  background: #21262d;
+  border-radius: 7px;
+  overflow: hidden;
+}
+#progress-fill {
+  height: 100%;
+  background: #238636;
+  border-radius: 7px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+body:not(.frozen) #progress-fill.active {
+  background: linear-gradient(90deg, #238636 0%, #2ea043 50%, #238636 100%);
+  background-size: 200% 100%;
+  animation: progress-shine 2s linear infinite;
+}
+@keyframes progress-shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+#progress-count { font-weight: 600; white-space: nowrap; }
+#percentage { font-weight: 600; min-width: 3.5em; text-align: right; }
+#elapsed, #eta { color: #8b949e; white-space: nowrap; }
+
+/* Task table */
+#task-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+#task-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid #21262d;
+  color: #8b949e;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+#task-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #21262d;
+}
+#task-table tr.row-updated td {
+  background: rgba(88, 166, 255, 0.08);
+  transition: background 0.6s ease;
+}
+.task-status .badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+.status-pending .badge { background: #21262d; color: #8b949e; }
+.status-in_progress .badge { background: rgba(88, 166, 255, 0.15); color: #58a6ff; animation: pulse 2s ease-in-out infinite; }
+.status-completed .badge { background: rgba(35, 134, 54, 0.15); color: #238636; }
+
+/* Event feed */
+#event-feed {
+  list-style: none;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.event-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid #161b22;
+  animation: fade-in 0.3s ease;
+}
+@keyframes fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.event-time { color: #8b949e; font-size: 0.85em; flex-shrink: 0; }
+.pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.75em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.pill-signal { background: rgba(163, 113, 247, 0.15); color: #a371f7; }
+.pill-task { background: rgba(88, 166, 255, 0.15); color: #58a6ff; }
+.pill-script { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+.pill-system { background: rgba(139, 148, 158, 0.15); color: #8b949e; }
+.event-name { font-weight: 600; flex-shrink: 0; }
+.event-summary { color: #8b949e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Frozen */
+body.frozen #progress-fill { opacity: 0.6; animation: none; }
+body.frozen .status-in_progress .badge { animation: none; }
+
+/* Signal mini-cards */
+.signal-card {
+  background: #161b22;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  font-size: 0.85em;
+}
+.signal-card .field { color: #8b949e; margin-right: 4px; }
+.signal-card .value { color: #e6edf3; }
+.signal-card.signal-blocked,
+.signal-card.signal-needs-context { background: rgba(210, 153, 34, 0.1); border-left: 3px solid #d29922; }
+.signal-card.signal-approved { background: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; }
+.signal-card.signal-needs-fixes { background: rgba(248, 81, 73, 0.1); border-left: 3px solid #f85149; }
+</style>
+</head>
+<body>
+
+<header>
+  <span id="direction"></span>
+  <span id="goal-slug"></span>
+  <span id="worktree-path"></span>
+  <span id="start-time" class="muted"></span>
+  <span id="conn-dot" class="conn-disconnected"></span>
+  <span id="final-badge" hidden>FINAL</span>
+</header>
+
+<div id="gap-warn" hidden>⚠ No events for <span id="gap-secs">—</span>s — possible emission gap</div>
+<div id="final-banner" hidden>Run Complete</div>
+
+<div class="progress-section">
+  <div id="progress-bar">
+    <div id="progress-fill"></div>
+  </div>
+  <span id="progress-count">0/0</span>
+  <span id="percentage">0%</span>
+  <span id="elapsed">0s</span>
+  <span id="eta">Estimating...</span>
+</div>
+
+<table id="task-table">
+  <thead><tr><th>ID</th><th>Subject</th><th>Owner</th><th>Status</th></tr></thead>
+  <tbody id="task-tbody"></tbody>
+</table>
+
+<ul id="event-feed"></ul>
+
+<script>
+(function() {
+  'use strict';
+
+  var state = {
+    meta: { goalSlug: '', direction: '', worktreePath: '', port: 0, startedAt: '' },
+    tasks: {},
+    events: [],
+    completedAt: null,
+    lastEventTs: 0,
+    emissionGap: false
+  };
+
+  var elapsedTimer = null;
+  var userScrolled = false;
+  var feed = document.getElementById('event-feed');
+
+  feed.addEventListener('scroll', function() {
+    userScrolled = feed.scrollTop > 20;
+  });
+
+  function formatTime(ms) {
+    var s = Math.floor(ms / 1000);
+    if (s < 60) return s + 's';
+    var m = Math.floor(s / 60);
+    s = s % 60;
+    if (m < 60) return m + 'm ' + s + 's';
+    var h = Math.floor(m / 60);
+    m = m % 60;
+    return h + 'h ' + m + 'm';
+  }
+
+  function formatHMS(isoStr) {
+    var d = new Date(isoStr);
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    var ss = String(d.getSeconds()).padStart(2, '0');
+    return hh + ':' + mm + ':' + ss;
+  }
+
+  function updateProgress() {
+    var keys = Object.keys(state.tasks);
+    var total = keys.length;
+    var done = 0;
+    for (var i = 0; i < keys.length; i++) {
+      if (state.tasks[keys[i]].status === 'completed') done++;
+    }
+    var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-count').textContent = done + '/' + total;
+    document.getElementById('percentage').textContent = pct + '%';
+    var fill = document.getElementById('progress-fill');
+    fill.style.width = pct + '%';
+    if (total > 0) fill.classList.add('active');
+  }
+
+  function tickElapsed(nowMs) {
+    if (!state.meta.startedAt) return;
+    var now = nowMs || Date.now();
+    var elapsed = now - new Date(state.meta.startedAt).getTime();
+    if (elapsed < 0) elapsed = 0;
+    document.getElementById('elapsed').textContent = formatTime(elapsed);
+
+    var keys = Object.keys(state.tasks);
+    var total = keys.length;
+    var done = 0;
+    for (var i = 0; i < keys.length; i++) {
+      if (state.tasks[keys[i]].status === 'completed') done++;
+    }
+
+    var etaEl = document.getElementById('eta');
+    if (state.completedAt || (total > 0 && done === total)) {
+      etaEl.textContent = 'Complete';
+    } else if (done > 0 && done < total) {
+      var etaMs = elapsed * (total - done) / done;
+      etaEl.textContent = '~' + formatTime(etaMs) + ' remaining';
+    } else {
+      etaEl.textContent = 'Estimating...';
+    }
+  }
+
+  function startElapsedTimer() {
+    if (elapsedTimer) clearInterval(elapsedTimer);
+    elapsedTimer = setInterval(function() { tickElapsed(); }, 1000);
+    tickElapsed();
+  }
+
+  function stopElapsedTimer() {
+    if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+  }
+
+  function renderHeader() {
+    document.getElementById('direction').textContent = state.meta.direction || '';
+    document.getElementById('goal-slug').textContent = state.meta.goalSlug || '';
+    document.getElementById('worktree-path').textContent = state.meta.worktreePath || '';
+    if (state.meta.startedAt) {
+      var ago = formatTime(Date.now() - new Date(state.meta.startedAt).getTime());
+      document.getElementById('start-time').textContent = 'started ' + ago + ' ago';
+    }
+  }
+
+  function pillClass(type) {
+    if (type === 'signal') return 'pill pill-signal';
+    if (type === 'task') return 'pill pill-task';
+    if (type === 'script') return 'pill pill-script';
+    return 'pill pill-system';
+  }
+
+  function summarizeData(ev) {
+    var d = ev.data || {};
+    if (ev.type === 'signal' && d.message) {
+      var preview = String(d.message).substring(0, 120);
+      if (d.to) return '→ ' + d.to + ': ' + preview;
+      return preview;
+    }
+    if (ev.type === 'task') {
+      var parts = [];
+      if (d.taskId) parts.push('#' + d.taskId);
+      if (d.subject) parts.push(d.subject);
+      if (d.status) parts.push(d.status);
+      if (d.owner) parts.push('(' + d.owner + ')');
+      return parts.join(' ');
+    }
+    if (ev.type === 'system' && ev.event === 'emission_gap') {
+      return 'silent for ' + (d.silentSeconds || '?') + 's';
+    }
+    var keys = Object.keys(d);
+    if (keys.length === 0) return '';
+    var bits = [];
+    for (var i = 0; i < Math.min(keys.length, 3); i++) {
+      bits.push(keys[i] + '=' + JSON.stringify(d[keys[i]]).substring(0, 60));
+    }
+    return bits.join(', ');
+  }
+
+  var KNOWN_SIGNALS = ['PHASE_DONE','BLOCKED','REVIEW_COMPLETE','NEEDS_CONTEXT','CONVENTION_START',
+    'CONVENTION_REVIEW','CONVENTION_AGREED','CONVENTION_DEADLOCK','CONVENTION_ROUND_2',
+    'TESTS_WRITTEN','PHASE_TESTS_DONE','MERGE_AND_VERIFY','FIXES_APPLIED','FIX_REQUEST',
+    'FIX_DONE','DECISION','TEST_FEEDBACK'];
+
+  function renderSignalCard(ev) {
+    if (ev.type !== 'signal' || !ev.data || !ev.data.message) return null;
+    var msg = String(ev.data.message);
+    var sigName = ev.event || '';
+    var isKnown = false;
+    for (var i = 0; i < KNOWN_SIGNALS.length; i++) {
+      if (sigName === KNOWN_SIGNALS[i]) { isKnown = true; break; }
+    }
+    if (!isKnown) return null;
+
+    var card = document.createElement('div');
+    card.className = 'signal-card';
+    if (sigName === 'BLOCKED' || sigName === 'NEEDS_CONTEXT') card.className += ' signal-blocked';
+    if (sigName === 'REVIEW_COMPLETE') {
+      if (/APPROVED/i.test(msg)) card.className += ' signal-approved';
+      else if (/NEEDS_FIXES/i.test(msg)) card.className += ' signal-needs-fixes';
+    }
+
+    var lines = msg.split('\n');
+    for (var j = 0; j < Math.min(lines.length, 8); j++) {
+      var line = lines[j].trim();
+      if (!line) continue;
+      var colonIdx = line.indexOf(':');
+      if (colonIdx > 0 && colonIdx < 30) {
+        var span = document.createElement('div');
+        span.innerHTML = '<span class="field">' + escapeHtml(line.substring(0, colonIdx + 1)) + '</span> <span class="value">' + escapeHtml(line.substring(colonIdx + 1).trim()) + '</span>';
+        card.appendChild(span);
+      } else {
+        var div = document.createElement('div');
+        div.className = 'value';
+        div.textContent = line;
+        card.appendChild(div);
+      }
+    }
+    return card;
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function prependEvent(ev) {
+    var li = document.createElement('li');
+    li.className = 'event-item';
+
+    var time = document.createElement('span');
+    time.className = 'event-time';
+    time.textContent = formatHMS(ev.ts);
+    li.appendChild(time);
+
+    var pill = document.createElement('span');
+    pill.className = pillClass(ev.type);
+    pill.textContent = ev.type;
+    li.appendChild(pill);
+
+    var name = document.createElement('span');
+    name.className = 'event-name';
+    name.textContent = ev.event;
+    li.appendChild(name);
+
+    var summary = document.createElement('span');
+    summary.className = 'event-summary';
+    summary.textContent = summarizeData(ev);
+    li.appendChild(summary);
+
+    var card = renderSignalCard(ev);
+    if (card) {
+      var wrapper = document.createElement('div');
+      wrapper.style.width = '100%';
+      wrapper.appendChild(card);
+      li.style.flexWrap = 'wrap';
+      li.appendChild(wrapper);
+    }
+
+    feed.insertBefore(li, feed.firstChild);
+    if (!userScrolled) feed.scrollTop = 0;
+  }
+
+  function renderAllEvents() {
+    feed.innerHTML = '';
+    for (var i = state.events.length - 1; i >= 0; i--) {
+      prependEvent(state.events[i]);
+    }
+  }
+
+  function upsertTaskRow(taskId) {
+    var t = state.tasks[taskId];
+    if (!t) return;
+    var tbody = document.getElementById('task-tbody');
+    var row = tbody.querySelector('tr[data-task-id="' + taskId + '"]');
+    if (!row) {
+      row = document.createElement('tr');
+      row.setAttribute('data-task-id', taskId);
+      row.innerHTML = '<td class="task-id"></td><td class="task-subject"></td><td class="task-owner"></td><td class="task-status"></td>';
+      var rows = tbody.querySelectorAll('tr');
+      var inserted = false;
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i].getAttribute('data-task-id')) > String(taskId)) {
+          tbody.insertBefore(row, rows[i]);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) tbody.appendChild(row);
+    }
+    row.querySelector('.task-id').textContent = t.id || taskId;
+    row.querySelector('.task-subject').textContent = t.subject || '';
+    row.querySelector('.task-owner').textContent = t.owner || '';
+    var statusCell = row.querySelector('.task-status');
+    statusCell.className = 'task-status status-' + (t.status || 'pending');
+    statusCell.innerHTML = '<span class="badge">' + escapeHtml(t.status || 'pending') + '</span>';
+
+    row.classList.add('row-updated');
+    setTimeout(function() { row.classList.remove('row-updated'); }, 600);
+  }
+
+  function renderAllTasks() {
+    document.getElementById('task-tbody').innerHTML = '';
+    var ids = Object.keys(state.tasks).sort();
+    for (var i = 0; i < ids.length; i++) {
+      upsertTaskRow(ids[i]);
+    }
+    updateProgress();
+  }
+
+  function applySnapshot(snap) {
+    state.meta = snap.meta || state.meta;
+    state.tasks = snap.tasks || {};
+    state.events = snap.events || [];
+    state.completedAt = snap.completedAt || null;
+    state.lastEventTs = snap.lastEventTs || 0;
+    state.emissionGap = snap.emissionGap || false;
+
+    renderHeader();
+    renderAllTasks();
+    renderAllEvents();
+    updateProgress();
+
+    if (state.completedAt) {
+      freezeUI();
+    } else {
+      startElapsedTimer();
+    }
+
+    if (state.emissionGap) {
+      var secs = '—';
+      for (var i = state.events.length - 1; i >= 0; i--) {
+        if (state.events[i].type === 'system' && state.events[i].event === 'emission_gap') {
+          secs = state.events[i].data.silentSeconds || '—';
+          break;
+        }
+      }
+      document.getElementById('gap-secs').textContent = secs;
+      document.getElementById('gap-warn').hidden = false;
+    }
+
+    setConnected();
+  }
+
+  function applyDelta(ev) {
+    state.events.push(ev);
+
+    if (ev.type === 'task') {
+      var taskId = ev.data && ev.data.taskId;
+      if (taskId) {
+        if (!state.tasks[taskId]) {
+          state.tasks[taskId] = { id: taskId, subject: '', status: 'pending', owner: '', updatedAt: '' };
+        }
+        var t = state.tasks[taskId];
+        if (ev.data.status) t.status = ev.data.status;
+        if (ev.data.subject) t.subject = ev.data.subject;
+        if (ev.data.owner) t.owner = ev.data.owner;
+        t.updatedAt = ev.ts;
+        upsertTaskRow(taskId);
+        updateProgress();
+      }
+    }
+
+    if (ev.type === 'system' && ev.event === 'run_ended') {
+      freezeUI();
+    }
+
+    if (ev.type === 'system' && ev.event === 'emission_gap') {
+      document.getElementById('gap-secs').textContent = (ev.data && ev.data.silentSeconds) || '—';
+      document.getElementById('gap-warn').hidden = false;
+      var dot = document.getElementById('conn-dot');
+      dot.className = 'conn-gap-pulse';
+    }
+
+    if (ev.type === 'system' && ev.event === 'emission_gap_resolved') {
+      document.getElementById('gap-warn').hidden = true;
+      setConnected();
+    }
+
+    prependEvent(ev);
+    tickElapsed();
+  }
+
+  function freezeUI() {
+    state.completedAt = state.completedAt || new Date().toISOString();
+    document.body.classList.add('frozen');
+    document.getElementById('final-banner').hidden = false;
+    document.getElementById('final-badge').hidden = false;
+    stopElapsedTimer();
+    tickElapsed();
+  }
+
+  function setConnected() {
+    var dot = document.getElementById('conn-dot');
+    dot.className = 'conn-connected';
+  }
+
+  function handleHeartbeat(obj) {
+    setConnected();
+  }
+
+  function onError() {
+    var dot = document.getElementById('conn-dot');
+    dot.className = 'conn-disconnected';
+  }
+
+  function getState() {
+    return state;
+  }
+
+  window.__monitor = {
+    applySnapshot: applySnapshot,
+    applyDelta: applyDelta,
+    getState: getState,
+    tickElapsed: tickElapsed,
+    handleHeartbeat: handleHeartbeat,
+    onError: onError,
+    get state() { return state; }
+  };
+
+  function start() {
+    try {
+      var es = new EventSource('/events');
+      es.addEventListener('snapshot', function(e) {
+        applySnapshot(JSON.parse(e.data));
+      });
+      es.addEventListener('delta', function(e) {
+        applyDelta(JSON.parse(e.data));
+      });
+      es.addEventListener('heartbeat', function(e) {
+        handleHeartbeat(JSON.parse(e.data));
+      });
+      es.onerror = function() {
+        onError();
+      };
+    } catch (err) {
+      // EventSource may be unavailable in test environments
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+</script>
+</body>
+</html>

@@ -115,6 +115,10 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 export BASE_BRANCH="${base_branch}"
 export BRANCH_NAME="${branch_name}"
 export DIVERGE_SCRIPTS="\$HOME/.claude/skills/diverge/scripts"
+DIVERGE_MONITOR_DIR="/tmp/diverge/${goal}/monitor"
+export DIVERGE_MONITOR_DIR
+DIVERGE_GOAL_SLUG="${goal}"
+DIVERGE_DIRECTION="${approach}"
 
 LAUNCHER_VARS
 
@@ -427,7 +431,9 @@ cleanup_da() {
     wt -C "$da_path" remove 2>/dev/null || true
   fi
 }
-trap cleanup_da EXIT
+# Combined EXIT trap — cleanup_monitor is defined later in this script but
+# the trap only fires at exit, by which point both functions exist.
+trap '{ cleanup_monitor 2>/dev/null || true; cleanup_da 2>/dev/null || true; }' EXIT
 
 cd "$WT_PATH"
 
@@ -437,10 +443,68 @@ if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
   tmux rename-window -t "$TMUX_PANE" "$BRANCH_NAME"
 fi
 
+# --- Diverge Monitor Sidecar ---
+MONITOR_PID=""
+MONITOR_PORT=""
+start_monitor() {
+  mkdir -p "$DIVERGE_MONITOR_DIR"
+  touch "$DIVERGE_MONITOR_DIR/events.jsonl"
+
+  local port_file
+  port_file=$(mktemp)
+
+  bun run "$HOME/dotfiles/agents/skills/diverge/monitor/server.ts" \
+    --monitor-dir "$DIVERGE_MONITOR_DIR" \
+    --goal-slug "$DIVERGE_GOAL_SLUG" \
+    --direction "$DIVERGE_DIRECTION" \
+    --worktree "$WT_PATH" \
+    > "$port_file" 2>/dev/null &
+  MONITOR_PID=$!
+
+  local i
+  for i in $(seq 1 30); do
+    if grep -q '^PORT:' "$port_file" 2>/dev/null; then
+      MONITOR_PORT=$(grep '^PORT:' "$port_file" | head -1 | cut -d: -f2)
+      break
+    fi
+    sleep 0.1
+  done
+  rm -f "$port_file"
+
+  if [[ -n "${MONITOR_PORT:-}" ]]; then
+    echo "Monitor: http://localhost:$MONITOR_PORT"
+    open "http://localhost:$MONITOR_PORT" 2>/dev/null || true
+  else
+    echo "Warning: monitor server did not start in time" >&2
+  fi
+
+  source "$HOME/dotfiles/agents/skills/diverge/monitor/emit.sh" 2>/dev/null || true
+  diverge_emit system run_start '{}' 2>/dev/null || true
+}
+
+cleanup_monitor() {
+  [[ -n "${_MONITOR_CLEANED:-}" ]] && return 0
+  _MONITOR_CLEANED=1
+  source "$HOME/dotfiles/agents/skills/diverge/monitor/emit.sh" 2>/dev/null || true
+  diverge_emit system run_ended '{}' 2>/dev/null || true
+  sleep 0.5
+  if [[ -n "${MONITOR_PID:-}" ]]; then
+    kill "$MONITOR_PID" 2>/dev/null || true
+  fi
+}
+
+start_monitor
+# --- End Monitor Sidecar ---
+
 claude --permission-mode bypassPermissions "$PROMPT"
 
-# Stay in the worktree after claude exits
-exec "${SHELL:-/bin/bash}"
+# Stay in the worktree after claude exits. cleanup_monitor is idempotent and
+# runs on EXIT trap (registered at the start of this script for TDD mode, and
+# just below for non-TDD mode), so monitor cleanup fires on both normal exit
+# and SIGINT/SIGTERM mid-run. The plan's "frozen final state until the user
+# closes the launcher shell" invariant holds because the trap fires when the
+# launcher script itself exits — which is after the user's replacement shell.
+"${SHELL:-/bin/bash}"
 LAUNCHER_BODY
     else
       cat <<'LAUNCHER_BODY'
@@ -461,10 +525,70 @@ if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
   tmux rename-window -t "$TMUX_PANE" "$BRANCH_NAME"
 fi
 
+# --- Diverge Monitor Sidecar ---
+MONITOR_PID=""
+MONITOR_PORT=""
+start_monitor() {
+  mkdir -p "$DIVERGE_MONITOR_DIR"
+  touch "$DIVERGE_MONITOR_DIR/events.jsonl"
+
+  local port_file
+  port_file=$(mktemp)
+
+  bun run "$HOME/dotfiles/agents/skills/diverge/monitor/server.ts" \
+    --monitor-dir "$DIVERGE_MONITOR_DIR" \
+    --goal-slug "$DIVERGE_GOAL_SLUG" \
+    --direction "$DIVERGE_DIRECTION" \
+    --worktree "$WT_PATH" \
+    > "$port_file" 2>/dev/null &
+  MONITOR_PID=$!
+
+  local i
+  for i in $(seq 1 30); do
+    if grep -q '^PORT:' "$port_file" 2>/dev/null; then
+      MONITOR_PORT=$(grep '^PORT:' "$port_file" | head -1 | cut -d: -f2)
+      break
+    fi
+    sleep 0.1
+  done
+  rm -f "$port_file"
+
+  if [[ -n "${MONITOR_PORT:-}" ]]; then
+    echo "Monitor: http://localhost:$MONITOR_PORT"
+    open "http://localhost:$MONITOR_PORT" 2>/dev/null || true
+  else
+    echo "Warning: monitor server did not start in time" >&2
+  fi
+
+  source "$HOME/dotfiles/agents/skills/diverge/monitor/emit.sh" 2>/dev/null || true
+  diverge_emit system run_start '{}' 2>/dev/null || true
+}
+
+cleanup_monitor() {
+  [[ -n "${_MONITOR_CLEANED:-}" ]] && return 0
+  _MONITOR_CLEANED=1
+  source "$HOME/dotfiles/agents/skills/diverge/monitor/emit.sh" 2>/dev/null || true
+  diverge_emit system run_ended '{}' 2>/dev/null || true
+  sleep 0.5
+  if [[ -n "${MONITOR_PID:-}" ]]; then
+    kill "$MONITOR_PID" 2>/dev/null || true
+  fi
+}
+
+start_monitor
+# Register cleanup_monitor for normal exit and abnormal signals (SIGINT,
+# SIGTERM) so the background server is never orphaned mid-run.
+trap cleanup_monitor EXIT
+# --- End Monitor Sidecar ---
+
 claude --permission-mode bypassPermissions "$PROMPT"
 
-# Stay in the worktree after claude exits
-exec "${SHELL:-/bin/bash}"
+# Stay in the worktree after claude exits. cleanup_monitor is idempotent and
+# runs on EXIT trap, so monitor cleanup fires on both normal exit and
+# SIGINT/SIGTERM mid-run. The plan's "frozen final state until the user
+# closes the launcher shell" invariant holds because the trap fires when the
+# launcher script itself exits — which is after the user's replacement shell.
+"${SHELL:-/bin/bash}"
 LAUNCHER_BODY
     fi
   } >> "$output_file"
