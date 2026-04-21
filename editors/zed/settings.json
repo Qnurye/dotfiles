@@ -4,6 +4,7 @@
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
 {
+  "diff_view_style": "unified",
   "ssh_connections": [
     {
       "host": "do.qnury.es",
