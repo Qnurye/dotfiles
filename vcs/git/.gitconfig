@@ -85,7 +85,7 @@
 	email = qnurye@gmail.com
 	signingkey = 459330D6FB08598D9FCF6BE7DDEC5D86A0F3E645
 
-[includeIf "gitdir:**/*work*/"]
+[includeIf "gitdir:~/repositories/work/"]
     path = ~/.work.gitconfig
 [gitbutler]
 	aiModelProvider = openai
