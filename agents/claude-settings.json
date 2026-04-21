@@ -21,38 +21,6 @@
   },
   "hooks": {
     "SessionStart": [],
-    "PostToolUse": [
-      {
-        "matcher": "SendMessage",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dotfiles/agents/hooks/diverge-emit-send-message.sh",
-            "timeout": 3
-          }
-        ]
-      },
-      {
-        "matcher": "TaskUpdate",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dotfiles/agents/hooks/diverge-emit-task-update.sh",
-            "timeout": 3
-          }
-        ]
-      },
-      {
-        "matcher": "TaskCreate",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dotfiles/agents/hooks/diverge-emit-task-update.sh",
-            "timeout": 3
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -78,7 +46,8 @@
     "skill-creator@claude-plugins-official": false,
     "superpowers@claude-plugins-official": false,
     "impeccable@impeccable": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "diverge@diverge": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
@@ -97,6 +66,12 @@
       "source": {
         "source": "github",
         "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "diverge": {
+      "source": {
+        "source": "github",
+        "repo": "Qnurye/diverge"
       }
     }
   },
