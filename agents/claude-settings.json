@@ -47,7 +47,8 @@
     "superpowers@claude-plugins-official": false,
     "impeccable@impeccable": true,
     "codex@openai-codex": true,
-    "diverge@diverge": true
+    "diverge@diverge": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
