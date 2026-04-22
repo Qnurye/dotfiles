@@ -45,6 +45,9 @@ command -q fnm; and fnm env --use-on-cd --log-level quiet --shell fish | source
 # direnv
 command -q direnv; and direnv hook fish | source
 
+# zoxide (smarter cd — defines z, zi)
+command -q zoxide; and zoxide init fish | source
+
 # Worktrunk abbreviations
 abbr -a wts 'wt switch'
 abbr -a wtsc 'wt switch --create'
