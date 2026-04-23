@@ -73,13 +73,14 @@
       "source": {
         "source": "github",
         "repo": "Qnurye/diverge"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }
