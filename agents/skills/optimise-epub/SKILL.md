@@ -15,10 +15,66 @@ Accumulated recipes for diagnosing and repairing EPUB ebooks and managing Kindle
 
 - `scripts/strip-indent.py` — Remove `text-indent` declarations from CSS files and inline styles (Kindle renders Chinese first-line indent incorrectly).
 - `scripts/strip-cruft.py` — Strip leading `　+` from paragraphs and remove empty `<p>` blocks (Word/Calibre conversion noise).
+- `scripts/strip-fonts.py` — Remove embedded fonts (Adobe-obfuscated or otherwise), encryption.xml entries, `@font-face` rules, and OPF manifest items.
 - `scripts/pangu-spacing.py` — Insert spaces between CJK and ASCII alphanumerics in HTML text nodes. Use as fallback when target reader does not support CSS `text-autospace` (e.g., Kindle).
 - `scripts/responsive-images.py` — Append `img { max-width: 100%; height: auto; }` to all CSS files so fixed-pixel images don't overflow narrow Kindle screens.
 - `scripts/convert-quotes.py` — Convert curly quotes (`""`/`''`) to Chinese corner brackets (`「」`/`『』`). Opinionated; mutates original text.
+- `scripts/repack.py` — Package an extracted EPUB directory back to a valid `.epub` (mimetype first/STORED, images and fonts STORED, rest DEFLATED).
+- `scripts/validate.py` — Self-check an optimised EPUB against pipeline invariants (PASS/FAIL per assertion).
 - `scripts/ad-filter.sh` — Scan an EPUB for marketing/ad patterns (公众号, 扫码, QQ群, etc.) using ripgrep.
+
+## Recommended workflow (Kindle-targeted Chinese EPUB)
+
+For a Chinese EPUB heading to a Kindle, **run this fixed pipeline. Do not ask the user for opinionated choices** — the defaults are tuned for Kindle constraints, the user's preference for `「」` corner brackets, and Calibre-converted-source quirks. The user has already opted into "do everything" by invoking the skill.
+
+```bash
+SCRIPTS=~/.claude/skills/optimise-epub/scripts
+SRC=path/to/book.epub
+DST=path/to/book.optimised.epub
+WORK=$(mktemp -d)
+
+# Chain the transforms. Each step writes a new EPUB; we don't mutate $SRC.
+python3 $SCRIPTS/strip-indent.py       "$SRC"           "$WORK/s1.epub"
+python3 $SCRIPTS/strip-cruft.py        "$WORK/s1.epub" "$WORK/s2.epub"
+python3 $SCRIPTS/strip-fonts.py        "$WORK/s2.epub" "$WORK/s3.epub"
+python3 $SCRIPTS/convert-quotes.py     "$WORK/s3.epub" "$WORK/s4.epub"
+python3 $SCRIPTS/pangu-spacing.py      "$WORK/s4.epub" "$WORK/s5.epub"
+python3 $SCRIPTS/responsive-images.py  "$WORK/s5.epub" "$DST"
+
+python3 $SCRIPTS/validate.py "$DST"
+```
+
+**Why this order:**
+
+1. **Structural cleanups first** (`strip-indent`, `strip-cruft`, `strip-fonts`) — they don't depend on text content; running them early shrinks subsequent CSS/HTML diffs and lets `strip-fonts` clean OPF manifest before later passes might touch it.
+2. **Quote conversion before pangu** — pangu treats CJK character classes as boundaries; running it after quote conversion means newly inserted `「」` (which are CJK punctuation) won't cause spurious adjustments.
+3. **Pangu after content stable** — inserts spaces only at finalised CJK↔ASCII boundaries.
+4. **Responsive image CSS last** — pure append to existing CSS files, can't conflict with anything.
+
+**When to deviate from the pipeline:**
+
+- *Source is not Calibre-converted Chinese* — drop `strip-cruft` (no Word/Calibre noise to clean) and `strip-fonts` (the publisher may ship legitimate non-obfuscated fonts).
+- *Output target is Apple Books / Calibre viewer* — skip `pangu-spacing`; their renderers honor CSS `text-autospace`.
+- *User explicitly wants original text preserved* — skip `convert-quotes`.
+
+**Manual fixes that aren't (yet) scripted** — apply BEFORE running the pipeline if needed:
+
+- Metadata cleanup in `content.opf` (#1)
+- TOC repair (#2)
+- Empty/orphan file removal (#3)
+- Language tag unification (#4)
+- Footnote re-injection (#5, #6)
+- DuoKan-* CSS, fixed-position chapter title backgrounds, oversized decorative `<img>` — book-specific, edit `stylesheet.css` by hand. The `.bg`, `.bg-t`, `.biaotie` classes seen in Calibre output are common offenders.
+
+**Repackage after manual surgery:** if you extracted an EPUB to edit files directly, use `repack.py` to put it back together — never `zip -r` (will fail mimetype-first/STORED rules).
+
+```bash
+python3 $SCRIPTS/repack.py /path/to/extracted_dir output.epub
+```
+
+**Replacing the original file:**
+
+The pipeline writes a sibling `.optimised.epub` by default — preserves the original until the user has reviewed. If they confirm replacement (`mv`), Calibre will detect the change on next library sync and update its `metadata.opf` sidecar. That's expected behavior, not a problem.
 
 ## Quick Diagnosis
 

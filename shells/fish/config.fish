@@ -7,6 +7,18 @@ eval (/opt/homebrew/bin/brew shellenv)
 # Nix (re-add after brew shellenv resets PATH)
 fish_add_path --prepend /run/current-system/sw/bin /nix/var/nix/profiles/default/bin $HOME/.nix-profile/bin /etc/profiles/per-user/$USER/bin
 
+# Nix completions: tmux/Ghostty sessions can outlive nix-darwin activations and
+# inherit a stale XDG_DATA_DIRS, leaving fish_complete_path without the nix
+# vendor_completions dirs. Re-insert them ahead of homebrew so nix-installed
+# completions (eza, fd, ripgrep, ...) load.
+for nix_dir in $HOME/.nix-profile/share/fish/vendor_completions.d \
+               /etc/profiles/per-user/$USER/share/fish/vendor_completions.d \
+               /run/current-system/sw/share/fish/vendor_completions.d \
+               /nix/var/nix/profiles/default/share/fish/vendor_completions.d
+    test -d $nix_dir; and not contains -- $nix_dir $fish_complete_path
+    and set -p fish_complete_path $nix_dir
+end
+
 # PATH
 fish_add_path $HOME/go/bin
 fish_add_path /opt/homebrew/opt/libpq/bin

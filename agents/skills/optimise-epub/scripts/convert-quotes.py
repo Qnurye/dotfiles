@@ -6,21 +6,30 @@
   ' (U+2018 LEFT SINGLE QUOTATION MARK)  → 『 (U+300E)
   ' (U+2019 RIGHT SINGLE QUOTATION MARK) → 』 (U+300F)
 
-All conversions are CJK-context-adjacent only. A quote converts iff its
-inner-facing neighbour is in one of:
+DOUBLE quotes use a per-text-node heuristic: if a text node contains
+any CJK character, every "" in that node is converted. This handles
+mixed-script Chinese sentences correctly:
 
-  - CJK Unified Ideographs (U+4E00-U+9FFF) and Extension A (U+3400-U+4DBF)
-  - CJK Compatibility Ideographs (U+F900-U+FAFF)
-  - CJK Symbols and Punctuation (U+3000-U+303F, includes 。、「」《》)
-  - Halfwidth and Fullwidth Forms (U+FF00-U+FFEF, includes ！？，．)
+  双11"特价"           → 双11「特价」
+  S 公司"不算什么"      → S 公司「不算什么」
+  top sales 的"标杆"   → top sales 的「标杆」
 
-This protects English passages embedded in Chinese books — `She said
-"hello"` stays unchanged, while `他说"你好"` becomes `他说「你好」`.
-The heuristic produces broken pairs in rare mixed-language quotes
-(e.g. `他说"hello"` → `他说「hello"`); these are visible and easy to
-spot.
+Per-character adjacency (the previous heuristic) would have left the
+opening " untouched in each case because its right neighbour is ASCII,
+producing broken pairs. The per-node rule fixes that without affecting
+purely-English text nodes (which have no CJK and so leave "" alone).
 
-This mutates the original text. Skips tag attributes and the bodies of
+SINGLE quotes use per-character CJK adjacency. U+2019 is also the
+English typographic apostrophe ("don't"), and per-node conversion would
+corrupt every contraction in a Chinese book that quotes English. The
+trade-off: a Chinese passage where a single-quoted phrase ends at a
+Latin token (like 'top') will leave the closing 』 unconverted — rare
+and visible.
+
+CJK context characters include CJK ideographs, CJK punctuation
+(。、「」《》…), and Halfwidth/Fullwidth forms (！？，．…).
+
+Mutates the original text. Skips tag attributes and the bodies of
 <pre>, <code>, <script>, <style>.
 
 Usage:
@@ -35,14 +44,18 @@ CJK_CTX = (
     r'[　-〿'   # CJK Symbols and Punctuation
     r'㐀-䶿'    # CJK Extension A
     r'一-鿿'    # CJK Unified Ideographs
-    r'豈-﫿'    # CJK Compatibility Ideographs
+    r'豈-﫿'    # CJK Compatibility Ideographs
     r'＀-￯]'   # Halfwidth and Fullwidth Forms
 )
+HAS_CJK = re.compile(CJK_CTX)
 
-DOUBLE_OPEN = re.compile(f'“(?={CJK_CTX})')
-DOUBLE_CLOSE = re.compile(f'(?<={CJK_CTX})”')
-SINGLE_OPEN = re.compile(f'‘(?={CJK_CTX})')
-SINGLE_CLOSE = re.compile(f'(?<={CJK_CTX})’')
+# Doubles: unconditional within a text node that contains any CJK.
+DOUBLE_OPEN_GLOBAL = re.compile('“')
+DOUBLE_CLOSE_GLOBAL = re.compile('”')
+
+# Singles: per-character CJK adjacent (apostrophe protection).
+SINGLE_OPEN_CTX = re.compile(f'‘(?={CJK_CTX})')
+SINGLE_CLOSE_CTX = re.compile(f'(?<={CJK_CTX})’')
 
 SKIP_BLOCK = re.compile(
     r'<(pre|code|script|style)\b[^>]*>.*?</\1>',
@@ -52,16 +65,19 @@ SKIP_BLOCK = re.compile(
 SENTINEL = '\x00QUOTE{}\x00'
 
 
-def convert(text: str) -> tuple[str, int]:
+def convert_text_node(text: str) -> tuple[str, int]:
     n = 0
-    for pattern, replacement in [
-        (DOUBLE_OPEN, '「'),
-        (DOUBLE_CLOSE, '」'),
-        (SINGLE_OPEN, '『'),
-        (SINGLE_CLOSE, '』'),
-    ]:
-        text, c = pattern.subn(replacement, text)
+    if HAS_CJK.search(text):
+        # CJK present → convert all doubles unconditionally in this node.
+        text, c = DOUBLE_OPEN_GLOBAL.subn('「', text)
         n += c
+        text, c = DOUBLE_CLOSE_GLOBAL.subn('」', text)
+        n += c
+    # Singles always use per-character adjacency.
+    text, c = SINGLE_OPEN_CTX.subn('『', text)
+    n += c
+    text, c = SINGLE_CLOSE_CTX.subn('』', text)
+    n += c
     return text, n
 
 
@@ -79,7 +95,7 @@ def process_html(content: str) -> tuple[str, int]:
     def fix_text(m):
         nonlocal n_total
         before = m.group(1)
-        after, n = convert(before)
+        after, n = convert_text_node(before)
         n_total += n
         return '>' + after + '<'
 
