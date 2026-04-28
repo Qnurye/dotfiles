@@ -1,6 +1,6 @@
 ---
-name: epub-fix
-description: Diagnose and fix EPUB ebook issues — metadata, TOC, footnotes, Kindle compatibility, font management, and MTP file transfer. Use when user has an EPUB with broken formatting, missing footnotes, bad metadata, or needs to transfer files to a Kindle.
+name: optimise-epub
+description: Diagnose and fix EPUB ebook issues — metadata, TOC, footnotes, Kindle compatibility, style optimization for Chinese books (Pangu spacing, indent removal, ad filtering), font management, and MTP file transfer. Use when user has an EPUB with broken formatting, missing footnotes, bad metadata, Chinese typography issues, or needs to transfer files to a Kindle.
 ---
 
 # EPUB Fix & Kindle Toolkit
@@ -10,6 +10,15 @@ Accumulated recipes for diagnosing and repairing EPUB ebooks and managing Kindle
 ## References
 
 - `references/epub3-spec.md` — Complete EPUB 3.3 spec reference: required files, package document structure, navigation, footnote markup, embedded fonts, ZIP packaging rules, and a pre-ship validation checklist. Load when building an EPUB from scratch or validating against the spec.
+
+## Scripts
+
+- `scripts/strip-indent.py` — Remove `text-indent` declarations from CSS files and inline styles (Kindle renders Chinese first-line indent incorrectly).
+- `scripts/strip-cruft.py` — Strip leading `　+` from paragraphs and remove empty `<p>` blocks (Word/Calibre conversion noise).
+- `scripts/pangu-spacing.py` — Insert spaces between CJK and ASCII alphanumerics in HTML text nodes. Use as fallback when target reader does not support CSS `text-autospace` (e.g., Kindle).
+- `scripts/responsive-images.py` — Append `img { max-width: 100%; height: auto; }` to all CSS files so fixed-pixel images don't overflow narrow Kindle screens.
+- `scripts/convert-quotes.py` — Convert curly quotes (`""`/`''`) to Chinese corner brackets (`「」`/`『』`). Opinionated; mutates original text.
+- `scripts/ad-filter.sh` — Scan an EPUB for marketing/ad patterns (公众号, 扫码, QQ群, etc.) using ripgrep.
 
 ## Quick Diagnosis
 
@@ -123,6 +132,136 @@ All three are required. Missing any one will cause Kindle to fall back to page n
 
 **Rule:** Do NOT upgrade to EPUB 3 unless the book needs EPUB 3 features (footnote popups with `epub:type`). If it only needs metadata/NCX fixes, stay on EPUB 2. Only upgrade when you also create the nav document and add the modified timestamp.
 
+## Style Optimization (Chinese EPUBs)
+
+### 8. Strip Chinese first-line indent
+
+**Symptoms:** Kindle renders `text-indent: 2em` (and similar) on Chinese paragraphs incorrectly — extra blank space before paragraphs, broken alignment after inline links/footnotes.
+
+**Rule:** Chinese EPUBs targeting Kindle must NOT carry `text-indent` declarations. Remove from every CSS rule and every inline `style="…"` attribute.
+
+**Fix:**
+
+```bash
+python3 scripts/strip-indent.py book.epub book-fixed.epub
+```
+
+The script walks the ZIP and rewrites:
+- `.css` files — strips `text-indent: <length>;` declarations (keeps the surrounding rule and other declarations intact).
+- `.xhtml` / `.html` files — removes `text-indent` from inline `style` attributes; drops the attribute entirely if it becomes empty.
+
+Class names and selectors are preserved so other rules on the same class still apply.
+
+> Manual `　　` (two ideographic spaces) at paragraph start is *content*, not style — this script does not touch it. Strip those with a separate pass if needed.
+
+### 9. Pangu spacing (盘古之白)
+
+Insert a regular space between Chinese characters and adjacent ASCII letters/digits (e.g., `Python代码` → `Python 代码`).
+
+**Choose by target reader:**
+
+| Reader | CSS `text-autospace` | Recommendation |
+|--------|----------------------|----------------|
+| Kindle (KF8 / AZW3 / KFX) | ✗ silently ignored | **Must use script** |
+| Apple Books (iOS 18+ / macOS Sequoia+) | ✓ via WebKit 18.4+ | CSS works |
+| Calibre viewer, Koodo Reader | ✓ Chromium-based | CSS works |
+| 微信读书 web | ✓ where browser supports | CSS works |
+| Older devices / unknown targets | ✗ unreliable | Use script |
+
+Kindle uses a custom restricted renderer (not WebKit/Chromium). `text-autospace` is not in Amazon's documented KF8 CSS support list and is dropped silently. For any EPUB that may end up on a Kindle, **bake the spacing into the text**.
+
+**Script (required for Kindle):**
+
+```bash
+python3 scripts/pangu-spacing.py book.epub book-spaced.epub
+```
+
+The script inserts U+0020 between CJK and ASCII alphanumerics in HTML text nodes only. Skips:
+- Tag attributes (won't break URLs or class names).
+- `<pre>`, `<code>`, `<script>`, `<style>` element bodies.
+- Already-spaced boundaries (idempotent — safe to re-run).
+
+**Optional CSS for non-Kindle readers** — costs nothing, no harm if also using the script:
+
+```css
+html { text-autospace: ideograph-numeric ideograph-alpha; }
+```
+
+Note: `-ms-text-autospace` was IE-era; `-webkit-text-spacing` is not a real property. Modern WebKit/Blink use the unprefixed form.
+
+### 10. Ad / marketing content detection
+
+**Symptoms:** Pirated or fan-distributed Chinese EPUBs often carry promotional footers — 公众号 二维码, 扫码关注, QQ群, 转载请注明出处, 「本书由 XX 整理」 etc. Common in books sourced from telegram/网盘 shares.
+
+**Scan with ripgrep:**
+
+```bash
+scripts/ad-filter.sh book.epub
+```
+
+Output: `file:line:matched-text` for every hit, color-coded. Patterns covered out of the box:
+
+| Pattern | Targets |
+|---------|---------|
+| `公众号`, `订阅号`, `微信号`, `微信群`, `微信搜索` | WeChat marketing |
+| `扫.{0,5}二维码`, `扫码关注`, `扫码加`, `微信扫一扫` | QR-code prompts |
+| `QQ群`, `QQ号` | Legacy IM groups |
+| `更多.{0,10}请关注`, `转载请注明`, `盗版必究` | Generic redistribution notices |
+| `本书由.{0,30}整理`, `本书.{0,10}制作`, `本电子书.{0,20}制作` | Self-attribution footers |
+
+Edit the `patterns=()` array in the script to extend. After review:
+- If the ad sits inside a chapter, edit the source HTML and remove the offending block.
+- If the ad occupies a dedicated file (a "thank you" page), remove that file from the ZIP, OPF manifest, and spine (see issue #3 above).
+
+### 11. Responsive image sizing
+
+**Symptoms:** Illustrations or chapter dividers authored at fixed pixel widths (`<img width="600">` or CSS `width: 600px`) overflow the right edge on Kindle Paperwhite / Oasis.
+
+**Fix:** Append a single CSS rule to every stylesheet:
+
+```bash
+python3 scripts/responsive-images.py book.epub book-out.epub
+```
+
+Adds `img { max-width: 100%; height: auto; }`. Idempotent — files that already contain the rule are skipped. The override wins because it targets the bare `img` selector and sits at the end of the cascade; existing classes that set explicit widths get capped.
+
+### 12. Strip leading ideographic spaces & empty paragraphs
+
+**Symptoms:**
+- Paragraphs that start with `　　` (two U+3000 ideographic spaces) — manual indent. After font/style overrides on Kindle, these render as visible blank squares before the first character.
+- Hundreds of `<p>&nbsp;</p>`, `<p></p>`, `<p><br/></p>` left over from Word/Calibre conversions, creating uneven vertical rhythm and inflating file size.
+
+**Fix:**
+
+```bash
+python3 scripts/strip-cruft.py book.epub book-out.epub
+```
+
+Pairs naturally with `strip-indent.py` (#8) — that one removes the CSS `text-indent` declarations; this one removes the manual character-based equivalent and the empty-paragraph noise.
+
+### 13. Chinese corner brackets (opinionated)
+
+**Replace** Western curly quotes with Chinese corner brackets:
+
+| From | To |
+|------|----|
+| `"` (U+201C) | `「` |
+| `"` (U+201D) | `」` |
+| `'` (U+2018) | `『` |
+| `'` (U+2019) | `』` |
+
+```bash
+python3 scripts/convert-quotes.py book.epub book-out.epub
+```
+
+All four conversions require a CJK-context neighbour on the inner-facing side (CJK ideograph, CJK punctuation `。、…`, or fullwidth form `！？`). Rationale:
+- U+2019 is also the English typographic apostrophe (`don't`); unconditional conversion would corrupt every contraction.
+- English passages embedded in a Chinese book — `She said "hello"` — would otherwise pick up `「」` too, which usually isn't wanted.
+
+Edge case: a mixed-language quote like `他说"hello"` produces a broken pair (`他说「hello"`) because the closing `"` has no CJK neighbour. These are visible and rare; spot-check after running.
+
+This **mutates the original text**. Personal preference transformation, not a rendering fix — only run on books you intend to read yourself.
+
 ## Repackaging an EPUB
 
 ```python
@@ -180,14 +319,7 @@ dev.shutdown()
 
 **Important:** Close Calibre GUI before running — MTP device can only be claimed by one process. If the device disconnects, re-plug USB.
 
-**Batch transfer script:** `scripts/kindle-push.py` — push multiple files in one connection:
-
-```bash
-# Push books
-calibre-debug scripts/kindle-push.py -- book1.epub book2.epub
-# Push fonts
-calibre-debug scripts/kindle-push.py -- font.ttf --dest fonts
-```
+For batch transfers (multiple files in one connection), wrap the same logic in a `.py` file and run via `calibre-debug script.py -- <args>` — see *MTP Connection Stability* below for why bundling matters.
 
 ### Do NOT push raw EPUBs to Kindle
 
