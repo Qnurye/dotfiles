@@ -15,11 +15,9 @@
 
     taps = [
       "antoniorodr/memo"
-      "benngarcia/tap"
       "homebrew/services"
       "jakehilborn/jakehilborn"
       "nektos/tap"
-      "steipete/tap"
       "yakitrak/yakitrak"
     ];
 
@@ -28,15 +26,6 @@
     brews = [
       # Third-party taps
       "antoniorodr/memo/memo"
-      "benngarcia/tap/cwt"
-      "steipete/tap/gogcli"
-      "steipete/tap/goplaces"
-      "steipete/tap/imsg"
-      "steipete/tap/peekaboo"
-      "steipete/tap/remindctl"
-      "steipete/tap/sag"
-      "steipete/tap/summarize"
-      "steipete/tap/wacli"
       "yakitrak/yakitrak/obsidian-cli"
       # Homebrew-core (not in nixpkgs)
       "cagent"

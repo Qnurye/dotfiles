@@ -46,14 +46,14 @@ homebrew.onActivation = {
 
 ### Taps (in `homebrew.nix`)
 ```
-antoniorodr/memo, benngarcia/tap, homebrew/services,
+antoniorodr/memo, homebrew/services,
 jakehilborn/jakehilborn, nektos/tap, steipete/tap, yakitrak/yakitrak
 ```
 
 ### Brews (in `homebrew.nix` -- not available in nixpkgs)
 Third-party tap formulae:
 ```
-antoniorodr/memo/memo, benngarcia/tap/cwt, steipete/tap/{gogcli,goplaces,imsg,peekaboo,remindctl,sag,summarize,wacli}, yakitrak/yakitrak/obsidian-cli
+antoniorodr/memo/memo, steipete/tap/{gogcli,goplaces,imsg,peekaboo,remindctl,sag,summarize,wacli}, yakitrak/yakitrak/obsidian-cli
 ```
 Homebrew-core (not in nixpkgs):
 ```

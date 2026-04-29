@@ -85,8 +85,6 @@ Skipped (redundant or wrong match):
 ### Third-party taps (managed in homebrew.nix brews)
 
 - [x] antoniorodr/memo/memo
-- [x] benngarcia/tap/cwt
-- [x] steipete/tap/* (gogcli, goplaces, imsg, peekaboo, remindctl, sag, summarize, wacli)
 - [x] yakitrak/yakitrak/obsidian-cli
 
 ## Residuals to Clean Up
