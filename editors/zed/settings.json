@@ -4,6 +4,18 @@
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
 {
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+  "cli_default_open_behavior": "existing_window",
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
   "diff_view_style": "unified",
   "ssh_connections": [
     {
@@ -25,6 +37,7 @@
     "provider": "copilot",
   },
   "git_panel": {
+    "dock": "left",
     "tree_view": true,
   },
   "auto_update": false,
@@ -49,6 +62,7 @@
     "show_sign_in": true,
   },
   "project_panel": {
+    "dock": "left",
     "button": true,
   },
   "buffer_font_weight": 400.0,
@@ -58,6 +72,7 @@
     "dark": "Symbols Icon Theme",
   },
   "agent": {
+    "dock": "right",
     "default_model": {
       "provider": "copilot_chat",
       "model": "claude-opus-4.6",
