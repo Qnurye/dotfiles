@@ -75,6 +75,12 @@
         "repo": "Qnurye/diverge"
       },
       "autoUpdate": true
+    },
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
     }
   },
   "syntaxHighlightingDisabled": false,
