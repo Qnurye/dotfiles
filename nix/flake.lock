@@ -42,12 +42,30 @@
     },
     "nixpkgs": {
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1777641297,
         "narHash": "sha256-WNGcmeOZ8Tr9dq6ztCspYbzWFswr2mPebM9LpsfGxPk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0",
         "type": "github"
+||||||| parent of 49b5270 (chore: auto sync dotfiles)
+        "lastModified": 1774273680,
+        "narHash": "sha256-a++tZ1RQsDb1I0NHrFwdGuRlR5TORvCEUksM459wKUA=",
+        "ref": "nixpkgs-unstable",
+        "rev": "fdc7b8f7b30fdbedec91b71ed82f36e1637483ed",
+        "shallow": true,
+        "type": "git",
+        "url": "https://mirrors.nju.edu.cn/git/nixpkgs.git"
+=======
+        "lastModified": 1774610258,
+        "narHash": "sha256-HaThtroVD9wRdx7KQk0B75JmFcXlMUoEdDFNOMOlsOs=",
+        "ref": "nixpkgs-unstable",
+        "rev": "832efc09b4caf6b4569fbf9dc01bec3082a00611",
+        "shallow": true,
+        "type": "git",
+        "url": "https://mirrors.nju.edu.cn/git/nixpkgs.git"
+>>>>>>> 49b5270 (chore: auto sync dotfiles)
       },
       "original": {
         "owner": "NixOS",
