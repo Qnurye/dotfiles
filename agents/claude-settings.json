@@ -86,11 +86,13 @@
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "fastMode": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "verbose": true,
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "model": "claude-opus-4-6[1m]"
 }
