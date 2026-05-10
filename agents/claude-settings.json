@@ -19,6 +19,7 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus",
   "hooks": {
     "SessionStart": [],
     "PreToolUse": [
@@ -93,6 +94,5 @@
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true,
-  "model": "claude-opus-4-6[1m]"
+  "voiceEnabled": true
 }
