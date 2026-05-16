@@ -19,7 +19,6 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
   "hooks": {
     "SessionStart": [],
     "PreToolUse": [
