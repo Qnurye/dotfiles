@@ -1,6 +1,9 @@
 # Dotfiles - Fish Configuration
 # https://github.com/Qnurye/dotfiles
 
+# Disable the interactive shell greeting
+set -g fish_greeting
+
 # Homebrew
 eval (/opt/homebrew/bin/brew shellenv)
 

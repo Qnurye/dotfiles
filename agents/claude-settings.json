@@ -86,7 +86,6 @@
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "fastMode": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "verbose": true,
