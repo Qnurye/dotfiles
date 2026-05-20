@@ -44,11 +44,11 @@
     "worktrunk@worktrunk": true,
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": false,
-    "superpowers@claude-plugins-official": false,
     "impeccable@impeccable": true,
     "codex@openai-codex": true,
     "diverge@diverge": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "curl-md@curl-md": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
@@ -80,6 +80,12 @@
       "source": {
         "source": "github",
         "repo": "cloudflare/skills"
+      }
+    },
+    "curl-md": {
+      "source": {
+        "source": "github",
+        "repo": "wevm/curl.md"
       }
     }
   },
