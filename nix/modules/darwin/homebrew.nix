@@ -17,6 +17,7 @@
       "antoniorodr/memo"
       "homebrew/services"
       "jakehilborn/jakehilborn"
+      "lucasgelfond/zerobrew"
       "nektos/tap"
       "yakitrak/yakitrak"
     ];
@@ -26,6 +27,7 @@
     brews = [
       # Third-party taps
       "antoniorodr/memo/memo"
+      "lucasgelfond/zerobrew/zerobrew"
       "yakitrak/yakitrak/obsidian-cli"
       # Homebrew-core (not in nixpkgs)
       "cagent"
