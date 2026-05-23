@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+# Project opt-out: a repo disables this guard by setting CLAUDE_GIT_GUARD_OFF=1
+# in its .claude/settings.json `env` block.
+[ "${CLAUDE_GIT_GUARD_OFF:-}" = "1" ] && exit 0
+
 raw=$(cat)
 cmd=$(printf '%s' "$raw" | jq -r '.tool_input.command // ""')
 
