@@ -48,7 +48,8 @@
     "codex@openai-codex": true,
     "diverge@diverge": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "curl-md@curl-md": true
+    "curl-md@curl-md": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
@@ -98,6 +99,6 @@
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }
