@@ -95,5 +95,16 @@ bind -n M-l resize-pane -R 3
 bind X kill-pane
 bind Z run-shell 'zed "#{pane_current_path}"'
 
+# ── Logi Options+ mouse bindings ─────────────────────────────────
+# Assign these keystrokes in Logi Options+ (Keystroke Assignment):
+#   Thumbwheel scroll left  → Ctrl+Alt+Shift+Left   (previous window)
+#   Thumbwheel scroll right → Ctrl+Alt+Shift+Right  (next window)
+#   Forward button          → Ctrl+Alt+Shift+Up     (previous session)
+#   Back button             → Ctrl+Alt+Shift+Down   (next session)
+bind -n C-M-S-Left  previous-window
+bind -n C-M-S-Right next-window
+bind -n C-M-S-Up    switch-client -p
+bind -n C-M-S-Down  switch-client -n
+
 # ── TPM (must be last) ──────────────────────────────────────────
 run '~/.tmux/plugins/tpm/tpm'
