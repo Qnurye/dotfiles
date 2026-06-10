@@ -19,6 +19,7 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "SessionStart": [],
     "PreToolUse": [
@@ -100,6 +101,5 @@
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "model": "claude-fable-5[1m]"
+  "voiceEnabled": true
 }
