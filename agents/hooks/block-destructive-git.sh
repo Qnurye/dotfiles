@@ -38,7 +38,7 @@ check_argv() {
 
   case "$prog $sub" in
     "git commit")
-      deny "Blocked by hook: 'git commit' is reserved for Jaren. Stage changes and present a commit message for approval instead."
+      deny "Blocked by hook: never call 'git commit' directly. Run 'wt step commit' instead (LLM-generated message; default --stage all; use --stage none to commit only the curated index)."
       ;;
     "git push")
       for a in "${rest[@]}"; do

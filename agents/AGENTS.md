@@ -9,7 +9,8 @@
 - Prefer `gh` CLI to access GitHub.
 - Git pull strategy: rebase.
 - GPG signing enabled for commits.
-- **Prepare, don't execute**: stage changes and propose commit messages or PR replies for Jaren's review. Destructive and peer-interaction git/gh operations are hard-blocked by a PreToolUse hook (`~/dotfiles/agents/hooks/block-destructive-git.sh`) — don't try to work around it; ask Jaren instead.
+- **Commits go through worktrunk**: whenever a commit is needed, run `wt step commit` — never `git commit` (hard-blocked by hook). It stages everything and generates the message itself; pass `--stage none` when you've already curated the index, `--dry-run` to preview. No need to ask first — `wt step commit` is the approved path.
+- **Prepare, don't execute** (everything else): propose PR replies/reviews for Jaren; force-push and peer-interaction git/gh operations are hard-blocked by a PreToolUse hook (`~/dotfiles/agents/hooks/block-destructive-git.sh`) — don't try to work around it; ask Jaren instead.
 
 ## Preferred CLI Tools
 Reach for these modern tools when a task calls for searching, filtering, or transforming data in the shell. They are faster, safer, or more ergonomic than the POSIX defaults.
