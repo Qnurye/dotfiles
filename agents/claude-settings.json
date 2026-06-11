@@ -97,6 +97,7 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "verbose": true,
+  "switchModelsOnFlag": false,
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
