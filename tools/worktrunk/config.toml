@@ -73,7 +73,7 @@ BAD output (DO NOT do this):
 ```feat(auth): add JWT token refresh endpoint```
 
 Commits being squashed:
-{% for c in commits %}- {{ c }}
+{% for c in commit_details %}- {{ c }}
 {% endfor %}
 {% if target_branch %}Target: {{ target_branch }}{% endif %}
 Branch: {{ branch }}
