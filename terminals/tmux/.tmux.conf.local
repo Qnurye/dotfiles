@@ -59,6 +59,7 @@ set -g allow-passthrough on
 set -s extended-keys always
 set -as terminal-features 'xterm-ghostty:clipboard:ccolour:cstyle:focus:title:extkeys'
 set -g set-clipboard on
+set -g cursor-style blinking-block
 
 # ── Pane ─────────────────────────────────────────────────────────
 set -g pane-border-lines simple

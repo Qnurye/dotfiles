@@ -8,7 +8,8 @@ font-size = 15
 theme = light:Atom One Light,dark:Atom One Dark
 
 # ============ 光标 ============
-cursor-style = bar
+cursor-style = block
+cursor-style-blink = true
 
 # ============ 背景 ============
 background-opacity = 0.9
