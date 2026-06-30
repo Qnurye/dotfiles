@@ -47,7 +47,6 @@
     "impeccable@impeccable": true,
     "codex@openai-codex": true,
     "diverge@diverge": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
     "curl-md@curl-md": true,
     "vercel@claude-plugins-official": true
   },
@@ -93,6 +92,7 @@
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "verbose": true,
@@ -101,6 +101,5 @@
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "tui": "fullscreen"
+  "voiceEnabled": true
 }
