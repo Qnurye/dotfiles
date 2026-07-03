@@ -48,8 +48,8 @@
     "vercel@claude-plugins-official": true,
     "worktrunk@worktrunk": true,
     "context7@claude-plugins-official": true,
-    "impeccable@impeccable": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "impeccable@impeccable": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
