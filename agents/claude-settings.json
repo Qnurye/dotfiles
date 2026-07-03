@@ -19,6 +19,7 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
+  "model": "opus[1m]",
   "hooks": {
     "SessionStart": [],
     "PreToolUse": [
@@ -41,14 +42,14 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
     "gopls-lsp@claude-plugins-official": false,
-    "worktrunk@worktrunk": true,
-    "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": false,
-    "impeccable@impeccable": true,
-    "codex@openai-codex": true,
     "diverge@diverge": true,
     "curl-md@curl-md": true,
-    "vercel@claude-plugins-official": true
+    "vercel@claude-plugins-official": true,
+    "worktrunk@worktrunk": true,
+    "context7@claude-plugins-official": true,
+    "impeccable@impeccable": true,
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
@@ -101,6 +102,5 @@
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "model": "claude-fable-5[1m]"
+  "voiceEnabled": true
 }
