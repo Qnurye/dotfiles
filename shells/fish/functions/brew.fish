@@ -30,10 +30,9 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                 end
 
                 # Detect bottle platform prefix once
+                set -l plat_filter '^(ventura|sonoma|sequoia|tahoe|monterey)'
                 if test (uname -m) = arm64
-                    set -l plat_filter '^arm64_'
-                else
-                    set -l plat_filter '^(ventura|sonoma|sequoia|monterey)'
+                    set plat_filter '^arm64_'
                 end
 
                 for pkg in $packages
@@ -79,18 +78,30 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                         continue
                     end
 
-                    # Rewrite bottle URL to SJTU mirror
+                    # Rewrite ghcr bottle URL to the mirror (no-op when the
+                    # API domain already reports mirror URLs)
                     if test -n "$HOMEBREW_BOTTLE_DOMAIN"; and test $is_cask -eq 0
                         set url (string replace 'https://ghcr.io/v2/homebrew' "$HOMEBREW_BOTTLE_DOMAIN" $url)
+                    end
+
+                    # Mirrors can lag behind upstream — verify the bottle
+                    # exists before handing it to aria2, otherwise skip
+                    # quietly and let brew fetch it (with its ghcr fallback)
+                    if not curl -sfIL -o /dev/null --max-time 10 $url
+                        echo "⏭ $pkg not on mirror yet — leaving it to brew"
+                        continue
                     end
 
                     echo ""
                     echo "⬇ Pre-fetching $pkg via aria2..."
                     mkdir -p (dirname $cache_path)
+                    # USTC 429s at high per-IP concurrency — stay at 4 connections
                     aria2c \
-                        --max-connection-per-server=16 \
-                        --split=16 \
+                        --max-connection-per-server=4 \
+                        --split=4 \
                         --min-split-size=1M \
+                        --max-tries=3 \
+                        --retry-wait=2 \
                         --allow-overwrite=false \
                         --auto-file-renaming=false \
                         --console-log-level=warn \

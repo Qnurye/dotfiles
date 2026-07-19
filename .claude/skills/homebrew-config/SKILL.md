@@ -11,10 +11,11 @@ allowed-tools: Read, Edit, Grep, Glob
 This repo manages Homebrew **through nix-darwin**, not a standalone Brewfile.
 
 - **Casks** are declared per-tag in `nix/tags.nix` (e.g., `casks = [ "ghostty" ];`)
-- **Taps and brews** (third-party formulae not in nixpkgs) are declared in `nix/modules/darwin/homebrew.nix`
-- The resolver (`nix/lib/resolver.nix`) collects casks from all active tags
-- Per-host configs (`nix/hosts/*/default.nix`) wire resolved casks into `homebrew.casks`
-- Most CLI packages are nix packages in `tags.nix` `packages` lists, NOT Homebrew formulae
+- **Brews** can also be declared per-tag in `nix/tags.nix` (`brews = [ "uv" ];`) — used for fast-moving tools where stable nixpkgs lags (lazygit, jj, llama.cpp, ollama, uv, ruff, deno)
+- **Taps and host-independent brews** (third-party formulae not in nixpkgs) are declared in `nix/modules/darwin/homebrew.nix`
+- The resolver (`nix/lib/resolver.nix`) collects packages, casks, and brews from all active tags
+- The shared host module (`nix/hosts/default.nix`) wires resolver output into `environment.systemPackages`, `homebrew.casks`, and `homebrew.brews`; per-host configs only pick tags
+- Slow-moving CLI packages are nix packages in `tags.nix` `packages` lists (nixpkgs tracks the 26.05 stable release branch)
 
 > **Legacy**: `homebrew/Brewfile` exists but is deprecated and will be removed after full nix-darwin cutover. Do not use it for new packages.
 

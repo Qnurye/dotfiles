@@ -1,43 +1,45 @@
 { pkgs }:
 
-with pkgs; {
+{
   # ── Foundation ──────────────────────────────────────────────
   "base" = {
-    packages = [ git curl wget jq gnupg coreutils nix-output-monitor ];
+    packages = with pkgs; [ git curl wget jq gnupg coreutils nix-output-monitor ];
     casks = [];
     deps = [];
   };
 
   # ── Shell ───────────────────────────────────────────────────
   "shell/fish" = {
-    packages = [ fish ];  # TODO: fisher is not in nixpkgs (installed via fish plugin manager)
+    packages = [ pkgs.fish ];  # TODO: fisher is not in nixpkgs (installed via fish plugin manager)
     casks = [];
     deps = [ "base" ];
   };
 
   # ── CLI Tools ───────────────────────────────────────────────
   "cli/tools" = {
-    packages = [
+    packages = with pkgs; [
       aria2
       bat fd fzf ripgrep yazi neovim tmux eza zoxide tree
-      lazygit (direnv.overrideAttrs (old: { env = (old.env or {}) // { CGO_ENABLED = 1; }; })) git-lfs delta difftastic jujutsu
+      (direnv.overrideAttrs (old: { env = (old.env or {}) // { CGO_ENABLED = 1; }; })) git-lfs delta difftastic
       worktrunk pinentry_mac
       # Structured-data & code-mod toolbelt — see ~/.claude/CLAUDE.md "Preferred CLI Tools"
       yq-go jd-diff-patch dasel ast-grep sd gron
       hyperfine tokei git-absorb
     ];
     casks = [];
+    # Fast-moving tools: nixpkgs stable lags — track latest via brew
+    brews = [ "lazygit" "jj" ];
     deps = [ "base" ];
   };
 
   "cli/ci" = {
-    packages = [ act actionlint ];
+    packages = with pkgs; [ act actionlint ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "cli/media" = {
-    packages = [
+    packages = with pkgs; [
       ffmpeg imagemagick atomicparsley jpegoptim
       oxipng pngquant resvg woff2 zopfli
       python3Packages.fonttools
@@ -47,86 +49,89 @@ with pkgs; {
   };
 
   "cli/net" = {
-    packages = [ cloudflared mosh nmap tailscale xh ];
+    packages = with pkgs; [ cloudflared mosh nmap tailscale xh ];
     casks = [];
     deps = [];
   };
 
   "cli/ai" = {
-    packages = [ llama-cpp ];
+    packages = [];
     casks = [];
+    brews = [ "llama.cpp" ];
     deps = [];
   };
 
   "cli/data" = {
-    packages = [ duckdb pandoc poppler typst qpdf miller ];
+    packages = with pkgs; [ duckdb pandoc poppler typst qpdf miller ];
     casks = [];
     deps = [];
   };
 
   "cli/mail" = {
-    packages = [ himalaya signal-cli ];
+    packages = with pkgs; [ himalaya signal-cli ];
     casks = [];
     deps = [];
   };
 
   "cli/misc" = {
-    packages = [ convmv duti unar watch zstd p7zip ttyd ];
+    packages = with pkgs; [ convmv duti unar watch zstd p7zip ttyd ];
     casks = [];
     deps = [];
   };
 
   # ── Development: Base ───────────────────────────────────────
   "dev/base" = {
-    packages = [ gh nil nixd ];
+    packages = with pkgs; [ gh nil nixd ];
     casks = [];
     deps = [ "base" "cli/tools" ];
   };
 
   "dev/go" = {
-    packages = [ go gopls gotools go-tools ];
+    packages = with pkgs; [ go gopls gotools go-tools ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/rust" = {
-    packages = [ rustup rust-analyzer ];
+    packages = with pkgs; [ rustup rust-analyzer ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/node" = {
-    packages = [ fnm ];
+    packages = [ pkgs.fnm ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/python" = {
-    packages = [ python3 uv ruff poetry ];
+    packages = with pkgs; [ python3 poetry ];
     casks = [];
+    brews = [ "uv" "ruff" ];
     deps = [ "dev/base" ];
   };
 
   "dev/deno" = {
-    packages = [ deno ];
+    packages = [];
     casks = [];
+    brews = [ "deno" ];
     deps = [ "dev/base" ];
   };
 
   "dev/c" = {
-    packages = [ automake clang-tools libtool pkgconf libev libpq ];
+    packages = with pkgs; [ automake clang-tools libtool pkgconf libev libpq ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/k8s" = {
-    packages = [ kubectl ];
+    packages = [ pkgs.kubectl ];
     casks = [];
     deps = [ "dev/base" ];
   };
 
   "dev/docker" = {
-    packages = [ docker docker-compose ];
+    packages = with pkgs; [ docker docker-compose ];
     casks = [];
     deps = [ "dev/base" ];
   };
@@ -181,8 +186,9 @@ with pkgs; {
   };
 
   "apps/llm" = {
-    packages = [ ollama ];
+    packages = [];
     casks = [ "claude" "claude-code@latest" "codex" "codex-app" ];
+    brews = [ "ollama" ];
     deps = [];
   };
 
@@ -228,7 +234,7 @@ with pkgs; {
   };
 
   "work/cloud" = {
-    packages = [ doctl ];
+    packages = [ pkgs.doctl ];
     casks = [ "gcloud-cli" ];
     deps = [ "work/base" ];
   };

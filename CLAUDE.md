@@ -39,8 +39,7 @@ fish nix/setup-nix-conf.fish
 
 ## Nix Mirrors & Secrets
 
-- **nixpkgs**: fetched from Tsinghua mirror (`mirrors.tuna.tsinghua.edu.cn`)
-- **Binary cache**: USTC mirror as primary substituter
+- **Binary caches**: NJU → SJTU → USTC mirror proxies, `cache.nixos.org` as fallback (TUNA is not used — it does not serve darwin paths)
 - **GitHub API token**: stored in 1Password (`op://Personal/Nix GitHub Token/password`), deployed via `nix/setup-nix-conf.fish`
 - Config lives at `/etc/nix/nix.custom.conf` (not tracked in git)
 

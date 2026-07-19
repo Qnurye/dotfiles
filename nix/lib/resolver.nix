@@ -23,5 +23,6 @@ in
     {
       packages = lib.unique (lib.concatLists (map (t: t.packages) allTags));
       casks = lib.unique (lib.concatLists (map (t: t.casks) allTags));
+      brews = lib.unique (lib.concatLists (map (t: t.brews or []) allTags));
     };
 }

@@ -14,22 +14,12 @@
     };
 
     taps = [
-      "antoniorodr/memo"
       "homebrew/services"
-      "jakehilborn/jakehilborn"
-      "lucasgelfond/zerobrew"
-      "nektos/tap"
-      "yakitrak/yakitrak"
     ];
 
-    # Casks are injected by the darwin module from resolver output.
-    # Additional brews from third-party taps that aren't in nixpkgs:
+    # Casks and per-tag brews are injected from resolver output (hosts/default.nix).
+    # Below: homebrew-core brews not in nixpkgs and not tag-specific:
     brews = [
-      # Third-party taps
-      "antoniorodr/memo/memo"
-      "lucasgelfond/zerobrew/zerobrew"
-      "yakitrak/yakitrak/obsidian-cli"
-      # Homebrew-core (not in nixpkgs)
       "cagent"
       "docker-agent"
       "rtk"
