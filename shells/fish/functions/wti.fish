@@ -57,7 +57,7 @@ Rules: lowercase, hyphen-separated words, under 40 chars after any prefix."
     set -l plan_prompt "Plan the implementation of these GitHub issues in $repo:
 "(string join \n $issue_lines | string collect)"
 
-First read each issue's full body and discussion with 'gh issue view <number> --comments', then explore the relevant code and produce an implementation plan."
+First read each issue's full body and discussion with 'gh issue view <number> --comments', then explore the relevant code. Plan before implementing: present the implementation plan and wait for my confirmation before writing any code."
 
     if set -q _flag_dry_run
         echo "branch: $branch"
@@ -68,5 +68,5 @@ First read each issue's full body and discussion with 'gh issue view <number> --
 
     set -l wt_args switch --create $branch
     set -q _flag_base; and set -a wt_args --base $_flag_base
-    wt $wt_args -x 'claude --permission-mode plan' -- $plan_prompt
+    wt $wt_args -x claude -- --permission-mode auto $plan_prompt
 end
