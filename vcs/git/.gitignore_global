@@ -1,2 +1,4 @@
 # Worktrees (worktrunk)
 .worktrees/
+
+**/.claude/settings.local.json
