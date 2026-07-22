@@ -14,8 +14,8 @@ function wti --description "GitHub issues → branch name → worktree → Claud
 
     set -l issues (string replace -r '^#' '' $argv)
     if test (count $issues) -eq 0
-        set issues (gh issue list --limit 100 --json number,title --jq '.[] | "\(.number)\t\(.title)"' \
-            | fzf --multi --delimiter \t --preview 'gh issue view {1}' --preview-window 'right:60%:wrap' \
+        set issues (gh issue list --limit 100 --json number,title --jq 'sort_by(-.number) | .[] | "\(.number)\t\(.title)"' \
+            | fzf --multi --layout=reverse --delimiter \t --preview 'gh issue view {1}' --preview-window 'right:60%:wrap' \
             | cut -f1)
         test (count $issues) -gt 0; or return 1
     end
