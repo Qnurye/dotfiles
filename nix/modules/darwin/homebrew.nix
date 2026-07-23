@@ -21,7 +21,6 @@
     # Below: homebrew-core brews not in nixpkgs and not tag-specific:
     brews = [
       "cagent"
-      "docker-agent"
       "rtk"
     ];
   };

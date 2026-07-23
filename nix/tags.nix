@@ -130,12 +130,6 @@
     deps = [ "dev/base" ];
   };
 
-  "dev/docker" = {
-    packages = with pkgs; [ docker docker-compose ];
-    casks = [];
-    deps = [ "dev/base" ];
-  };
-
   # ── Fonts ───────────────────────────────────────────────────
   "fonts/base" = {
     packages = [];
@@ -188,7 +182,6 @@
   "apps/llm" = {
     packages = [];
     casks = [ "claude" "claude-code@latest" "codex" "codex-app" ];
-    brews = [ "ollama" ];
     deps = [];
   };
 
@@ -200,7 +193,7 @@
 
   "apps/dev" = {
     packages = [];
-    casks = [ "docker-desktop" "gitbutler" "tower" ];
+    casks = [ "gitbutler" "tower" ];
     deps = [ "dev/base" ];
   };
 

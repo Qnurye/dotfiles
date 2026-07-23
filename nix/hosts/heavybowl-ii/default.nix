@@ -15,7 +15,6 @@
     "dev/deno"
     "dev/c"
     "dev/k8s"
-    "dev/docker"
     "cli/ai"
     "cli/ci"
     "cli/media"

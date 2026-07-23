@@ -19,7 +19,6 @@
     "dev/deno"
     "dev/c"
     "dev/k8s"
-    "dev/docker"
     "fonts/base"
     "fonts/extra"
     "apps/editors"
