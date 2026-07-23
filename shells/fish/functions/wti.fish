@@ -68,5 +68,5 @@ First read each issue's full body and discussion with 'gh issue view <number> --
 
     set -l wt_args switch --create $branch
     set -q _flag_base; and set -a wt_args --base $_flag_base
-    wt $wt_args -x claude -- --permission-mode auto $plan_prompt
+    wt $wt_args -x claude -- --permission-mode bypassPermissions $plan_prompt
 end

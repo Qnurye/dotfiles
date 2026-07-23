@@ -18,6 +18,7 @@ in
 
       # Terminals
       ".config/ghostty/config" = mkLink "terminals/ghostty/config";
+      ".config/otty/config.toml" = mkLink "terminals/otty/config.toml";
       ".tmux.conf.local" = mkLink "terminals/tmux/.tmux.conf.local";
 
       # VCS - Git
