@@ -1,8 +1,149 @@
 {
+  "agentPushNotifEnabled": true,
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "enabledPlugins": {
+    "codex@openai-codex": true,
+    "context7@claude-plugins-official": true,
+    "curl-md@curl-md": true,
+    "diverge@diverge": true,
+    "gopls-lsp@claude-plugins-official": false,
+    "impeccable@impeccable": true,
+    "skill-creator@claude-plugins-official": false,
+    "typescript-lsp@claude-plugins-official": false,
+    "vercel@claude-plugins-official": true,
+    "worktrunk@worktrunk": true
+  },
   "env": {
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
     "MAX_THINKING_TOKENS": "128000"
   },
+  "extraKnownMarketplaces": {
+    "cloudflare": {
+      "source": {
+        "repo": "cloudflare/skills",
+        "source": "github"
+      }
+    },
+    "curl-md": {
+      "source": {
+        "repo": "wevm/curl.md",
+        "source": "github"
+      }
+    },
+    "diverge": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "Qnurye/diverge",
+        "source": "github"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "repo": "pbakaus/impeccable",
+        "source": "github"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "repo": "openai/codex-plugin-cc",
+        "source": "github"
+      }
+    },
+    "worktrunk": {
+      "source": {
+        "repo": "max-sixty/worktrunk",
+        "source": "github"
+      }
+    }
+  },
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' awaiting \"$PPID\" ctx",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' processing \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "~/dotfiles/agents/hooks/block-destructive-git.sh",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' processing \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' idle \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' idle \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "codegraph prompt-hook",
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "_otty": true,
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' processing \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "model": "claude-fable-5[1m]",
   "permissions": {
     "allow": [
       "Bash",
@@ -12,94 +153,25 @@
       "mcp__context7__query-docs",
       "Skill",
       "Read",
-      "Edit"
+      "Edit",
+      "mcp__codegraph__*"
     ],
-    "deny": [],
     "ask": [],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "bypassPermissions",
+    "deny": []
   },
-  "model": "claude-fable-5[1m]",
-  "hooks": {
-    "SessionStart": [],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dotfiles/agents/hooks/block-destructive-git.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "wt list statusline --format=claude-code"
-  },
-  "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": false,
-    "gopls-lsp@claude-plugins-official": false,
-    "skill-creator@claude-plugins-official": false,
-    "diverge@diverge": true,
-    "curl-md@curl-md": true,
-    "vercel@claude-plugins-official": true,
-    "worktrunk@worktrunk": true,
-    "context7@claude-plugins-official": true,
-    "codex@openai-codex": true,
-    "impeccable@impeccable": true
-  },
-  "extraKnownMarketplaces": {
-    "worktrunk": {
-      "source": {
-        "source": "github",
-        "repo": "max-sixty/worktrunk"
-      }
-    },
-    "impeccable": {
-      "source": {
-        "source": "github",
-        "repo": "pbakaus/impeccable"
-      }
-    },
-    "openai-codex": {
-      "source": {
-        "source": "github",
-        "repo": "openai/codex-plugin-cc"
-      }
-    },
-    "diverge": {
-      "source": {
-        "source": "github",
-        "repo": "Qnurye/diverge"
-      },
-      "autoUpdate": true
-    },
-    "cloudflare": {
-      "source": {
-        "source": "github",
-        "repo": "cloudflare/skills"
-      }
-    },
-    "curl-md": {
-      "source": {
-        "source": "github",
-        "repo": "wevm/curl.md"
-      }
-    }
-  },
-  "syntaxHighlightingDisabled": false,
-  "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
-  "tui": "fullscreen",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "auto",
-  "verbose": true,
-  "switchModelsOnFlag": false,
-  "teammateMode": "tmux",
   "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "wt list statusline --format=claude-code",
+    "type": "command"
+  },
+  "switchModelsOnFlag": false,
+  "syntaxHighlightingDisabled": false,
+  "teammateMode": "tmux",
+  "theme": "auto",
+  "tui": "fullscreen",
+  "verbose": true,
   "voiceEnabled": true
 }
