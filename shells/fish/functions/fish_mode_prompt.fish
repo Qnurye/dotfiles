@@ -1,1 +1,1 @@
-/Users/qnurye/dotfiles/shells/fish/functions/fish_mode_prompt.fish
+# Disable default vi prompt

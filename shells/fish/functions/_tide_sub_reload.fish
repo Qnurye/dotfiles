@@ -1,1 +1,3 @@
-/Users/qnurye/dotfiles/shells/fish/functions/_tide_sub_reload.fish
+function _tide_sub_reload
+    source (functions --details fish_prompt)
+end

@@ -25,9 +25,23 @@ LINK_MODE="${LINK_MODE:-install}"
 LINKS_FIXED=0
 LINK_CONFLICTS=0
 
+# True when dest's parent directory resolves inside the dotfiles repo, i.e. the
+# path is reached through a directory symlink (home-manager links whole dirs like
+# ~/.config/fish and ~/.claude/skills). Touching such a dest would mutate repo
+# files directly — creating self-referential symlinks and destroying content.
+resolves_into_repo() {
+    local dest="$1" parent_real
+    parent_real="$(cd "$(dirname "$dest")" 2>/dev/null && pwd -P)" || return 1
+    [[ "$parent_real/$(basename "$dest")" == "$DOTFILES_DIR"/* ]]
+}
+
 backup_and_link() {
     local src="$1"
     local dest="$2"
+
+    if resolves_into_repo "$dest"; then
+        return
+    fi
 
     if [[ "$LINK_MODE" == "check" ]]; then
         check_link "$src" "$dest"
