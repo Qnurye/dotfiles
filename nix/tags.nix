@@ -213,7 +213,7 @@
     packages = [];
     casks = [
       "appcleaner" "shottr" "sf-symbols" "corelocationcli"
-      "typeless" "google-chrome" "bitwarden" "wpsoffice" "folo"
+      "typeless" "google-chrome" "bitwarden" "folo"
       "linearmouse" "piclist" "raindropio"
     ];
     deps = [];
