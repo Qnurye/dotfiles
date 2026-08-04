@@ -22,6 +22,10 @@ function nix-up --description 'Update nix flake and rebuild darwin system'
         --cores 0
     or return 1
 
+    # homebrew.onActivation.upgrade bumps casks inside darwin-rebuild, so the
+    # Claude Code binary may have moved to a new versioned Caskroom path.
+    claude-pin
+
     echo ""
     echo "Checking dotfile links..."
     bash ~/dotfiles/install.sh check

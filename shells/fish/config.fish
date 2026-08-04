@@ -46,6 +46,16 @@ test -f "$HOME/.cargo/env.fish"; and source "$HOME/.cargo/env.fish"
 # Local bin
 test -f "$HOME/.local/bin/env.fish"; and source "$HOME/.local/bin/env.fish"
 
+# Claude Code — run the version-free hardlink (see `claude-pin`) so macOS TCC
+# grants are not invalidated on every cask upgrade. Self-healing here because a
+# bare `darwin-rebuild switch` (outside `nix-up`) can bump the cask without re-pinning;
+# no-op once the inode already matches.
+test -e /opt/homebrew/bin/claude; and claude-pin
+
+# Must outrank /opt/homebrew/bin, hence --path --move rather than plain fish_add_path.
+test -x $HOME/.local/libexec/claude-code/claude
+and fish_add_path --path --move --prepend $HOME/.local/libexec/claude-code
+
 # GPG
 set -gx GPG_TTY (tty)
 

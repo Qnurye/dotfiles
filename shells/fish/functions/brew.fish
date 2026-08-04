@@ -139,6 +139,12 @@ function brew --description 'Brew wrapper: aria2 pre-fetch + quarantine removal'
                     echo "✓ No quarantined apps found"
                 end
         end
+
+        # ── Re-pin Claude Code onto its version-free path ────────
+        switch $argv[1]
+            case upgrade install reinstall
+                claude-pin
+        end
     end
 
     return $ret
