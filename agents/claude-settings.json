@@ -1,7 +1,10 @@
 {
   "env": {
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "MAX_THINKING_TOKENS": "128000"
+    "MAX_THINKING_TOKENS": "128000",
+    "CLAUDISH_PROVIDER": "codex",
+    "CLAUDISH_CODEX_EFFORT": "low",
+    "CLAUDISH_MODE": "append"
   },
   "permissions": {
     "allow": [
@@ -117,7 +120,8 @@
     "skill-creator@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
-    "worktrunk@worktrunk": true
+    "worktrunk@worktrunk": true,
+    "claudish-to-english@gvzdv-plugins": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
@@ -155,6 +159,12 @@
       "source": {
         "source": "github",
         "repo": "max-sixty/worktrunk"
+      }
+    },
+    "gvzdv-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "gvzdv/claudish-to-english"
       }
     }
   },
