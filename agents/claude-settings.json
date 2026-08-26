@@ -176,7 +176,7 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "editorMode": "normal",
-  "verbose": true,
+  "verbose": false,
   "switchModelsOnFlag": false,
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
