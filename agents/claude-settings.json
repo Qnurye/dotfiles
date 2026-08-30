@@ -2,9 +2,13 @@
   "env": {
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
     "MAX_THINKING_TOKENS": "128000",
+    "CLAUDISH_STYLE": "caveman",
+    "CLAUDISH_LANG": "Simplified Chinese",
     "CLAUDISH_PROVIDER": "codex",
+    "CLAUDISH_MODEL": "gpt-5.6-luna",
     "CLAUDISH_CODEX_EFFORT": "low",
-    "CLAUDISH_MODE": "append"
+    "CLAUDISH_MODE": "append",
+    "CLAUDISH_TIMEOUT": "60"
   },
   "permissions": {
     "allow": [
@@ -22,7 +26,7 @@
     "ask": [],
     "defaultMode": "auto"
   },
-  "model": "fable",
+  "model": "opus",
   "hooks": {
     "PermissionRequest": [
       {
