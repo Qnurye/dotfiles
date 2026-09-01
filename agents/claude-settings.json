@@ -24,9 +24,9 @@
     ],
     "deny": [],
     "ask": [],
-    "defaultMode": "bypassPermission"
+    "defaultMode": "bypassPermissions"
   },
-  "model": "opus",
+  "model": "fable",
   "hooks": {
     "PermissionRequest": [
       {
