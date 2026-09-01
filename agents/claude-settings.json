@@ -3,11 +3,11 @@
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
     "MAX_THINKING_TOKENS": "128000",
     "CLAUDISH_STYLE": "caveman",
-    "CLAUDISH_LANG": "Simplified Chinese",
+    "CLAUDISH_LANG": "简体中文",
     "CLAUDISH_PROVIDER": "codex",
     "CLAUDISH_MODEL": "gpt-5.6-luna",
     "CLAUDISH_CODEX_EFFORT": "low",
-    "CLAUDISH_MODE": "append",
+    "CLAUDISH_MODE": "replace",
     "CLAUDISH_TIMEOUT": "60"
   },
   "permissions": {
@@ -24,7 +24,7 @@
     ],
     "deny": [],
     "ask": [],
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermission"
   },
   "model": "opus",
   "hooks": {

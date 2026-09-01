@@ -164,6 +164,7 @@ set -gx GPG_TTY (tty)
 | `brew` | `functions/brew.fish` | Wraps `brew install`/`upgrade` with aria2 multi-connection pre-fetching and post-upgrade quarantine removal |
 | `nix-up` | `functions/nix-up.fish` | Updates nix flake inputs and rebuilds darwin system (`--no-update` / `-n` to skip flake update) |
 | `nix-add` | `functions/nix-add.fish` | Interactive search across nixpkgs and homebrew casks, adds selection to `tags.nix` and optionally rebuilds |
+| `gccd` | `functions/gccd.fish` | `git clone --recurse-submodules` then `cd` into the cloned directory (derived from the URL, or the explicit destination argument) |
 | `y` | `functions/y.fish` | Wraps `yazi` file manager with automatic `cd` to last visited directory on exit |
 | `wt` | `functions/wt.fish` | Lazy-load stub for worktrunk: sources shell integration on first use, then re-dispatches |
 
@@ -172,6 +173,7 @@ set -gx GPG_TTY (tty)
 | File | Description |
 |---|---|
 | `completions/wt.fish` | Dynamic completions for worktrunk, delegates to the `wt` binary |
+| `completions/gccd.fish` | Wraps `git clone` completions for `gccd` |
 
 ### Abbreviations
 
