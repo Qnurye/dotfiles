@@ -191,7 +191,3 @@ abbr -a gbl 'git blame -w'
 abbr -a grm 'git rm'
 abbr -a grmc 'git rm --cached'
 abbr -a grev 'git revert'
-
-# >>> grok installer >>>
-fish_add_path $HOME/.grok/bin
-# <<< grok installer <<<
