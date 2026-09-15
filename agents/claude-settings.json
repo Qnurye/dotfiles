@@ -117,7 +117,7 @@
   "enabledPlugins": {
     "codex@openai-codex": true,
     "context7@claude-plugins-official": true,
-    "curl-md@curl-md": true,
+    "curl-md@curl-md": false,
     "diverge@diverge": true,
     "gopls-lsp@claude-plugins-official": false,
     "impeccable@impeccable": true,
