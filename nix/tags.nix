@@ -80,7 +80,7 @@
       zsh-autosuggestions zsh-syntax-highlighting
     ];
     casks = [];
-    brews = [ "displayplacer" "gogcli" "openclaw/tap/goplaces" "openclaw/tap/wacli" ];
+    brews = [ "displayplacer" "gogcli" ];
     deps = [];
   };
 
@@ -197,7 +197,6 @@
   "apps/productivity" = {
     packages = [];
     casks = [ "obsidian" "1password" "1password-cli" "raycast" "craft" "todoist-app" ];
-    brews = [ "yakitrak/yakitrak/obsidian-cli" ];
     deps = [];
   };
 

@@ -18,8 +18,6 @@
 
     taps = [
       "homebrew/services"
-      "openclaw/tap"
-      "yakitrak/yakitrak"
     ];
 
     # Casks and per-tag brews are injected from resolver output (hosts/default.nix).
