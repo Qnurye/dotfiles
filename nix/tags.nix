@@ -24,7 +24,7 @@
       worktrunk pinentry_mac
       # Structured-data & code-mod toolbelt — see ~/.claude/CLAUDE.md "Preferred CLI Tools"
       yq-go jd-diff-patch dasel ast-grep sd gron
-      hyperfine tokei git-absorb
+      hyperfine tokei git-absorb autojump
     ];
     casks = [];
     # Fast-moving tools: nixpkgs stable lags — track latest via brew
@@ -40,7 +40,7 @@
 
   "cli/media" = {
     packages = with pkgs; [
-      ffmpeg imagemagick atomicparsley jpegoptim
+      ffmpeg-full imagemagick atomicparsley jpegoptim
       oxipng pngquant resvg woff2 zopfli
       python3Packages.fonttools
     ];
@@ -62,8 +62,9 @@
   };
 
   "cli/data" = {
-    packages = with pkgs; [ duckdb pandoc poppler typst qpdf miller ];
+    packages = with pkgs; [ duckdb pandoc poppler-utils typst qpdf miller ];
     casks = [];
+    brews = [ "marked" ];
     deps = [];
   };
 
@@ -74,15 +75,20 @@
   };
 
   "cli/misc" = {
-    packages = with pkgs; [ convmv duti unar watch zstd p7zip ttyd ];
+    packages = with pkgs; [
+      convmv duti unar watch zstd p7zip _7zz ttyd
+      zsh-autosuggestions zsh-syntax-highlighting
+    ];
     casks = [];
+    brews = [ "displayplacer" "gogcli" "steipete/tap/goplaces" "steipete/tap/wacli" ];
     deps = [];
   };
 
   # ── Development: Base ───────────────────────────────────────
   "dev/base" = {
-    packages = with pkgs; [ gh nil nixd ];
+    packages = with pkgs; [ gh nil nixd just ];
     casks = [];
+    brews = [ "neonctl" ];
     deps = [ "base" "cli/tools" ];
   };
 
@@ -107,7 +113,7 @@
   "dev/python" = {
     packages = with pkgs; [ python3 poetry ];
     casks = [];
-    brews = [ "uv" "ruff" ];
+    brews = [ "uv" "ruff" "python@3.12" "python@3.9" ];
     deps = [ "dev/base" ];
   };
 
@@ -121,6 +127,8 @@
   "dev/c" = {
     packages = with pkgs; [ automake clang-tools libtool pkgconf libev libpq ];
     casks = [];
+    # nixpkgs libpq ships no client binaries; psql & co. come from brew (PATH in config.fish)
+    brews = [ "libpq" "vc" ];
     deps = [ "dev/base" ];
   };
 
@@ -175,46 +183,47 @@
 
   "apps/terminal" = {
     packages = [];
-    casks = [ "ghostty" ];
+    casks = [ "otty" ];
     deps = [];
   };
 
   "apps/llm" = {
     packages = [];
-    casks = [ "claude" "claude-code@latest" "codex" "codex-app" ];
+    casks = [ "claude" "claude-code@latest" ];
+    brews = [ "gemini-cli" "ollama" "summarize" ];
     deps = [];
   };
 
   "apps/productivity" = {
     packages = [];
-    casks = [ "obsidian" "1password" "1password-cli" "raycast" "craft" ];
+    casks = [ "obsidian" "1password" "1password-cli" "raycast" "craft" "todoist-app" ];
+    brews = [ "yakitrak/yakitrak/obsidian-cli" ];
     deps = [];
   };
 
   "apps/dev" = {
     packages = [];
-    casks = [ "gitbutler" "tower" ];
+    casks = [];
     deps = [ "dev/base" ];
   };
 
   "apps/social" = {
     packages = [];
-    casks = [ "telegram" "wechat" "feishu" "lark" "bluebubbles" ];
+    casks = [ "wechat" "feishu" "lark" ];
     deps = [];
   };
 
   "apps/media" = {
     packages = [];
-    casks = [ "vlc" "qbittorrent" "zotero" ];
+    casks = [ "vlc" "qbittorrent" ];
     deps = [];
   };
 
   "apps/utils" = {
     packages = [];
     casks = [
-      "appcleaner" "shottr" "sf-symbols" "corelocationcli"
-      "typeless" "google-chrome" "bitwarden" "folo"
-      "linearmouse" "piclist" "raindropio"
+      "appcleaner" "shottr" "typeless" "google-chrome"
+      "piclist" "logi-options+"
     ];
     deps = [];
   };

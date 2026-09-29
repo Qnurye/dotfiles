@@ -17,8 +17,7 @@ in
       ".config/zed/settings.json" = mkLink "editors/zed/settings.json";
 
       # Terminals
-      ".config/ghostty/config" = mkLink "terminals/ghostty/config";
-      ".config/otty/config.toml" = mkLink "terminals/otty/config.toml";
+      # Otty config is synced by content (`otty-sync`): its settings GUI replaces symlinks
       ".tmux.conf.local" = mkLink "terminals/tmux/.tmux.conf.local";
 
       # VCS - Git

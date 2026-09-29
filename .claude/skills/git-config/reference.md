@@ -24,7 +24,7 @@
 | `[gitbutler]` | GitButler settings | `aiModelProvider` |
 
 ## Current Config Highlights
-- GPG commit signing enabled (`commit.gpgsign = true`, program: `/opt/homebrew/bin/gpg`, format: openpgp)
+- GPG commit signing enabled (`commit.gpgsign = true`, program: `/run/current-system/sw/bin/gpg`, format: openpgp)
 - Delta as pager with side-by-side diffs, Dracula syntax-theme and Nord-inspired color palette
 - Difftastic available via aliases (`git dft`, `git dfts`, `git dlog`)
 - Git LFS configured

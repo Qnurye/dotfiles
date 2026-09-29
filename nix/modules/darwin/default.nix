@@ -10,6 +10,7 @@
 
   # Common darwin settings
   programs.fish.enable = true;
+  environment.shells = [ pkgs.fish ];
 
   # Security
   security.pam.services.sudo_local.touchIdAuth = true;

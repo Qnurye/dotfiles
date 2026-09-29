@@ -54,11 +54,16 @@ function _dotfiles_auto_sync
     if test "$local_head" != "$remote_head" -a "$remote_head" != "$merge_base"
         set has_remote true
     end
+    # Commits made outside auto-sync (e.g. `wt step commit`) still need pushing.
+    if test "$local_head" != "$remote_head" -a "$local_head" != "$merge_base"
+        set has_local true
+    end
 
     rm -f "$fetch_marker"
 
     # Case 1: Nothing to do
     if test "$has_local" = false -a "$has_remote" = false
+        rm -f "$DOTFILES_DIR/.sync_conflict"
         echo $now > "$SYNC_MARKER"
         rm -f "$LOCK_FILE"
         return
@@ -66,14 +71,14 @@ function _dotfiles_auto_sync
 
     # Case 2: Only remote changes
     if test "$has_local" = false -a "$has_remote" = true
-        fish -c "cd $DOTFILES_DIR; and git pull --rebase --quiet 2>/dev/null; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
+        fish -c "cd $DOTFILES_DIR; and git pull --rebase --quiet 2>/dev/null; and rm -f $DOTFILES_DIR/.sync_conflict; and otty-sync --quiet; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
         disown
         return
     end
 
     # Case 3: Only local changes
     if test "$has_local" = true -a "$has_remote" = false
-        fish -c "cd $DOTFILES_DIR; and git add -A; and git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null; and git push --quiet 2>/dev/null; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
+        fish -c "cd $DOTFILES_DIR; and git add -A; and git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null; git push --quiet 2>/dev/null; and rm -f $DOTFILES_DIR/.sync_conflict; echo (date +%s) > $SYNC_MARKER; rm -f $LOCK_FILE" &
         disown
         return
     end
@@ -83,8 +88,9 @@ function _dotfiles_auto_sync
         cd $DOTFILES_DIR
         git add -A
         git commit -m 'chore: auto sync dotfiles' --quiet 2>/dev/null
-        if git rebase --quiet '@{u}' 2>/dev/null
-            git push --quiet 2>/dev/null
+        if git rebase --quiet '@{u}' 2>/dev/null; or _dotfiles_rebase_resolve
+            git push --quiet 2>/dev/null; and rm -f $DOTFILES_DIR/.sync_conflict
+            otty-sync --quiet
         else
             git rebase --abort 2>/dev/null
             echo conflict > $DOTFILES_DIR/.sync_conflict
@@ -95,5 +101,6 @@ function _dotfiles_auto_sync
     disown
 end
 
+status is-interactive; and otty-sync --quiet
 _dotfiles_conflict_check
 _dotfiles_auto_sync

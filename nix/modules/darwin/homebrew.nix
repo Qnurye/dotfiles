@@ -18,13 +18,19 @@
 
     taps = [
       "homebrew/services"
+      "steipete/tap"
+      "yakitrak/yakitrak"
     ];
 
     # Casks and per-tag brews are injected from resolver output (hosts/default.nix).
     # Below: homebrew-core brews not in nixpkgs and not tag-specific:
     brews = [
-      "cagent"
+      "mas"
       "rtk"
     ];
+
+    masApps = {
+      Shadowrocket = 932747118;
+    };
   };
 }

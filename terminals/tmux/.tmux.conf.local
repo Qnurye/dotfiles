@@ -1,5 +1,5 @@
 # ── PATH ─────────────────────────────────────────────────────────
-set-environment -g PATH "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+set-environment -g PATH "/etc/profiles/per-user/qnurye/bin:/run/current-system/sw/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
 
 # ── Prefix: Ctrl-\ ──────────────────────────────────────────────
 set -gu prefix2

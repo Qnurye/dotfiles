@@ -8,7 +8,7 @@ allowed-tools: Read, Grep, Glob
 
 ## Current Status
 
-Zsh is NOT the active shell. The user's login shell is **Fish** (`/opt/homebrew/bin/fish`).
+Zsh is NOT the active shell. The user's login shell is **Fish** (`/run/current-system/sw/bin/fish`).
 The previous `zsh/` directory was removed from the dotfiles repo (migrated to Fish).
 Zsh is available at `/run/current-system/sw/bin/zsh` (nix-provided, v5.9) but has no managed config.
 
