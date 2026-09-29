@@ -80,7 +80,7 @@
       zsh-autosuggestions zsh-syntax-highlighting
     ];
     casks = [];
-    brews = [ "displayplacer" "gogcli" "steipete/tap/goplaces" "steipete/tap/wacli" ];
+    brews = [ "displayplacer" "gogcli" "openclaw/tap/goplaces" "openclaw/tap/wacli" ];
     deps = [];
   };
 

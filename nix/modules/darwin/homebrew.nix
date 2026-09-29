@@ -18,7 +18,7 @@
 
     taps = [
       "homebrew/services"
-      "steipete/tap"
+      "openclaw/tap"
       "yakitrak/yakitrak"
     ];
 
