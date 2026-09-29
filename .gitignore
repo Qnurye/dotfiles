@@ -7,3 +7,6 @@ shells/fish/fish_variables*
 .last_fetch
 .sync_conflict
 .sync_lock
+
+# Managed by Codex at runtime
+agents/skills/.system/
