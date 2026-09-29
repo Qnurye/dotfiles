@@ -10,3 +10,6 @@ shells/fish/fish_variables*
 
 # Managed by Codex at runtime
 agents/skills/.system/
+
+# Synced by Claude Code at runtime, per machine
+agents/skills/synced/
