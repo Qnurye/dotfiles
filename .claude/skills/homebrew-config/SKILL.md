@@ -63,13 +63,15 @@ nix-add <query>           # search nixpkgs/casks -> pick tag -> rebuild
 ```nix
 onActivation = {
   cleanup = "none";    # Will switch to "zap" after migration completes
-  autoUpdate = true;
-  upgrade = true;
+  autoUpdate = false;
+  upgrade = false;
 };
 ```
 
 - `cleanup = "none"` prevents accidental removal during migration
 - Target: `cleanup = "zap"` for fully declarative management
+- `autoUpdate`/`upgrade` are off: GUI casks self-update; formulae and updater-less casks are upgraded manually with the `brew-up` fish function
+- Host-only apps go in a `host/<hostname>` tag enabled solely by that host, never in the shared `apps/*` tags
 
 ## Instructions
 1. Always read the relevant nix files before making changes
