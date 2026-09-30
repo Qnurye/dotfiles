@@ -190,7 +190,7 @@
   "apps/llm" = {
     packages = [];
     casks = [ "claude" "claude-code@latest" ];
-    brews = [ "gemini-cli" "ollama" "summarize" ];
+    brews = [ "gemini-cli" "summarize" ];
     deps = [];
   };
 
@@ -222,13 +222,20 @@
     packages = [];
     casks = [
       "appcleaner" "shottr" "typeless" "google-chrome"
-      "piclist" "logi-options+"
+      "piclist"
     ];
     deps = [];
   };
 
   # ── Host-specific ───────────────────────────────────────────
   # Apps present on one machine only; not part of the shared apps/* tags.
+  "host/bowl-air" = {
+    packages = [];
+    casks = [ "logi-options+" ];
+    brews = [ "ollama" ];
+    deps = [];
+  };
+
   "host/heavybowl-ii" = {
     packages = [];
     casks = [

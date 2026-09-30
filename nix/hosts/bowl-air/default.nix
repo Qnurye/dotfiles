@@ -29,5 +29,6 @@
     "apps/social"
     "apps/media"
     "apps/utils"
+    "host/bowl-air"
   ];
 }
