@@ -16,8 +16,9 @@
       upgrade = false;
     };
 
+    # Only tap still in use: codiff (declared in the host/heavybowl-ii tag).
     taps = [
-      "homebrew/services"
+      "nkzw-tech/tap"
     ];
 
     # Casks and per-tag brews are injected from resolver output (hosts/default.nix).

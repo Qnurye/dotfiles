@@ -227,6 +227,18 @@
     deps = [];
   };
 
+  # ── Host-specific ───────────────────────────────────────────
+  # Apps present on one machine only; not part of the shared apps/* tags.
+  "host/heavybowl-ii" = {
+    packages = [];
+    casks = [
+      "bluebubbles" "chatgpt" "codex" "codiff" "libreoffice"
+      "openlogi" "qlmarkdown"
+    ];
+    brews = [ "awscli" "docker-agent" "fastfetch" "python@3.13" ];
+    deps = [];
+  };
+
   # ── Work ────────────────────────────────────────────────────
   "work/base" = {
     packages = [];

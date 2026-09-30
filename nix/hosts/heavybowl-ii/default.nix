@@ -31,5 +31,6 @@
     "apps/social"
     "apps/media"
     "apps/utils"
+    "host/heavybowl-ii"
   ];
 }
