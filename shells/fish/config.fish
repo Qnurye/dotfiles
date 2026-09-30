@@ -7,23 +7,26 @@ set -g fish_greeting
 # Homebrew
 eval (/opt/homebrew/bin/brew shellenv)
 
-# Nix (re-add after brew shellenv resets PATH)
-fish_add_path --prepend /run/current-system/sw/bin /nix/var/nix/profiles/default/bin $HOME/.nix-profile/bin /etc/profiles/per-user/$USER/bin
+# Nix must outrank Homebrew: brew shellenv above uses --move to pull
+# /opt/homebrew/bin to the front, and a plain fish_add_path is a no-op when the
+# nix dirs already sit in the universal fish_user_paths, so they would stay
+# behind brew. Operate on $PATH directly with --move so nix always wins.
+fish_add_path --global --move --path --prepend \
+    /etc/profiles/per-user/$USER/bin $HOME/.nix-profile/bin \
+    /nix/var/nix/profiles/default/bin /run/current-system/sw/bin
 
-# Nix completions: tmux/Ghostty sessions can outlive nix-darwin activations and
+# Nix completions: tmux/Otty sessions can outlive nix-darwin activations and
 # inherit a stale XDG_DATA_DIRS, leaving fish_complete_path without the nix
-# vendor_completions dirs. Append them so nix-installed completions (eza, fd,
-# ripgrep, ...) are reachable. Append (not prepend) so ~/.config/fish/completions
-# and homebrew vendor dirs keep their priority — otherwise nix's older copies of
-# tools also installed via homebrew (e.g. worktrunk) would shadow the active
-# binary's matching completion file.
-for nix_dir in $HOME/.nix-profile/share/fish/vendor_completions.d \
-               /etc/profiles/per-user/$USER/share/fish/vendor_completions.d \
+# vendor_completions dirs. Prepend them so completions match the nix binaries
+# that now win on PATH; ~/.config/fish/completions is re-prepended afterwards.
+for nix_dir in /nix/var/nix/profiles/default/share/fish/vendor_completions.d \
                /run/current-system/sw/share/fish/vendor_completions.d \
-               /nix/var/nix/profiles/default/share/fish/vendor_completions.d
+               /etc/profiles/per-user/$USER/share/fish/vendor_completions.d \
+               $HOME/.nix-profile/share/fish/vendor_completions.d
     test -d $nix_dir; and not contains -- $nix_dir $fish_complete_path
-    and set -a fish_complete_path $nix_dir
+    and set -p fish_complete_path $nix_dir
 end
+set fish_complete_path $__fish_config_dir/completions (string match -v -- $__fish_config_dir/completions $fish_complete_path)
 
 # PATH
 fish_add_path $HOME/go/bin
