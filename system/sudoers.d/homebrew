@@ -1,7 +1,7 @@
 # Allow admin group to run brew-related commands without password
 # Required for casks like docker-desktop that invoke sudo during upgrade
 %admin ALL=(ALL) NOPASSWD: /opt/homebrew/bin/brew
-%admin ALL=(ALL) NOPASSWD: /usr/sbin/installer *
+%admin ALL=(ALL) NOPASSWD:SETENV: /usr/sbin/installer *
 %admin ALL=(ALL) NOPASSWD: /bin/rm -rf /Applications/*.app
 %admin ALL=(ALL) NOPASSWD: /bin/cp -* /Applications/*
 %admin ALL=(ALL) NOPASSWD: /bin/mv -* /Applications/*
