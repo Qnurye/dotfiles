@@ -124,8 +124,7 @@
     "skill-creator@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
-    "worktrunk@worktrunk": true,
-    "claudish-to-english@gvzdv-plugins": true
+    "worktrunk@worktrunk": true
   },
   "extraKnownMarketplaces": {
     "cloudflare": {
