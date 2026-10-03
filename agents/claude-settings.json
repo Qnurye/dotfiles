@@ -26,7 +26,7 @@
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
-  "model": "claude-fable-5-1",
+  "model": "opus",
   "hooks": {
     "PermissionRequest": [
       {
@@ -185,5 +185,10 @@
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "xhigh"
+    }
+  }
 }
