@@ -26,6 +26,16 @@ for nix_dir in /nix/var/nix/profiles/default/share/fish/vendor_completions.d \
     test -d $nix_dir; and not contains -- $nix_dir $fish_complete_path
     and set -p fish_complete_path $nix_dir
 end
+
+# Homebrew completions: only a Homebrew-built fish searches its own prefix and
+# brew shellenv doesn't add it, so nix fish never sees brew/codex/ruff/...
+# completions. Slot it ahead of generated_completions so the real completion
+# beats the man-page-scraped stub (which has no subcommands).
+set -l brew_completions $HOMEBREW_PREFIX/share/fish/vendor_completions.d
+set -l generated_completions $__fish_cache_dir/generated_completions
+if test -d $brew_completions; and not contains -- $brew_completions $fish_complete_path
+    set fish_complete_path (string match -v -- $generated_completions $fish_complete_path) $brew_completions $generated_completions
+end
 set fish_complete_path $__fish_config_dir/completions (string match -v -- $__fish_config_dir/completions $fish_complete_path)
 
 # PATH
