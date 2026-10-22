@@ -1,26 +1,16 @@
 {
   "env": {
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "MAX_THINKING_TOKENS": "128000",
-    "CLAUDISH_STYLE": "caveman",
-    "CLAUDISH_LANG": "简体中文",
-    "CLAUDISH_PROVIDER": "codex",
-    "CLAUDISH_MODEL": "gpt-5.6-luna",
-    "CLAUDISH_CODEX_EFFORT": "low",
-    "CLAUDISH_MODE": "replace",
-    "CLAUDISH_TIMEOUT": "60"
+    "MAX_THINKING_TOKENS": "128000"
   },
   "permissions": {
     "allow": [
       "Bash",
       "WebFetch",
       "WebSearch",
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs",
       "Skill",
       "Read",
-      "Edit",
-      "mcp__codegraph__*"
+      "Edit"
     ],
     "deny": [],
     "ask": [],
@@ -60,6 +50,16 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude",
+            "timeout": 5
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",
@@ -93,14 +93,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "codegraph prompt-hook"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' '/Applications/Otty.app/Contents/Resources/agent-integration/claude/otty-hook.sh' processing \"$PPID\""
           }
         ]
@@ -116,13 +108,8 @@
   },
   "enabledPlugins": {
     "codex@openai-codex": true,
-    "context7@claude-plugins-official": true,
-    "curl-md@curl-md": false,
     "diverge@diverge": true,
-    "gopls-lsp@claude-plugins-official": false,
     "impeccable@impeccable": true,
-    "skill-creator@claude-plugins-official": false,
-    "typescript-lsp@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
     "worktrunk@worktrunk": true
   },
@@ -131,12 +118,6 @@
       "source": {
         "source": "github",
         "repo": "cloudflare/skills"
-      }
-    },
-    "curl-md": {
-      "source": {
-        "source": "github",
-        "repo": "wevm/curl.md"
       }
     },
     "diverge": {
@@ -162,12 +143,6 @@
       "source": {
         "source": "github",
         "repo": "max-sixty/worktrunk"
-      }
-    },
-    "gvzdv-plugins": {
-      "source": {
-        "source": "github",
-        "repo": "gvzdv/claudish-to-english"
       }
     }
   },

@@ -16,19 +16,26 @@ allowed-tools: Read, Edit, Grep, Glob
 
 ### Dotfiles Repo Layout
 
-Source files live in `~/dotfiles/agents/` and are symlinked by `install.sh`:
+Source files live in `~/dotfiles/agents/`. `tools/symlink-guard/links.json`
+defines links for Nix, the installer, and the launchd watcher:
 
 | Source | Symlink Target |
 |--------|---------------|
 | `agents/AGENTS.md` | `~/.claude/CLAUDE.md` (global instructions) |
 | `agents/claude-settings.json` | `~/.claude/settings.json` (global settings) |
-| `agents/RTK.md` | `~/.claude/RTK.md` (referenced via `@RTK.md`) |
-| `agents/skills/<name>/` | `~/.claude/skills/<name>/` |
+| `agents/RTK.md` | `~/.claude/RTK.md` (CLI reference; not included in shared instructions) |
+| `agents/codex-hooks.json` | `~/.codex/hooks.json` |
+| `agents/skills/<name>/` | Individual links under `~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/skills/` |
 | `agents/agents/<name>.md` | `~/.claude/agents/<name>.md` |
 
 Project-scoped files in dotfiles repo: `CLAUDE.md`, `.claude/settings.local.json`
 
-Skills are also cross-linked to `~/.agents/skills`, `~/.gemini/skills`, `~/.codex/skills`.
+Keep each client's skill root as a real directory. Claude owns
+`~/.claude/skills/synced`; Codex owns `~/.codex/skills/.system` and discovers
+shared custom skills under `~/.agents/skills`. Do not link entire skill roots.
+The watcher imports stable replacement files into their repository source,
+backs up both versions, and restores symlinks. Use `./install.sh check` to repair
+links once, and `./install.sh agents` to migrate and register the watcher.
 
 ## CLAUDE.md
 - Markdown instructions loaded at session start

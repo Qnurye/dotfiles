@@ -1,0 +1,21 @@
+{
+  "links": {
+    ".config/fish": "shells/fish",
+    ".config/zed/settings.json": "editors/zed/settings.json",
+    ".tmux.conf.local": "terminals/tmux/.tmux.conf.local",
+    ".gitconfig": "vcs/git/.gitconfig",
+    ".gitignore_global": "vcs/git/.gitignore_global",
+    ".work.gitconfig": "vcs/git/.work.gitconfig",
+    "Library/Application Support/lazygit/config.yml": "vcs/lazygit/config.yml",
+    ".config/worktrunk/config.toml": "tools/worktrunk/config.toml",
+    "AGENTS.md": "agents/AGENTS.md",
+    ".claude/CLAUDE.md": "agents/AGENTS.md",
+    ".gemini/GEMINI.md": "agents/AGENTS.md",
+    ".claude/settings.json": "agents/claude-settings.json",
+    ".claude/RTK.md": "agents/RTK.md",
+    ".claude/agents": "agents/agents",
+    ".codex/hooks.json": "agents/codex-hooks.json"
+  },
+  "skillRoots": [".agents/skills", ".claude/skills", ".gemini/skills"],
+  "skills": ["copywriting", "pr", "r2-upload-html", "resolve-conflicts"]
+}

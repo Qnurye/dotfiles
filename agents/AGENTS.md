@@ -9,8 +9,8 @@
 - Prefer `gh` CLI to access GitHub.
 - Git pull strategy: rebase.
 - GPG signing enabled for commits.
-- **Commits go through worktrunk**: whenever a commit is needed, run `wt step commit` — never `git commit` (hard-blocked by hook). It stages everything and generates the message itself; pass `--stage none` when you've already curated the index, `--dry-run` to preview. No need to ask first — `wt step commit` is the approved path.
-- **Prepare, don't execute** (everything else): propose PR replies/reviews for Jaren; force-push and peer-interaction git/gh operations are hard-blocked by a PreToolUse hook (`~/dotfiles/agents/hooks/block-destructive-git.sh`) — don't try to work around it; ask Jaren instead.
+- **Commits go through worktrunk**: use `wt step commit`, never `git commit`. It stages everything and generates the message; pass `--stage none` for a curated index, `--dry-run` to preview. No need to ask first.
+- **Prepare, don't execute**: draft PR replies/reviews for Jaren. Leave force-pushes and peer-interaction git/gh operations to Jaren. Never work around the Git guard.
 
 ## Preferred CLI Tools
 Reach for these modern tools when a task calls for searching, filtering, or transforming data in the shell. They are faster, safer, or more ergonomic than the POSIX defaults.
@@ -64,23 +64,10 @@ Directives:
 
 ### Action Flow
 1. **Identify entities** in user's request (filenames, functions, concepts).
-2. **Load skills**: If the task matches an available skill's trigger condition, invoke the Skill tool BEFORE generating any response. This is mandatory, not optional.
+2. **Load skills**: Read the relevant available skill before acting. Use the client's skill tool when one exists.
 3. **Self-investigate**: Search files, read configs/tests/docs, check logs before responding.
 4. **Silent enrichment**: Read 2-3 relevant files to ground your response in actual code, not assumptions.
 
 ### Response Guidelines
 - **Avoid**: "Please tell me which file..." or "I don't know..."
 - **Prefer**: "I found relevant logic in `path/to/file`. Based on my analysis, I suggest..."
-
-@RTK.md
-
-<!-- CODEGRAPH_START -->
-## CodeGraph
-
-In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
-
-- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
-- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
-
-If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
-<!-- CODEGRAPH_END -->

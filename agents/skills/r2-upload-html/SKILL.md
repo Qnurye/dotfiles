@@ -1,3 +1,8 @@
+---
+name: r2-upload-html
+description: Upload an HTML artifact, another file, or an archived directory to the user's configured Cloudflare R2 bucket and verify the public URL. Use when the user requests an R2 upload or a public artifact link.
+---
+
 ## Configuration
 
 Credentials and bucket info live outside this skill, in `~/.config/r2-upload/env`. The file must export five variables:

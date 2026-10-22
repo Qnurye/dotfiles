@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET=\"$HOME/Library/Application Support/io.appmakes.otty/otty.sock\" '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' awaiting \"$PPID\" ctx",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET=\"$HOME/Library/Application Support/io.appmakes.otty/otty.sock\" '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' idle \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET=\"$HOME/Library/Application Support/io.appmakes.otty/otty.sock\" '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' idle \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET=\"$HOME/Library/Application Support/io.appmakes.otty/otty.sock\" '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' processing \"$PPID\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/dotfiles/agents/hooks/block-destructive-git.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

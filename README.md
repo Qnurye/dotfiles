@@ -35,6 +35,12 @@ cd ~/dotfiles
 ./install.sh fish
 ./install.sh git tmux
 
+# Migrate agent skills, remove retired integrations, and enable the link watcher
+./install.sh agents
+
+# Repair links once, importing replacement files back into their sources
+./install.sh check
+
 # Install/update Homebrew packages only
 brew bundle --file=homebrew/Brewfile
 
@@ -53,6 +59,40 @@ The install script will automatically install:
 ## Conventions
 
 - Git configuration uses conditional includes (`includeIf`) for work-specific settings in `~/.work.gitconfig`
+
+## Managed symlinks
+
+`tools/symlink-guard/links.json` defines links for Nix, the installer, and the
+`es.qnury.dotfiles-link-guard` LaunchAgent. The watcher polls once per second.
+When an app replaces a link with a regular file, it waits for two seconds of
+stable metadata, backs up the replacement and repository version, imports the
+new content, and restores the link. Multiple instruction aliases are processed
+oldest first. Directory replacements merge additions and edits without deleting
+source-only files; unsafe type changes or embedded symlinks are left for review.
+Writers that remain active longer than the settling window can still race a
+repair; recovery copies remain available in the backup directory.
+
+Backups and logs live in `~/.local/state/dotfiles-link-guard/`. The watcher uses
+a lock to prevent concurrent repairs. For manual repair while it is running:
+
+```bash
+launchctl bootout --wait gui/$(id -u)/es.qnury.dotfiles-link-guard
+./install.sh check
+python3 tools/symlink-guard/guard.py install
+```
+
+Each client's skills root is a real directory. Custom skills are linked under
+`~/.agents/skills`, `~/.claude/skills`, and `~/.gemini/skills`. Codex discovers
+the shared `.agents` skills and keeps system skills in `~/.codex/skills/.system`;
+Claude keeps synced skills in `~/.claude/skills/synced`.
+
+`./install.sh agents` archives unused Claude plugins after checking known project
+settings (project-enabled plugins are retained), removes CodeGraph and
+Context7 integration entries, migrates the old shared directories, and installs
+the watcher. It retains migration backups alongside watcher backups. Codex's new
+Git guard must be reviewed and trusted in `/hooks` after restarting Codex;
+the installer does not write hook trust hashes. See the
+[official hooks documentation](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks).
 
 ## Post-Installation
 

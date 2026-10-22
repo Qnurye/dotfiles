@@ -2,42 +2,45 @@
 
 let
   dotfilesDir = "${config.home.homeDirectory}/dotfiles";
+  manifest = builtins.fromJSON (builtins.readFile ../../../tools/symlink-guard/links.json);
+  skillLinks = builtins.listToAttrs (lib.concatMap (root:
+    map (name: lib.nameValuePair "${root}/${name}" "agents/skills/${name}") manifest.skills
+  ) manifest.skillRoots);
+  links = manifest.links // skillLinks;
+  stateDir = "${config.home.homeDirectory}/.local/state/dotfiles-link-guard";
   mkLink = path: {
     source = config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/${path}";
     force = true;
   };
 in
 {
-  home.file = lib.mkMerge [
-    {
-      # Fish shell (dir symlink — new files auto-appear)
-      ".config/fish" = mkLink "shells/fish";
+  home.file = lib.mapAttrs (_: path: mkLink path) links;
 
-      # Editors
-      ".config/zed/settings.json" = mkLink "editors/zed/settings.json";
+  # Detach old directory links before checking per-skill targets; otherwise
+  # creating those links would mutate the repository through their parent.
+  home.activation.prepareAgentSkills = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    run ${pkgs.python3}/bin/python3 ${lib.escapeShellArg "${dotfilesDir}/agents/setup.py"} --prepare-links-only
+    run mkdir -p ${lib.escapeShellArg stateDir}
+  '';
 
-      # Terminals
-      # Otty config is synced by content (`otty-sync`): its settings GUI replaces symlinks
-      ".tmux.conf.local" = mkLink "terminals/tmux/.tmux.conf.local";
-
-      # VCS - Git
-      ".gitconfig" = mkLink "vcs/git/.gitconfig";
-      ".gitignore_global" = mkLink "vcs/git/.gitignore_global";
-      ".work.gitconfig" = mkLink "vcs/git/.work.gitconfig";
-
-      # Tools
-      ".config/worktrunk/config.toml" = mkLink "tools/worktrunk/config.toml";
-
-      # Claude Code - Agents (dir symlink)
-      ".claude/agents" = mkLink "agents/agents";
-
-      # Claude Code - Skills (dir symlink)
-      ".claude/skills" = mkLink "agents/skills";
-    }
-
-    # macOS-specific paths
-    (lib.mkIf pkgs.stdenv.isDarwin {
-      "Library/Application Support/lazygit/config.yml" = mkLink "vcs/lazygit/config.yml";
-    })
-  ];
+  launchd.agents.dotfiles-link-guard = lib.mkIf pkgs.stdenv.isDarwin {
+    enable = true;
+    config = {
+      Label = "es.qnury.dotfiles-link-guard";
+      ProgramArguments = [
+        "${pkgs.python3}/bin/python3"
+        "${dotfilesDir}/tools/symlink-guard/guard.py"
+        "watch" "--repo" dotfilesDir "--home" config.home.homeDirectory
+      ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      ProcessType = "Background";
+      ThrottleInterval = 5;
+      EnvironmentVariables.DOTFILES_LINK_GUARD_REVISION =
+        builtins.hashFile "sha256" ../../../tools/symlink-guard/guard.py
+        + builtins.hashFile "sha256" ../../../tools/symlink-guard/links.json;
+      StandardOutPath = "${stateDir}/stdout.log";
+      StandardErrorPath = "${stateDir}/stderr.log";
+    };
+  };
 }

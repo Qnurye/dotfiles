@@ -18,13 +18,6 @@ info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# LINK_MODE=check makes backup_and_link verify/repair instead of clobbering:
-# apps that save via atomic write (temp file + rename) silently replace managed
-# symlinks with regular files, so diverged content must be surfaced, not overwritten.
-LINK_MODE="${LINK_MODE:-install}"
-LINKS_FIXED=0
-LINK_CONFLICTS=0
-
 # True when dest's parent directory resolves inside the dotfiles repo, i.e. the
 # path is reached through a directory symlink (home-manager links whole dirs like
 # ~/.config/fish and ~/.claude/skills). Touching such a dest would mutate repo
@@ -43,11 +36,6 @@ backup_and_link() {
         return
     fi
 
-    if [[ "$LINK_MODE" == "check" ]]; then
-        check_link "$src" "$dest"
-        return
-    fi
-
     if [[ -e "$dest" && ! -L "$dest" ]]; then
         warn "Backing up existing $dest to $dest.backup"
         mv "$dest" "$dest.backup"
@@ -57,34 +45,6 @@ backup_and_link() {
 
     ln -sf "$src" "$dest"
     info "Linked $src -> $dest"
-}
-
-check_link() {
-    local src="$1"
-    local dest="$2"
-
-    if [[ -L "$dest" ]]; then
-        if [[ "$(readlink "$dest")" == "$src" || "$dest" -ef "$src" ]]; then
-            return
-        fi
-        rm "$dest"
-        ln -s "$src" "$dest"
-        info "Re-pointed $dest -> $src"
-        LINKS_FIXED=$((LINKS_FIXED + 1))
-    elif [[ ! -e "$dest" ]]; then
-        ln -s "$src" "$dest"
-        info "Restored missing link $dest -> $src"
-        LINKS_FIXED=$((LINKS_FIXED + 1))
-    elif diff -rq "$src" "$dest" &>/dev/null; then
-        rm -rf "$dest"
-        ln -s "$src" "$dest"
-        info "Relinked $dest (was a plain copy, content unchanged)"
-        LINKS_FIXED=$((LINKS_FIXED + 1))
-    else
-        warn "CONFLICT: $dest diverged from $src"
-        warn "  review with: diff '$src' '$dest'   # merge into the repo, then re-run"
-        LINK_CONFLICTS=$((LINK_CONFLICTS + 1))
-    fi
 }
 
 # Install Homebrew if not present (prerequisite for everything)
@@ -127,7 +87,7 @@ install_fish() {
     backup_and_link "$DOTFILES_DIR/shells/fish/fish_plugins" "$HOME/.config/fish/fish_plugins"
 
     # Install Fish plugins (fisher is installed via Homebrew)
-    if [[ "$LINK_MODE" != "check" ]] && command -v fish &>/dev/null && fish -c "type -q fisher" 2>/dev/null; then
+    if command -v fish &>/dev/null && fish -c "type -q fisher" 2>/dev/null; then
         info "Installing Fish plugins..."
         fish -c "fisher update" 2>/dev/null
     fi
@@ -179,34 +139,11 @@ install_worktrunk() {
 }
 
 install_agents() {
-    info "Linking AI agent configurations..."
-    mkdir -p "$HOME/.claude" "$HOME/.gemini"
-    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/AGENTS.md"
-    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
-    backup_and_link "$DOTFILES_DIR/agents/AGENTS.md" "$HOME/.gemini/GEMINI.md"
-    backup_and_link "$DOTFILES_DIR/agents/claude-settings.json" "$HOME/.claude/settings.json"
-    backup_and_link "$DOTFILES_DIR/agents/RTK.md" "$HOME/.claude/RTK.md"
-
-    # Link Claude Code skills and agents (canonical location: ~/.claude/skills)
-    info "Linking Claude Code skills and agents..."
-    mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
-    for skill_dir in "$DOTFILES_DIR/agents/skills"/*/; do
-        [[ -d "$skill_dir" ]] || continue
-        skill_name="$(basename "$skill_dir")"
-        backup_and_link "$skill_dir" "$HOME/.claude/skills/$skill_name"
-    done
-    for agent_file in "$DOTFILES_DIR/agents/agents"/*.md; do
-        [[ -f "$agent_file" ]] || continue
-        agent_name="$(basename "$agent_file")"
-        backup_and_link "$agent_file" "$HOME/.claude/agents/$agent_name"
-    done
-
-    # Link other agents' skills to ~/.claude/skills (central hub)
-    info "Linking agent skills to central hub..."
-    mkdir -p "$HOME/.agents" "$HOME/.codex"
-    backup_and_link "$HOME/.claude/skills" "$HOME/.agents/skills"
-    backup_and_link "$HOME/.claude/skills" "$HOME/.gemini/skills"
-    backup_and_link "$HOME/.claude/skills" "$HOME/.codex/skills"
+    info "Migrating agent skills and removing retired integrations..."
+    launchctl bootout --wait "gui/$(id -u)/es.qnury.dotfiles-link-guard" 2>/dev/null || true
+    python3 "$DOTFILES_DIR/agents/setup.py"
+    python3 "$DOTFILES_DIR/tools/symlink-guard/guard.py" repair
+    python3 "$DOTFILES_DIR/tools/symlink-guard/guard.py" install
 }
 
 install_nix() {
@@ -283,15 +220,8 @@ else
     for arg in "$@"; do
         case "$arg" in
             check)
-                LINK_MODE=check
-                install_fish
-                install_git
-                install_tmux
-                install_zed
-                install_ghostty
-                install_lazygit
-                install_worktrunk
-                install_agents
+                python3 "$DOTFILES_DIR/tools/symlink-guard/guard.py" repair
+                exit $?
                 ;;
             fish|git|tmux|zed|ghostty|lazygit|worktrunk|agents|system|homebrew|nix)
                 "install_$arg"
@@ -303,16 +233,6 @@ else
                 ;;
         esac
     done
-fi
-
-if [[ "$LINK_MODE" == "check" ]]; then
-    echo ""
-    if [[ "$LINK_CONFLICTS" -gt 0 ]]; then
-        error "Link check: $LINK_CONFLICTS conflict(s) found, $LINKS_FIXED link(s) fixed"
-        exit 1
-    fi
-    info "Link check: all links OK ($LINKS_FIXED fixed)"
-    exit 0
 fi
 
 # Post-install reminders
