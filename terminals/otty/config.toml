@@ -40,6 +40,8 @@ window-working-directory = "inherit"
 macos-option-as-alt = "right"
 
 # ============ 快捷键(对齐 Zed/Obsidian 习惯)============
+# 将 Shift+方向键传给 Codex 等终端程序,避免被 Otty 的文字选择拦截
+shift-arrow-select = false
 # 本机 1.2.3 用 trigger=action 语法(新版文档是 trigger:action)
 keybind = "cmd+b=toggle_tabs_panel"
 keybind = "cmd+r=toggle_details_panel"
