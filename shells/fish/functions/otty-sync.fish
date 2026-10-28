@@ -57,6 +57,7 @@ function otty-sync --description 'Two-way sync Otty config with ~/dotfiles; the 
                 cp $live $state_dir/config.toml.(date +%Y%m%d%H%M%S).bak
             end
             cp $repo $live
+            command -q otty; and command otty config reload >/dev/null 2>&1
             set -q _flag_quiet; or echo "otty-sync: dotfiles → local config"
     end
 
