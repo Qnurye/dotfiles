@@ -12,9 +12,9 @@ theme = "Paper"
 theme-dark = "Nord"
 
 # ============ 颜色微调(GUI 中调过的 GitHub Light 配色,覆盖主题)============
-foreground = "#1a1a1a"
-background = "#fcfbf9"
-palette-0 = "#1a1a1a"
+foreground = "#f1f6ff"
+background = "#2e3440"
+palette-0 = "#3b4252"
 
 # ============ 光标 ============
 # cursor-style = "block" (reset to default)
@@ -48,6 +48,7 @@ keybind = "cmd+r=toggle_details_panel"
 
 # ============ 文件关联 / UI ============
 open-with-app = "Zed|dev.zed.Zed"
+open-with-app = "Xcode|com.apple.dt.Xcode"
 sidebar-width = 141
 
 # omit-otty-prefix = true (reset to default)
@@ -64,20 +65,20 @@ privilege-caffeinate-agent-processing = true
 
 notification-foreground = "tab-unfocused"
 
-palette-1 = "#a33a3a"
-palette-2 = "#2b5a38"
-palette-3 = "#a85a20"
-palette-4 = "#4a7a8a"
-palette-5 = "#4a3a6a"
-palette-6 = "#3a7a6a"
-palette-7 = "#c1beb5"
-palette-8 = "#8c8a80"
-palette-9 = "#c36a6a"
-palette-10 = "#6b9a78"
-palette-11 = "#c88a50"
-palette-12 = "#7a9aaa"
-palette-13 = "#8a7a9a"
-palette-14 = "#6abaaa"
+palette-1 = "#bf616a"
+palette-2 = "#a3be8c"
+palette-3 = "#ebcb8b"
+palette-4 = "#81a1c1"
+palette-5 = "#b48ead"
+palette-6 = "#88c0d0"
+palette-7 = "#e5e9f0"
+palette-8 = "#4c566a"
+palette-9 = "#bf616a"
+palette-10 = "#a3be8c"
+palette-11 = "#ebcb8b"
+palette-12 = "#81a1c1"
+palette-13 = "#b48ead"
+palette-14 = "#8fbcbb"
 
 font-blending = "linear"
 
@@ -85,9 +86,9 @@ font-size = 19
 
 window-layout = "tabs-top"
 
-palette-15 = "#ebebe6"
+palette-15 = "#eceff4"
 
-# selection-foreground = "#2e3440" (reset to default)
-# selection-background = "#e5e9f0" (reset to default)
-# cursor-color = "#e5e9f0" (reset to default)
-# cursor-text = "#2e3440" (reset to default)
+selection-foreground = "#2e3440"
+selection-background = "#e5e9f0"
+cursor-color = "#e5e9f0"
+cursor-text = "#2e3440"
