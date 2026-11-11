@@ -1,0 +1,8 @@
+complete -c fc-match -f -a '(fc-list : family | string split , | sort -u)'
+complete -c fc-match -s s -l sort -d 'List matches sorted by score'
+complete -c fc-match -s a -l all -d 'List all matches without pruning'
+complete -c fc-match -s b -l brief -d 'Print brief pattern details'
+complete -c fc-match -s v -l verbose -d 'Print verbose pattern details'
+complete -c fc-match -s f -l format -x -d 'Output format'
+complete -c fc-match -s V -l version -d 'Show version'
+complete -c fc-match -s h -l help -d 'Show help'

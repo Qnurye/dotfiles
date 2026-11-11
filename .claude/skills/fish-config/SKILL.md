@@ -174,6 +174,13 @@ set -gx GPG_TTY (tty)
 |---|---|
 | `completions/wt.fish` | Dynamic completions for worktrunk, delegates to the `wt` binary |
 | `completions/gccd.fish` | Wraps `git clone` completions for `gccd` |
+| `completions/{claude,vercel,obsidian}.fish` | CLIs without a completion script: delegate to `__help_complete`, which parses `<cmd> ... --help` (cached per session) |
+| `completions/{bun,wrangler}.fish` | Lazy stubs that source the tool's own generator on first Tab |
+| `completions/pnpm.fish` | Wraps pnpm's completion server; adds bare `pnpm <script>`, `--filter` workspace names, per-package scripts, `exec` bins |
+| `completions/darwin-rebuild.fish`, `fc-match.fish` | Hand-written static completions |
+| `completions/{nix-up,nix-add,otty-sync}.fish` | Flags for this repo's own functions |
+
+For a new CLI: prefer its own generator via a one-line stub (`command foo completion fish | source`); if it has none, `complete -c foo -f -a '(__help_complete)'`.
 
 ### Abbreviations
 

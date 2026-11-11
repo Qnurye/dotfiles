@@ -1,4 +1,4 @@
-function y --description 'Yazi file manager with auto cd'
+function y --wraps yazi --description 'Yazi file manager with auto cd'
     set -l tmp (mktemp -t "yazi-cwd.XXXXXX")
     yazi $argv --cwd-file="$tmp"
     set -l cwd (cat -- "$tmp")
