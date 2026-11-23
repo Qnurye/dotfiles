@@ -17,5 +17,5 @@
     ".codex/hooks.json": "agents/codex-hooks.json"
   },
   "skillRoots": [".agents/skills", ".claude/skills", ".gemini/skills"],
-  "skills": ["copywriting", "pr", "r2-upload-html", "resolve-conflicts"]
+  "skills": ["copywriting", "heydeer-pr", "pr", "r2-upload-html", "resolve-conflicts"]
 }
