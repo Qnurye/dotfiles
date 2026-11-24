@@ -208,3 +208,7 @@ abbr -a grev 'git revert'
 # >>> grok installer >>>
 fish_add_path $HOME/.grok/bin
 # <<< grok installer <<<
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/Users/qnurye/.local/bin" $PATH
