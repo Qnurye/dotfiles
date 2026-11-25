@@ -243,7 +243,7 @@ class SetupTests(unittest.TestCase):
         registry = self.home / ".claude/plugins/installed_plugins.json"
         registry.parent.mkdir(parents=True)
         registry.write_text(json.dumps({"version": 2, "plugins": {
-            "context7@claude-plugins-official": [], "diverge@diverge": []}}))
+            "context7@claude-plugins-official": [], "worktrunk@worktrunk": []}}))
         self.setup.clean_integrations()
         self.setup.uninstall_plugins()
         result = json.loads((self.home / ".claude.json").read_text())
@@ -251,7 +251,7 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result["projects"][str(self.repo)]["disabledMcpServers"], ["keep"])
         self.assertEqual(result["unrelated"], "preserve")
         self.assertEqual(result["hooks"]["PreToolUse"][0]["hooks"][0]["command"], "rtk hook claude")
-        self.assertEqual(json.loads(registry.read_text())["plugins"], {"diverge@diverge": []})
+        self.assertEqual(json.loads(registry.read_text())["plugins"], {"worktrunk@worktrunk": []})
         self.assertTrue((self.setup.archive / ".claude.json").exists())
 
     def test_existing_codex_hooks_keep_custom_handlers_and_gain_guard(self):

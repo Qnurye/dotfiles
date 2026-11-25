@@ -15,16 +15,22 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Agent skills, linked into every skill root by modules/home/pstack.nix.
+    pstack = {
+      url = "github:backnotprop/pstack";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, ... }:
+  outputs = { self, nixpkgs, nix-darwin, home-manager, pstack, ... }:
     let
       resolver = import ./lib { lib = nixpkgs.lib; };
 
       # Single nixpkgs instantiation: hosts set nixpkgs.hostPlatform and the
       # tag registry is built from the module system's own pkgs.
       mkDarwinHost = hostname: nix-darwin.lib.darwinSystem {
-        specialArgs = { inherit resolver; };
+        specialArgs = { inherit resolver pstack; };
         modules = [
           home-manager.darwinModules.home-manager
           ./hosts/default.nix

@@ -108,7 +108,6 @@
   },
   "enabledPlugins": {
     "codex@openai-codex": true,
-    "diverge@diverge": true,
     "impeccable@impeccable": true,
     "vercel@claude-plugins-official": true,
     "worktrunk@worktrunk": true
@@ -119,13 +118,6 @@
         "source": "github",
         "repo": "cloudflare/skills"
       }
-    },
-    "diverge": {
-      "source": {
-        "source": "github",
-        "repo": "Qnurye/diverge"
-      },
-      "autoUpdate": true
     },
     "impeccable": {
       "source": {

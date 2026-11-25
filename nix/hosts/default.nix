@@ -1,4 +1,4 @@
-{ config, lib, pkgs, resolver, ... }:
+{ config, lib, pkgs, resolver, pstack, ... }:
 
 let
   tagRegistry = import ../tags.nix { inherit pkgs; };
@@ -35,6 +35,7 @@ in
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
+      extraSpecialArgs = { inherit pstack; };
       users.${config.myConfig.username} = import ../modules/home;
     };
 

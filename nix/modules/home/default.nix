@@ -3,6 +3,7 @@
 {
   imports = [
     ./dotfiles.nix
+    ./pstack.nix
   ];
 
   # Basic home-manager configuration

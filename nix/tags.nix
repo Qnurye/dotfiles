@@ -190,7 +190,7 @@
   "apps/llm" = {
     packages = [];
     casks = [ "claude" "claude-code@latest" ];
-    brews = [ "gemini-cli" "summarize" ];
+    brews = [ "summarize" ];
     deps = [];
   };
 
@@ -214,7 +214,7 @@
 
   "apps/media" = {
     packages = [];
-    casks = [ "vlc" "qbittorrent" ];
+    casks = [ "vlc" ];
     deps = [];
   };
 
@@ -239,7 +239,7 @@
   "host/heavybowl-ii" = {
     packages = [];
     casks = [
-      "bluebubbles" "chatgpt" "codex" "codiff" "libreoffice"
+      "chatgpt" "codex" "codiff" "libreoffice"
       "openlogi" "qlmarkdown"
     ];
     brews = [ "awscli" "docker-agent" "fastfetch" "python@3.13" ];

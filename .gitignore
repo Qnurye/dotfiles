@@ -13,3 +13,5 @@ agents/skills/.system/
 
 # Synced by Claude Code at runtime, per machine
 agents/skills/synced/
+
+__pycache__/

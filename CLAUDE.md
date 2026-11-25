@@ -33,8 +33,9 @@ fish nix/setup-nix-conf.fish
 | `nix/hosts/<hostname>/` | Per-host tag selection and identity |
 | `nix/modules/home/dotfiles.nix` | All dotfile symlinks (source of truth for what's managed) |
 | `nix/modules/darwin/homebrew.nix` | Third-party taps and brews not in nixpkgs |
-| `agents/agents/` | Optional local Claude agent definitions; Diverge roles come from its plugin |
+| `agents/agents/` | Optional local Claude agent definitions |
 | `agents/skills/` | Custom skills, linked individually into client directories |
+| `nix/modules/home/pstack.nix` | Links every skill from the `pstack` flake input (`backnotprop/pstack`) into the skill roots; `nix-up` updates it |
 | `tools/symlink-guard/links.json` | Managed links shared by Nix, installer, and watcher |
 | `homebrew/Brewfile` | Legacy — not used by nix-darwin, pending removal |
 
