@@ -86,7 +86,7 @@
 
   # ── Development: Base ───────────────────────────────────────
   "dev/base" = {
-    packages = with pkgs; [ gh nil nixd just ];
+    packages = with pkgs; [ gh nil nixd just mise ];
     casks = [];
     brews = [ "neonctl" ];
     deps = [ "base" "cli/tools" ];
