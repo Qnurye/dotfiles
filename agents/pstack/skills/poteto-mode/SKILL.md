@@ -1,6 +1,6 @@
 ---
 name: poteto-mode
-description: poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, /poteto-mode, or requests to work in this style.
+description: Local engineering workflow for scoped implementation, CLI workers and verified delivery. Use for poteto, /poteto-mode, or requests to work in this style.
 disable-model-invocation: true
 icon: crown
 color: yellow
@@ -10,14 +10,11 @@ color: yellow
 
 Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's absolute path in each worker brief.
 
-## Non-negotiables
+## Local workflow
 
-The Principles section below grounds every trigger. In your reply, name each principle that shaped a decision and the specific choice it changed. Cite only principles whose leaf SKILL.md you read this session.
+Follow the user's scope, language and stopping point and the current repository's AGENTS.md. Lead with the result, include the evidence and any outstanding verification. Use the bundled principles as reasoning aids.
 
-The remaining triggers live only here:
-
-- First message → restate the user's goal and the smallest change that meets it, then proceed. Open each subagent brief, PR `## Why`, and final report with the goal.
-- Starting any agent, whether a Task subagent or a Project worker → the first line of its kickoff is `Read <path>/worker.md before anything else.`, with `<path>` the absolute path of this skill's folder. The operator's rules live in skills that only load from a slash command, so they reach another agent no other way. Keep the rest of the kickoff to the goal and the task, plus this file's absolute path for the worker.
+- Give delegated workers the goal, scope, working directory, verification criteria and the absolute path to worker.md.
 - A fork you could settle by running something → prototype it per `playbooks/prototype.md` instead of asking.
 - Code → name the data shape first. Across a function boundary → **architect**. Fan-out → **swarm**. Bakeoff → **arena**. Contested design → **interrogate**.
 - Prose, your reply included → **unslop**. Docs, PR descriptions, commit messages → **technical-writing**.
@@ -83,15 +80,15 @@ Use the tools and external actions authorized for the task.
 
 ## Subagents
 
-Use the active client's local worker tool when delegation fits the task. Give writers isolated worktrees and pass the scope, verification criteria and worker.md path. Work through the steps directly when workers are unavailable.
+For each delegated pstack task, read `~/.agents/pstack-models.md` and use `~/.local/bin/pstack-worker ROLE BRIEF_FILE` in the assigned directory. Give writers isolated worktrees and pass the scope, verification criteria and worker.md path. Work through the steps directly when workers are unavailable.
 
-Read role overrides from `~/.agents/pstack-models.md` when present. Inherit the session model and effort for unconfigured roles or unavailable models. Review each worker's evidence and diff.
+Read role overrides from `~/.agents/pstack-models.md` when present. Use the configured xhigh command for the assigned role. Review each worker's evidence and diff.
 
-**Fresh subagents by default.** Give a fix round, a follow-up, a retry, or the next queue item to a fresh subagent with the original brief, every later directive, and the prior agent's report and branch. Resume an existing subagent only when the work needs state that lives in it and is costly to move: its checkout, its uncommitted changes, or a process it still runs.
+For follow-up work, pass the previous result, exact revision and worktree path to the next CLI invocation. Verify the diff in that worktree.
 
 ## Harness
 
-Use the current repository's instructions and tools. On this machine use Worktrunk for worktrees and commits, gh for GitHub, and the project's own tests and app drivers for verification. Use local timers or check watchers during a requested monitoring session.
+Use the current repository's instructions and tools. On this machine use Worktrunk for worktrees and commits, gh for GitHub, and the project's own tests and app drivers for verification. Use `wt step commit` for commits. Follow the installed pr or heydeer-pr skill for the requested publication or review. Use local timers or check watchers during a requested monitoring session.
 
 Read transcripts only for the active workspace. In Codex, match the session metadata cwd under `~/.codex/sessions`. In other clients use their workspace-scoped session history. Resolve bundled references from the real skill directory.
 
@@ -101,6 +98,6 @@ Write short declarative sentences with no long dash and no colon as a connector.
 
 ## Playbooks
 
-Match the task to a playbook and open its steps at `playbooks/<title>.md`, with the title in kebab case. Copy its steps into the todolist tool first. Large, cross-cutting, or unattended work, or a task no playbook fits, routes to the **figure-it-out** skill.
+Match the task to a playbook and open its steps at `playbooks/<title>.md`, with the title in kebab case. Track the steps in the current client or local run log. Large, cross-cutting, or unattended work, or a task no playbook fits, routes to the **figure-it-out** skill.
 
 Investigation, Bug fix, Perf issue, Hillclimb, Runtime forensics, Trace forensics, Feature, Refactoring, Prototype, Visual parity, Authoring a skill, Eval, Babysit, Shipping, Autonomous run, Autopilot-full, Autopilot-stack, Session pickup, Pause safely, Multi-phase plan, Worktree cleanup, Opening a PR.

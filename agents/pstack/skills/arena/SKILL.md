@@ -14,19 +14,19 @@ Every candidate gets the same prompt, so the prompt is the contract.
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric, 3-6 concrete gradeable criteria for what success looks like on *this* task. It is the picker's tool in Phase D. Candidates only see the task.
-3. Use the `arena runners` entries from `~/.agents/pstack-models.md` that the current client supports. By default run two independent candidates on the session model.
+3. Use the `arena runners` entries and their CLI commands from `~/.agents/pstack-models.md`.
 
 4. Give each candidate its own output location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
 
 ## Phase B: Fan out
 
-Spawn all N subagents with the active client’s local worker tool, each with the task, the path to the shared grounding, its own output path, and instructions to produce the artifact and a short rationale naming the alternatives it considered and what it rejected.
+Run `~/.local/bin/pstack-worker "arena runners" "$brief" --seat "$model"` for each candidate in its assigned worktree, each with the task, the path to the shared grounding, its own output path, and instructions to produce the artifact and a short rationale naming the alternatives it considered and what it rejected.
 
 If a candidate produces no output, proceed with N-1 and note the dropout.
 
 ## Phase C: Cross-judge
 
-Ask an independent local judge to score each candidate against the rubric. Use an available model from `arena cross-judge pool` when configured, otherwise inherit the session model.
+Ask an independent local judge to score each candidate against the rubric. Use the selected CLI from `arena cross-judge pool`.
 
 ## Phase D: Pick a base
 

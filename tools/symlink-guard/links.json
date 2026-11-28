@@ -1,5 +1,8 @@
 {
   "links": {
+    ".agents/pstack-models.md": "agents/pstack/models.md",
+    ".claude/rules/pstack-models.md": "agents/pstack/models.md",
+    ".local/bin/pstack-worker": "agents/pstack/worker",
     ".local/bin/agent-config": "tools/agent-config/agent-config",
     ".config/fish": "shells/fish",
     ".config/zed/settings.json": "editors/zed/settings.json",

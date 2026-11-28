@@ -6,11 +6,11 @@ disable-model-invocation: true
 
 # Poteto help
 
-Answer questions from the editable skills under `~/dotfiles/agents/pstack/skills`. Link the local source that defines the behavior. The upstream guides describe the original distribution.
+Answer questions from the editable skills under `~/dotfiles/agents/pstack/skills`. Link the local source that defines the behavior.
 
 ## Get set up
 
-Home Manager links the skills from dotfiles. Start a task with `/poteto-mode`. Roles inherit the session model unless the user configures available models with `/setup-pstack`. To inspect a pending upstream update, run `~/dotfiles/agents/pstack/check-upstream.sh`.
+Home Manager links the skills from dotfiles. Start a task with `/poteto-mode`. Worker roles and CLI commands live in `~/.agents/pstack-models.md`. To inspect a pending upstream update, run `~/dotfiles/agents/pstack/check-upstream.sh`.
 
 ## Pick a skill
 
@@ -64,11 +64,7 @@ Close calls:
 - `/recall` rebuilds context across recent chats. `/ketchup` covers only this chat since the user's last message. Resuming one specific chat or branch is the Session pickup playbook.
 - `/figure-it-out` designs one rigorous run. The Autonomous run playbook drives one task to a finish condition.
 
-Not in pstack:
 
-- `/deslop`, `control-cli`, and `control-ui` ship in the `cursor-team-kit` plugin.
-- `/loop` and `/create-skill` are Cursor built-ins.
-- pstack has no `/orchestrate` skill. If the slash menu shows `/orchestrate`, another plugin provides it.
 
 ## Playbooks and principles
 
@@ -81,26 +77,7 @@ Playbooks are step lists inside `/poteto-mode`, not skills, so they have no slas
 - "full autopilot on this queue" runs Autopilot-full. "autopilot, don't merge" runs Autopilot-stack.
 - "run the eval playbook" runs Eval.
 
-Without `/poteto-mode`, a phrase such as "babysit this pr" can start Cursor's own skill for the same job instead. The Playbooks section of [`poteto-mode`](../poteto-mode/SKILL.md) lists every playbook. [Guide page 6](../../docs/guide/06-verify-and-ship.md) covers opening, babysitting, and landing a PR.
-
-pstack has no planning skill. Cursor's Plan Mode works alongside it. For work that spans phases or stacked PRs, asking `/poteto-mode` for a plan runs the [Multi-phase plan playbook](../poteto-mode/playbooks/multi-phase-plan.md), which writes the plan and doesn't implement it. For a design question, the Prototype playbook or `/architect` settles it in code first.
-
-Principles are one-rule skills that `/poteto-mode` reads and cites in its replies. The user rarely invokes one. They steer with the names instead, as in "apply prove it works. show me the real output." Typing `/principle-<name>` still loads one on demand. [Guide page 8](../../docs/guide/08-principles.md) lists them.
-
-## Fix a run that went wrong
-
-| Symptom | Fix |
-|---|---|
-| The mode stopped applying after a few turns | It was started with Enter. Start it as a Custom Mode, or start each task with `/poteto-mode`. |
-| A question got treated as the next step of the last task | Say "new task", or say the turn doesn't need the mode. |
-| A new model choice had no effect | The rule from `/setup-pstack` applies to new chats. Start one. |
-| Runs cost more than expected | Configure a smaller panel or a lower effort with /setup-pstack. |
-| A skill didn't load on its own | Only `/setup-pstack` loads from the user's words. The others load when the user types them or when `/poteto-mode` runs them, and it doesn't run every skill. |
-| Parallel agents overwrote each other | Give each agent its own worktree, or run them in local worktrees, which each get their own machine. |
-| An overnight run moved but finished nothing | `/loop` needs a check that can pass or fail, not a duration. See [guide page 7](../../docs/guide/07-overnight.md). |
-| The reply claims success from a green build | Ask for the real command, flow, stored value, or profile. That's the prove-it-works principle. |
-
-For a run that drifts, [`references/prompting.md`](references/prompting.md) has one-line steers. [Guide page 10](../../docs/guide/10-recipes-and-pitfalls.md) has more pitfalls and the recipes worth copying.
+See the [local playbooks](../poteto-mode/SKILL.md) for the workflow and its verification steps.
 
 ## Make pstack my own
 
@@ -109,7 +86,6 @@ For a run that drifts, [`references/prompting.md`](references/prompting.md) has 
 - `/poteto-mode write a skill for <workflow>` runs the authoring playbook. The eval playbook tests a skill change blind.
 - Fix a misbehaving skill in its own PR, not inside the feature work where it went wrong.
 
-[Guide page 9](../../docs/guide/09-make-it-yours.md) covers each of these.
 
 ## Reply
 

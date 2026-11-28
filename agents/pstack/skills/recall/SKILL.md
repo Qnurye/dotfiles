@@ -1,6 +1,6 @@
 ---
 name: recall
-description: "Reconstruct your recent working context from your own chat history, live state, and the shared record (user reports, prior fixes, incidents), then hand back a tight current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before starting or resuming work."
+description: "Reconstruct your recent working context from workspace-scoped chat history, local Git state and requested live sources, then hand back a tight current-state brief. Use for 'recall my work on X', 'catch me up', 'what have I been working on', 'where did I leave off', before starting or resuming work."
 disable-model-invocation: true
 ---
 
@@ -10,21 +10,13 @@ disable-model-invocation: true
 
 Keep it tight and on-topic. Read only what the in-scope threads need, then stop.
 
-Your context lives in two records. Your own chat history holds what you did and decided. The shared record holds everything that happened around the same code under other names: the symptoms users keep reporting, the fixes that shipped and got reverted, the errors still firing in prod. That second record lives in source control, the issue tracker, chat and issue channels, long-form docs, and error tracking. A feature with a long bug tail keeps most of its story there, so don't reconstruct it from your transcripts alone.
-
-Transcripts live where your harness keeps them. Each file is JSONL. Find the active workspace's directory for your harness. If you can't tell which harness you are, check which of these exist for this workspace:
-
-- **Cursor:** `~/.cursor/projects/<slug>/agent-transcripts/<uuid>/<uuid>.jsonl`. `<slug>` is the workspace path with the leading slash dropped and each "/" turned into "-" (`/Users/you/proj` becomes `Users-you-proj`).
-- **Claude Code:** `~/.claude/projects/<slug>/<session-id>.jsonl`. `<slug>` is the workspace path with every character that isn't a letter or digit turned into "-" (`/Users/you/proj` becomes `-Users-you-proj`).
-- **Pi:** `~/.pi/agent/sessions/--<slug>--/<timestamp>_<id>.jsonl`. `<slug>` is the workspace path with the leading slash dropped and each "/" turned into "-" (`--Users-you-proj--`).
-- **Codex:** `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`, not grouped by workspace. Keep only files whose first line has `payload.cwd` equal to the workspace path.
-- **OpenCode:** `~/.local/share/opencode/storage/`. Sessions are JSON files under `session/<project-id>/`, with their messages under `message/` and `part/`.
+Start with local workspace transcripts, repository history and any existing decision log. In Claude Code use the workspace-specific project directory. In Codex filter session metadata by cwd before reading conversation content. For agy use the current project's conversation history. When a transcript cannot be linked to the workspace, use the known run output and local Git evidence.
 
 1. Classify, then route. One specific prior chat to resume is the `session-pickup` playbook, not this. Turning habits into a durable skill is `automate-me`. A human-readable summary of your work is a different task. Recall loads working context across recent chats before you act. If the user already gave you a full state capsule (paths, branch, the change), use it and skip the mining.
 2. Lock the scope before searching. Pin the window ("recent" is a real range, default the last 7 days), the topic if named, and the workspace (default the active one. Never read another project's transcripts without being asked). State the scope back. Never quietly turn "all" into "recent N".
-3. Fan out across your chat history. Spawn parallel subagents on a fast, cheap model, each taking a slice of the corpus. Tell every subagent to order candidates by real modification time (`ls -t`) and never by UUID name, grep the topic first and then read only the matching chats and only their relevant regions, and skip the current chat plus obvious noise (subagent, eval, and test chats). Each returns the same schema, one block per chat: topic, the user's goal, decisions, open threads, struggles and corrections, and artifacts (PRs, tickets, branches), each citing the chat UUID. For one or two chats, skip the fan-out and search directly. The raw transcripts stay in the subagents. The main thread gets only their findings. Pick each subagent's reasoning level for the job, per the Subagents section of the **poteto-mode** skill.
-4. Sweep the shared record whenever the topic names a feature, file, subsystem, area, or bug. This is the default, not a judgment call, and "my work on X" does not exempt it. Spawn one investigator subagent per source, in agent mode because readonly strips MCP access, and ask each "what's the current state, what's been tried and didn't hold, and what are users still reporting". Run them in parallel with the chat-history mining. Null results are findings. Skip an unavailable MCP and say so. Fold what comes back into the brief. Skip this step only for pure activity recall with no named target ("what did I do this week"), where your own history and live state are the entire answer.
-5. Verify against live state. Take the PRs, branches, and tickets that the mining and the sweep surfaced and check them with `git` and `gh`. When the answer hinges on what an agent actually did (the tools it ran, files it read, errors it hit), read the full transcript, not just a trimmed local copy.
+3. Fan out across your chat history. Launch parallel workers through the `swarm workers` CLI route in `~/.agents/pstack-models.md`, each taking a slice of the corpus. Tell every subagent to order candidates by real modification time (`ls -t`) and never by UUID name, grep the topic first and then read only the matching chats and only their relevant regions, and skip the current chat plus obvious noise (subagent, eval, and test chats). Each returns the same schema, one block per chat: topic, the user's goal, decisions, open threads, struggles and corrections, and artifacts (PRs, tickets, branches), each citing the chat UUID. For one or two chats, skip the fan-out and search directly. The raw transcripts stay in the subagents. The main thread gets only their findings.
+4. Check a remote source only when the user requests it or the answer requires live status for a specific known PR or issue. Use gh for GitHub.
+5. Verify branches, commits and worktree changes with Git. Cite the workspace session, local file or requested remote record supporting each finding.
 6. Write the brief to the contract below. Group by thread. Stay on the named topic.
 
 ## Output contract

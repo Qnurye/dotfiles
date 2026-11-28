@@ -167,8 +167,6 @@ describe("rendering", () => {
         threads: [
           {
             id: "thread_1",
-            isBugbot: false,
-            bugbotReviewPasses: 0,
             firstComment: {
               authorLogin: "evil\x1b[2K\ruser",
               body: "\x1b[31mDangerous\x1b[0m\r\nSecond line",
@@ -184,7 +182,7 @@ describe("rendering", () => {
     const rendered = renderPretty(blockerVerdict);
     expect(rendered).toContain("BLOCKER: review-threads");
     expect(rendered).toContain(
-      "thread_1 src/invalidpath.ts 12 eviluser isBugBot=false bugbotReviewPasses=0 Dangerous"
+      "thread_1 src/invalidpath.ts 12 eviluser Dangerous"
     );
     expect(rendered).not.toContain("\x1b");
     expect(rendered).not.toContain("\r");

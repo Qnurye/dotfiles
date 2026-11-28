@@ -66,8 +66,6 @@ export interface ReviewComment {
 export interface ReviewThread {
   readonly id: string;
   readonly firstComment: ReviewComment | null;
-  readonly isBugbot: boolean;
-  readonly bugbotReviewPasses: number;
 }
 interface CheckDetails {
   readonly name: string;
@@ -155,7 +153,6 @@ export type PrSnapshot =
       readonly facts: PullRequestFacts;
       readonly threads: readonly ReviewThread[];
       readonly ci: CiState;
-      readonly reviewAutomationRunning: boolean;
     };
 export interface ReadyPr {
   readonly kind: "ready-pr";
