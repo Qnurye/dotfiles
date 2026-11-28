@@ -10,7 +10,6 @@
 - Git pull strategy: rebase.
 - GPG signing enabled for commits.
 - **Commits go through worktrunk**: use `wt step commit`, never `git commit`. It stages everything and generates the message; pass `--stage none` for a curated index, `--dry-run` to preview. No need to ask first.
-- **Prepare, don't execute**: draft PR replies/reviews for Jaren. Leave force-pushes and peer-interaction git/gh operations to Jaren. Never work around the Git guard.
 
 ## Preferred CLI Tools
 Reach for these modern tools when a task calls for searching, filtering, or transforming data in the shell. They are faster, safer, or more ergonomic than the POSIX defaults.

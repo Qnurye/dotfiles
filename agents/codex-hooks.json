@@ -13,30 +13,10 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/dotfiles/agents/hooks/block-destructive-git.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
         "_otty": true,
         "hooks": [
           {
             "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET='/Users/qnurye/Library/Application Support/io.appmakes.otty/otty.sock' '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' processing \"$PPID\"",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "command": "/usr/bin/env 'CODEX_PLAIN_DATA_DIR=/Users/qnurye/Library/Application Support/codex-plain-sessions' '/Users/qnurye/Library/Application Support/codex-plain-install/bin/codex-plain-hook'",
             "type": "command"
           }
         ]
@@ -51,14 +31,6 @@
             "type": "command"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/usr/bin/env 'CODEX_PLAIN_DATA_DIR=/Users/qnurye/Library/Application Support/codex-plain-sessions' '/Users/qnurye/Library/Application Support/codex-plain-install/bin/codex-plain-hook'",
-            "type": "command"
-          }
-        ]
       }
     ],
     "Stop": [
@@ -70,14 +42,6 @@
             "type": "command"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/usr/bin/env 'CODEX_PLAIN_DATA_DIR=/Users/qnurye/Library/Application Support/codex-plain-sessions' '/Users/qnurye/Library/Application Support/codex-plain-install/bin/codex-plain-hook'",
-            "type": "command"
-          }
-        ]
       }
     ],
     "UserPromptSubmit": [
@@ -86,14 +50,6 @@
         "hooks": [
           {
             "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET='/Users/qnurye/Library/Application Support/io.appmakes.otty/otty.sock' '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' processing \"$PPID\"",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/usr/bin/env 'CODEX_PLAIN_DATA_DIR=/Users/qnurye/Library/Application Support/codex-plain-sessions' '/Users/qnurye/Library/Application Support/codex-plain-install/bin/codex-plain-hook'",
             "type": "command"
           }
         ]

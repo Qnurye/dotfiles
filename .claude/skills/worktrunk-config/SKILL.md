@@ -1,4 +1,5 @@
 ---
+name: worktrunk-config
 description: Worktrunk (wt) git worktree manager configuration. Use when modifying, generating, or troubleshooting worktrunk config (worktree paths, hooks, merge settings, LLM commits, shell integration, Claude Code plugin).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob

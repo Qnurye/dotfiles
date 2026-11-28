@@ -81,18 +81,50 @@ launchctl bootout --wait gui/$(id -u)/es.qnury.dotfiles-link-guard
 python3 tools/symlink-guard/guard.py install
 ```
 
-Each client's skills root is a real directory. Custom skills are linked under
-`~/.agents/skills`, `~/.claude/skills`, and `~/.gemini/skills`. Codex discovers
-the shared `.agents` skills and keeps system skills in `~/.codex/skills/.system`;
-Claude keeps synced skills in `~/.claude/skills/synced`.
+Personal instructions live in `agents/AGENTS.md`. The manifest links the
+Codex, Claude Code, Gemini/Antigravity, Zed and shared DeepSeek Harness
+instruction files to that source. Grok Build discovers Claude's global rules.
+The repository has its own `AGENTS.md` and `.agents/skills` aliases for tools
+that use the shared project convention.
 
-`./install.sh agents` archives unused Claude plugins after checking known project
-settings (project-enabled plugins are retained), removes CodeGraph and
-Context7 integration entries, migrates the old shared directories, and installs
-the watcher. It retains migration backups alongside watcher backups. Codex's new
-Git guard must be reviewed and trusted in `/hooks` after restarting Codex;
-the installer does not write hook trust hashes. See the
-[official hooks documentation](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks).
+Custom and pstack skills are linked individually under `~/.agents/skills`,
+`~/.claude/skills`, `~/.gemini/skills` and `~/.gemini/config/skills`.
+The last root is shared by Antigravity App and CLI. Claude keeps its synced
+skills and Codex keeps its system skills in client-owned directories.
+
+Otty uses each client's native hook schema. Antigravity reads
+`~/.gemini/config/hooks.json`. Grok loads its Otty adapter through Claude
+compatibility. Codex hook trust remains local. Plugins and plugin-provided
+agents use the client's native registry. Claude Markdown agent definitions
+live in `agents/agents`; Codex uses TOML agent definitions.
+
+`python3 agents/setup.py --plugins-only` applies the plugin policy to the local
+clients. Claude keeps Worktrunk, Vercel, Cloudflare and Obsidian at their
+configured scopes. User settings disable built-ins, subject to organization
+policy. Codex keeps the two Computer Use plugins and disables other OpenAI
+plugins. Grok and Antigravity retain installed exceptions. The running
+DeepSeek service has its own profile.
+
+`./install.sh agents` also cleans retired integrations, migrates old skill
+directories, and installs the watcher. Migration backups are stored alongside
+watcher backups.
+
+## Agent configuration editor
+
+Run `agent-config` to open the editor on localhost. From a new checkout, run
+`./tools/agent-config/agent-config` directly. Use `--no-open` to print the local
+URL, or `--port 8765` for a fixed port. Ctrl-C stops the server.
+
+Universal shows the shared user instructions, local and Nix-provided skills,
+hook adapters and agent definitions. Choose a client to edit its native
+settings or create a scoped configuration. The creation dialog lists supported
+destinations. Grok also reads compatible Claude files. Shared hooks target
+Claude/Grok, Codex and Antigravity; Codex may require native hook approval.
+Changes to plugin policy are applied separately with **应用插件策略**.
+
+Save with ⌘S / Ctrl-S or enable autosave. Review the complete file diffs before
+committing. The editor runs `wt step commit --stage none` with a temporary
+index for the selected files and retains unrelated staging in the real index.
 
 ## Post-Installation
 

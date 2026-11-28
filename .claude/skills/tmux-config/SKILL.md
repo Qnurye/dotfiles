@@ -1,4 +1,5 @@
 ---
+name: tmux-config
 description: Tmux configuration with Oh My Tmux. Use when modifying, generating, or troubleshooting tmux settings (keybindings, status bar, mouse, clipboard, pane styling, plugins, TPM, Oh My Tmux theme variables).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob, WebFetch

@@ -57,7 +57,7 @@ antoniorodr/memo/memo, steipete/tap/{gogcli,goplaces,imsg,peekaboo,remindctl,sag
 ```
 Homebrew-core (not in nixpkgs):
 ```
-cagent, docker-agent, rtk
+cagent, docker-agent
 ```
 
 ## Brewfile Syntax Reference (legacy, for context)

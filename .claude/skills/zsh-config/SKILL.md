@@ -1,4 +1,5 @@
 ---
+name: zsh-config
 description: Zsh shell configuration. Use when modifying, generating, or troubleshooting .zshrc, .zprofile, or .zshenv (aliases, plugins, PATH, shell options, functions, environment variables).
 user-invocable: false
 allowed-tools: Read, Grep, Glob

@@ -1,4 +1,5 @@
 ---
+name: zed-config
 description: Zed editor configuration. Use when modifying, generating, or troubleshooting Zed settings.json (themes, fonts, vim mode, LSP, AI/agent, keybindings, terminal, formatting, language overrides).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob

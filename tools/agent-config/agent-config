@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+import argparse
+import fcntl
+import json
+import secrets
+import subprocess
+import sys
+import threading
+import webbrowser
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+from catalog import (
+    Catalog,
+    CLIENTS,
+    SHARED,
+    CATEGORIES,
+    SKILL_PATHS,
+    AGENT_PATHS,
+    HOOK_FILES,
+)
+from gitops import changes, commit, run
+
+
+def inventory(catalog):
+    items = list(catalog.items().values())
+    counts = {}
+    for name in [SHARED, *CLIENTS]:
+        counts[name] = sum(1 for i in items if i["scope"] == name)
+    scopes = {}
+    for name in counts:
+        scopes[name] = [
+            group
+            for group, enabled in [
+                ("Instructions", name != SHARED),
+                ("Skills", name in SKILL_PATHS or name == SHARED),
+                ("Agents", name in AGENT_PATHS or name == SHARED),
+                ("Hooks", name in HOOK_FILES or name == SHARED),
+            ]
+            if enabled
+        ]
+    return dict(
+        items=items,
+        counts=counts,
+        create=scopes,
+        groups=CATEGORIES,
+        branch=run(catalog.repo, "git", "branch", "--show-current").stdout.strip(),
+        path=str(catalog.repo),
+    )
+
+
+def server(catalog, port):
+    token = secrets.token_urlsafe(32)
+    mutex = threading.Lock()
+    gitdir = Path(
+        run(catalog.repo, "git", "rev-parse", "--absolute-git-dir").stdout.strip()
+    )
+    lockfile = gitdir / "agent-config.lock"
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def send(self, status, data, mime):
+            self.send_response(status)
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'",
+            )
+            self.end_headers()
+            self.wfile.write(data)
+
+        def valid_host(self):
+            return self.headers.get("Host") == f"127.0.0.1:{self.server.server_port}"
+
+        def do_GET(self):
+            asset = {
+                "/": "index.html",
+                "/app.js": "app.js",
+                "/style.css": "style.css",
+            }.get(self.path)
+            if not self.valid_host() or not asset:
+                return self.send_error(404)
+            mime = {
+                "index.html": "text/html",
+                "app.js": "text/javascript",
+                "style.css": "text/css",
+            }[asset]
+            self.send(200, (HERE / asset).read_bytes(), mime + "; charset=utf-8")
+
+        def do_POST(self):
+            try:
+                origin = self.headers.get("Origin")
+                if (
+                    not self.valid_host()
+                    or origin not in (None, "http://" + self.headers["Host"])
+                    or not secrets.compare_digest(
+                        self.headers.get("X-Agent-Token", ""), token
+                    )
+                ):
+                    return self.send_error(403)
+                length = int(self.headers.get("Content-Length", "0"))
+                if not 0 < length <= 2_000_000:
+                    return self.send_error(413)
+                data = json.loads(self.rfile.read(length))
+                with mutex, lockfile.open("a") as lock:
+                    fcntl.flock(lock, fcntl.LOCK_EX)
+                    if self.path == "/api/list":
+                        result = inventory(catalog)
+                    elif self.path == "/api/read":
+                        result = catalog.read(data["id"])
+                    elif self.path == "/api/save":
+                        result = catalog.save(data["id"], data["version"], data["text"])
+                    elif self.path == "/api/create":
+                        result = catalog.create(
+                            data["scope"], data["group"], data["name"]
+                        )
+                    elif self.path == "/api/diff":
+                        result = changes(catalog)
+                    elif self.path == "/api/commit":
+                        result = commit(catalog, data["versions"])
+                    elif self.path == "/api/plugins":
+                        result = run(
+                            catalog.repo,
+                            sys.executable,
+                            "agents/setup.py",
+                            "--plugins-only",
+                        ).stdout
+                    else:
+                        return self.send_error(404)
+                self.send(200, json.dumps(result).encode(), "application/json")
+            except (
+                ValueError,
+                KeyError,
+                OSError,
+                TypeError,
+                subprocess.SubprocessError,
+            ) as e:
+                self.send(
+                    409, json.dumps({"error": str(e)}).encode(), "application/json"
+                )
+
+    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return srv, f"http://127.0.0.1:{srv.server_port}/#{token}"
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="在本机浏览器中编辑 dotfiles 的 agent 配置"
+    )
+    parser.add_argument("--port", type=int, default=0)
+    parser.add_argument("--no-open", action="store_true")
+    args = parser.parse_args()
+    try:
+        srv, url = server(Catalog(HERE.parents[1], Path.home()), args.port)
+    except OSError as error:
+        parser.exit(1, f"无法启动本地服务：{error}\n")
+    print(url, flush=True)
+    if not args.no_open:
+        webbrowser.open(url)
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        srv.server_close()

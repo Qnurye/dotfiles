@@ -48,7 +48,7 @@ Read the current PR head, HeyDeer's latest submitted review (author, commit, sta
 
 In the delivery workflow, human approval of the outstanding choices on the reviewed revision and a passing smoke test when required clear the handoff to merge. If the reviewer requests a change, implement it, run both stages of review on the new revision and reconfirm any affected decision.
 
-For both paths, recheck the current head, required checks and branch rules. Use the repository's merge method with `gh pr merge "$pr" --match-head-commit "$sha"`. Respect the active Git guard. If it blocks the merge, give the user the PR link, reviewed SHA and exact merge command. If GitHub requires a queue, follow the entry through to `MERGED` or a concrete blocker.
+For both paths, recheck the current head, required checks and branch rules. Use the repository's merge method with `gh pr merge "$pr" --match-head-commit "$sha"`. If GitHub requires a queue, follow the entry through to `MERGED` or a concrete blocker.
 
 ## Clean up after GitHub merges
 
@@ -58,6 +58,6 @@ Run the bundled [cleanup helper](scripts/cleanup_after_merge.py) from the origin
 python3 "$skill_dir/scripts/cleanup_after_merge.py" "$pr_url" "$task_worktree"
 ```
 
-If handing the PR off for human review, smoke testing or a guard-required manual merge, start the same helper **once** with `--wait` before returning. Use a background job that survives the handoff, e.g. `nohup python3 "$skill_dir/scripts/cleanup_after_merge.py" --wait "$pr_url" "$task_worktree" >"$cleanup_log" 2>&1 </dev/null &`. Use an absolute per-PR log outside the task worktree. The watcher follows only this PR and exits if it closes unmerged. On resumption check the job or its log before starting another. Leave an open PR's worktree available for fixes.
+If handing the PR off for human review or smoke testing, start the same helper **once** with `--wait` before returning. Use a background job that survives the handoff, e.g. `nohup python3 "$skill_dir/scripts/cleanup_after_merge.py" --wait "$pr_url" "$task_worktree" >"$cleanup_log" 2>&1 </dev/null &`. Use an absolute per-PR log outside the task worktree. The watcher follows only this PR and exits if it closes unmerged. On resumption check the job or its log before starting another. Leave an open PR's worktree available for fixes.
 
 Report the PR URL and merge commit on success, and whether the worktree was removed or retained and why. At a human handoff, report the pending decision or test and the cleanup log.

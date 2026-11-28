@@ -1,4 +1,5 @@
 ---
+name: ghostty-config
 description: Ghostty terminal emulator configuration. Use when modifying, generating, or troubleshooting Ghostty config (fonts, themes, keybindings, window, cursor, clipboard, shell integration, macOS settings).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob, WebFetch

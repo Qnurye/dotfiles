@@ -272,7 +272,18 @@ def main():
         signal.signal(signal.SIGTERM, stop)
         signal.signal(signal.SIGINT, stop)
         LOG.info("Watching %d links in %s", len(guard.links), home)
+        manifest = repo / "tools/symlink-guard/links.json"
+        revision = fingerprint(manifest)
         while running:
+            current = fingerprint(manifest)
+            if current != revision:
+                try:
+                    guard.links = link_map(repo)
+                    guard.pending.clear()
+                    guard.failed.clear()
+                    revision = current
+                except (OSError, ValueError) as error:
+                    LOG.error("Cannot reload managed links: %s", error)
             guard.scan()
             time.sleep(args.interval)
     return 0

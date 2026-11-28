@@ -1,4 +1,5 @@
 ---
+name: homebrew-config
 description: Homebrew package management via nix-darwin. Use when modifying, generating, or troubleshooting Homebrew taps, brews, and casks declared in nix-darwin config (not a standalone Brewfile).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob

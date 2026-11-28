@@ -1,4 +1,5 @@
 ---
+name: claude-code-config
 description: Claude Code configuration. Use when modifying CLAUDE.md instructions, settings.json, hooks, MCP servers, permissions, plugins, agents, custom slash commands, or skills.
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob
@@ -23,9 +24,8 @@ defines links for Nix, the installer, and the launchd watcher:
 |--------|---------------|
 | `agents/AGENTS.md` | `~/.claude/CLAUDE.md` (global instructions) |
 | `agents/claude-settings.json` | `~/.claude/settings.json` (global settings) |
-| `agents/RTK.md` | `~/.claude/RTK.md` (CLI reference; not included in shared instructions) |
 | `agents/codex-hooks.json` | `~/.codex/hooks.json` |
-| `agents/skills/<name>/` | Individual links under `~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/skills/` |
+| `agents/skills/<name>/` | Individual links under `~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/skills/`, `~/.gemini/config/skills/` |
 | `agents/agents/<name>.md` | `~/.claude/agents/<name>.md` |
 
 Project-scoped files in dotfiles repo: `CLAUDE.md`, `.claude/settings.local.json`
@@ -42,7 +42,7 @@ links once, and `./install.sh agents` to migrate and register the watcher.
 - Include: repo overview, commands, conventions, constraints
 - Subdirectory CLAUDE.md files load when Claude works there
 - Press `#` during session to quick-add instructions
-- `@file.md` syntax to include other files (e.g., `@RTK.md`)
+- `@file.md` syntax to include other files
 
 ## Settings JSON
 - `permissions` -- tool permission rules (`allow`, `deny`, `ask`, `defaultMode`)

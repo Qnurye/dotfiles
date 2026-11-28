@@ -1,5 +1,6 @@
 {
   "links": {
+    ".local/bin/agent-config": "tools/agent-config/agent-config",
     ".config/fish": "shells/fish",
     ".config/zed/settings.json": "editors/zed/settings.json",
     ".tmux.conf.local": "terminals/tmux/.tmux.conf.local",
@@ -9,13 +10,16 @@
     "Library/Application Support/lazygit/config.yml": "vcs/lazygit/config.yml",
     ".config/worktrunk/config.toml": "tools/worktrunk/config.toml",
     "AGENTS.md": "agents/AGENTS.md",
+    ".codex/AGENTS.md": "agents/AGENTS.md",
+    ".agents/AGENTS.md": "agents/AGENTS.md",
+    ".config/zed/AGENTS.md": "agents/AGENTS.md",
     ".claude/CLAUDE.md": "agents/AGENTS.md",
     ".gemini/GEMINI.md": "agents/AGENTS.md",
     ".claude/settings.json": "agents/claude-settings.json",
-    ".claude/RTK.md": "agents/RTK.md",
     ".claude/agents": "agents/agents",
+    ".gemini/config/hooks.json": "agents/antigravity-hooks.json",
     ".codex/hooks.json": "agents/codex-hooks.json"
   },
-  "skillRoots": [".agents/skills", ".claude/skills", ".gemini/skills"],
-  "skills": ["copywriting", "heydeer-pr", "pr", "r2-upload-html", "resolve-conflicts"]
+  "skillRoots": [".agents/skills", ".claude/skills", ".gemini/skills", ".gemini/config/skills"],
+  "skills": ["heydeer-pr", "pr", "r2-upload-html"]
 }

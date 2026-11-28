@@ -1,0 +1,16 @@
+{
+  "_otty": {
+    "PreInvocation": [
+      {
+        "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET='/Users/qnurye/Library/Application Support/io.appmakes.otty/otty.sock' '/Applications/Otty.app/Contents/Resources/agent-integration/antigravity/otty-hook.sh' processing \"$PPID\"",
+        "type": "command"
+      }
+    ],
+    "Stop": [
+      {
+        "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET='/Users/qnurye/Library/Application Support/io.appmakes.otty/otty.sock' '/Applications/Otty.app/Contents/Resources/agent-integration/antigravity/otty-hook.sh' idle \"$PPID\"",
+        "type": "command"
+      }
+    ]
+  }
+}

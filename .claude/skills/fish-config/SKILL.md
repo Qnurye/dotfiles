@@ -1,4 +1,5 @@
 ---
+name: fish-config
 description: Fish shell configuration. Use when modifying, generating, or troubleshooting Fish config (config.fish, conf.d/, functions/, fish_plugins, Fisher plugins, PATH, environment variables, abbreviations, aliases).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob

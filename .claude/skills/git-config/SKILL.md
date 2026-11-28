@@ -1,4 +1,5 @@
 ---
+name: git-config
 description: Git configuration. Use when modifying, generating, or troubleshooting .gitconfig (user identity, aliases, diff, merge, push, pull, GPG signing, delta pager, conditional includes, LFS).
 user-invocable: false
 allowed-tools: Read, Edit, Grep, Glob

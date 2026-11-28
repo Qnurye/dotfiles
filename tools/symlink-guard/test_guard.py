@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import tomllib
 import unittest
 from unittest.mock import patch
 
@@ -214,9 +215,10 @@ class SetupTests(unittest.TestCase):
                         ignore=shutil.ignore_patterns("__pycache__"))
         self.shared = self.repo / "agents/skills"
         self.shared.mkdir(parents=True)
-        for name in ["copywriting", "pr", "r2-upload-html", "resolve-conflicts", ".system", "synced"]:
+        for name in ["heydeer-pr", "pr", "r2-upload-html", ".system", "synced"]:
             (self.shared / name).mkdir()
             (self.shared / name / "SKILL.md").write_text(name)
+        shutil.copytree(HERE.parents[1] / "agents/policies", self.repo / "agents/policies")
         self.setup = setup_agents.Setup(self.repo, self.home)
 
     def test_legacy_roots_detach_without_losing_runtime_skills(self):
@@ -250,22 +252,43 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(result["mcpServers"], {"keep": {}})
         self.assertEqual(result["projects"][str(self.repo)]["disabledMcpServers"], ["keep"])
         self.assertEqual(result["unrelated"], "preserve")
-        self.assertEqual(result["hooks"]["PreToolUse"][0]["hooks"][0]["command"], "rtk hook claude")
+        self.assertEqual(result["hooks"], {})
         self.assertEqual(json.loads(registry.read_text())["plugins"], {"worktrunk@worktrunk": []})
         self.assertTrue((self.setup.archive / ".claude.json").exists())
 
-    def test_existing_codex_hooks_keep_custom_handlers_and_gain_guard(self):
+    def test_existing_codex_hooks_keep_custom_handlers_and_remove_retired_hooks(self):
         source = self.repo / "agents/codex-hooks.json"
         source.write_text('{"hooks": {}}')
         native = self.home / ".codex/hooks.json"
         native.parent.mkdir()
-        native.write_text(json.dumps({"hooks": {"Stop": [{"hooks": [{"command": "custom-notify"}]}]}}))
+        native.write_text(json.dumps({"hooks": {
+            "Stop": [{"hooks": [{"command": "custom-notify"}, {"command": "'/old/codex-plain-hook'"}]}],
+            "PreToolUse": [{"hooks": [{"command": "~/dotfiles/agents/hooks/block-destructive-git.sh"}]}],
+        }}))
         self.setup.prepare_codex_hooks()
         self.setup.prepare_codex_hooks()
         data = json.loads(native.read_text())
-        self.assertEqual(data["hooks"]["Stop"][0]["hooks"][0]["command"], "custom-notify")
-        self.assertEqual(len(data["hooks"]["PreToolUse"]), 1)
+        self.assertEqual(data["hooks"], {"Stop": [{"hooks": [{"command": "custom-notify"}]}]})
         self.assertEqual(native.read_bytes(), source.read_bytes())
+
+    def test_codex_plugin_policy_preserves_settings_and_is_repeatable(self):
+        root = self.home / ".codex"
+        cached = root / "plugins/cache/third-party/unwanted"
+        cached.mkdir(parents=True)
+        path = root / "config.toml"
+        path.write_text('model = "test"\n[plugins."computer-use@openai-bundled"]\nenabled = true\n'
+                        '[plugins."browser@openai-bundled"]\nenabled = true # local preference\n'
+                        '[mcp_servers.example]\nenabled = true\n')
+        self.setup.configure_codex_plugins()
+        content = path.read_text()
+        data = tomllib.loads(content)
+        self.assertTrue(data["plugins"]["computer-use@openai-bundled"]["enabled"])
+        self.assertFalse(data["plugins"]["browser@openai-bundled"]["enabled"])
+        self.assertFalse(data["plugins"]["unwanted@third-party"]["enabled"])
+        self.assertTrue(data["mcp_servers"]["example"]["enabled"])
+        self.assertFalse(cached.exists())
+        self.setup.configure_codex_plugins()
+        self.assertEqual(path.read_text(), content)
 
     def test_plugins_enabled_in_other_projects_are_preserved(self):
         project = self.home / "notes"
@@ -284,7 +307,7 @@ class SetupTests(unittest.TestCase):
         self.assertIn("obsidian@obsidian-skills", json.loads(registry.read_text())["plugins"])
         self.assertNotIn("context7@claude-plugins-official", json.loads(registry.read_text())["plugins"])
         self.assertEqual(json.loads(settings.read_text())["enabledPlugins"], {"obsidian@obsidian-skills": True})
-        self.assertNotIn("obsidian-skills", setup.removed_marketplaces)
+        self.assertIn("obsidian@obsidian-skills", setup.allowed_plugins("claude"))
 
 
 if __name__ == "__main__":

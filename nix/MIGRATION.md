@@ -58,7 +58,7 @@ Packages in tags vs Brewfile. Checked = in a tag, unchecked = not yet migrated.
 - [x] ollama
 
 Not in nixpkgs (stay in homebrew, declared in homebrew.nix brews):
-- [x] cagent, docker-agent, rtk
+- [x] cagent, docker-agent
 - [ ] displayplacer, marked, neonctl, fisher
 - [ ] gemini-cli
 
