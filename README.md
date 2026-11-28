@@ -115,12 +115,18 @@ Run `agent-config` to open the editor on localhost. From a new checkout, run
 `./tools/agent-config/agent-config` directly. Use `--no-open` to print the local
 URL, or `--port 8765` for a fixed port. Ctrl-C stops the server.
 
+The editor indexes user-level configuration only. The dotfiles checkout’s project-scoped
+agent files and plugins are excluded from the editor and its commits.
 Universal shows the shared user instructions, local and Nix-provided skills,
 hook adapters and agent definitions. Choose a client to edit its native
 settings or create a scoped configuration. The creation dialog lists supported
 destinations. Grok also reads compatible Claude files. Shared hooks target
 Claude/Grok, Codex and Antigravity; Codex may require native hook approval.
-Changes to plugin policy are applied separately with **应用插件策略**.
+Instructions, skill bodies and agent instructions use an offline WYSIWYG editor.
+Hook handlers and skill metadata use forms. Plugin cards show the runtime state
+and the retention and enablement controls available for each client.
+Rebuild the bundled editor after dependency changes with `npm ci && npm run build`
+in `tools/agent-config`. Changes to plugin policy are applied separately with **应用插件策略**.
 
 Save with ⌘S / Ctrl-S or enable autosave. Review the complete file diffs before
 committing. The editor runs `wt step commit --stage none` with a temporary

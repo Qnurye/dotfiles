@@ -256,6 +256,21 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(json.loads(registry.read_text())["plugins"], {"worktrunk@worktrunk": []})
         self.assertTrue((self.setup.archive / ".claude.json").exists())
 
+    def test_editor_plugin_policy_preserves_project_installations(self):
+        project = self.repo / ".claude/settings.json"
+        project.parent.mkdir()
+        project.write_text('{"enabledPlugins":{"test@example":true}}')
+        registry = self.home / ".claude/plugins/installed_plugins.json"
+        registry.parent.mkdir(parents=True)
+        local = {"scope": "project", "projectPath": str(self.repo)}
+        registry.write_text(json.dumps({"plugins": {"test@example": [local, {"scope": "user"}]}}))
+        cache = registry.parent / "cache/example/test"
+        cache.mkdir(parents=True)
+        setup_agents.Setup(self.repo, self.home, user_plugins_only=True).uninstall_plugins()
+        self.assertEqual(json.loads(registry.read_text())["plugins"]["test@example"], [local])
+        self.assertEqual(project.read_text(), '{"enabledPlugins":{"test@example":true}}')
+        self.assertTrue(cache.exists())
+
     def test_existing_codex_hooks_keep_custom_handlers_and_remove_retired_hooks(self):
         source = self.repo / "agents/codex-hooks.json"
         source.write_text('{"hooks": {}}')

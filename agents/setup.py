@@ -28,12 +28,16 @@ def guard_module(repo):
 
 
 class Setup:
-    def __init__(self, repo, home):
+    def __init__(self, repo, home, user_plugins_only=False):
         self.repo, self.home = repo, home
         self.guard = guard_module(repo)
         self.archive = home / ".local/state/dotfiles-link-guard" / f"migration-{time.time_ns()}"
         self.manifest = json.loads((repo / "tools/symlink-guard/links.json").read_text())
-        projects = set()
+        self.user_plugins_only = user_plugins_only
+        self.projects = set()
+        if user_plugins_only:
+            return
+        projects = self.projects
         registry = home / ".claude/plugins/installed_plugins.json"
         if registry.exists():
             for records in json.loads(registry.read_text()).get("plugins", {}).values():
@@ -41,7 +45,6 @@ class Setup:
         state = home / ".claude.json"
         if state.exists():
             projects.update(Path(path) for path in json.loads(state.read_text()).get("projects", {}))
-        self.projects = projects
 
     def allowed_plugins(self, client):
         path = self.repo / "agents/policies" / (client + ".json")
@@ -215,12 +218,12 @@ class Setup:
         markets = {name.split("@")[1] for name in allowed}
         builtin = set()
         if self.home == Path.home() and shutil.which("claude"):
-            rows = json.loads(subprocess.check_output(["claude", "plugin", "list", "--json"]))
+            rows = json.loads(subprocess.check_output(["claude", "plugin", "list", "--json"], cwd=self.home))
             builtin = {row["id"] for row in rows if row["id"].endswith("@builtin")}
 
         global_settings = self.home / ".claude/settings.json"
         paths = {global_settings}
-        for project in self.projects | {self.home}:
+        for project in ([] if self.user_plugins_only else self.projects | {self.home}):
             paths.update(project / ".claude" / name for name in ("settings.json", "settings.local.json"))
         for path in sorted(paths):
             if not path.is_file():
@@ -244,8 +247,17 @@ class Setup:
             data = json.loads(registry.read_text())
             for name in list(data.get("plugins", {})):
                 if name not in allowed and not name.endswith("@builtin"):
+                    records = data["plugins"][name]
+                    if self.user_plugins_only:
+                        remaining = [r for r in records if r.get("scope") != "user" or r.get("projectPath")]
+                        if remaining or not records:
+                            data["plugins"][name] = remaining
+                            continue
                     del data["plugins"][name]
             self.write_json(registry, data)
+        # Marketplace caches and plugin data can also serve project installations.
+        if self.user_plugins_only:
+            return
         for market in (root / "cache").glob("*"):
             if market.name not in markets:
                 self.archive_path(market)
@@ -334,10 +346,12 @@ class Setup:
             return
         for cli, remove in [("grok", "uninstall"), ("agy", "uninstall")]:
             if shutil.which(cli):
-                installed = json.loads(subprocess.check_output([cli, "plugin", "list", "--json"]))
+                installed = json.loads(subprocess.check_output([cli, "plugin", "list", "--json"], cwd=self.home))
                 for plugin in installed:
+                    if self.user_plugins_only and (plugin.get("scope") != "user" or plugin.get("projectPath")):
+                        continue
                     if plugin["name"] not in self.allowed_plugins("grok" if cli == "grok" else "antigravity"):
-                        subprocess.run([cli, "plugin", remove, plugin["name"]], check=True)
+                        subprocess.run([cli, "plugin", remove, plugin["name"]], cwd=self.home, check=True)
 
     def uninstall_codegraph(self):
         binary = shutil.which("codegraph")
@@ -358,9 +372,10 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--prepare-links-only", action="store_true")
     modes.add_argument("--plugins-only", action="store_true")
+    modes.add_argument("--user-plugins-only", action="store_true")
     args = parser.parse_args()
-    setup = Setup(args.repo.resolve(), args.home.resolve())
-    if args.plugins_only:
+    setup = Setup(args.repo.resolve(), args.home.resolve(), args.user_plugins_only)
+    if args.plugins_only or args.user_plugins_only:
         setup.uninstall_plugins()
         setup.configure_other_plugins()
         return

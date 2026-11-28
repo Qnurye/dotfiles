@@ -1,0 +1,15 @@
+{
+  "name": "dotfiles-agent-config-ui",
+  "private": true,
+  "scripts": {
+    "build": "esbuild ui-libs.js --bundle --minify --legal-comments=eof --outfile=vendor/editor.js --loader:.png=dataurl --loader:.svg=dataurl --target=es2020"
+  },
+  "dependencies": {
+    "@toast-ui/editor": "3.2.2",
+    "yaml": "2.8.2",
+    "jsonc-parser": "3.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

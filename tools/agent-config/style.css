@@ -1,10 +1,13 @@
 :root {
+  color-scheme: light dark;
+  --surface: light-dark(#fff, #1e2721);
+  --on-green: light-dark(white, #112b1c);
   font-family: Inter, "PingFang SC", system-ui, sans-serif;
-  color: #202821;
-  background: #f7f8f5;
-  --line: #dbe0d8;
-  --green: #265d44;
-  --faded: #616f65;
+  color: light-dark(#202821, #e3ebe5);
+  background: light-dark(#f7f8f5, #141a17);
+  --line: light-dark(#dbe0d8, #414e46);
+  --green: light-dark(#265d44, #94cfac);
+  --faded: light-dark(#616f65, #b0beb3);
 }
 * {
   box-sizing: border-box;
@@ -15,7 +18,7 @@ body {
 header {
   height: 66px;
   padding: 0 3vw;
-  background: #fff;
+  background: var(--surface);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -30,7 +33,7 @@ header b {
   display: grid;
   place-items: center;
   background: var(--green);
-  color: white;
+  color: var(--on-green);
   width: 33px;
   height: 33px;
   border-radius: 9px;
@@ -50,26 +53,23 @@ small,
 }
 #branch {
   margin-left: auto;
-  background: #edf3ee;
+  background: light-dark(#edf3ee, #293a30);
   border-radius: 5px;
   padding: 6px 9px;
 }
-button,
-input,
-select,
-textarea {
+:where(button, input, select, textarea):not(.richtext *) {
   font: inherit;
 }
-button {
+button:not(.richtext *) {
   cursor: pointer;
   border: 1px solid var(--line);
   border-radius: 7px;
   padding: 8px 13px;
-  background: white;
+  background: var(--surface);
   color: inherit;
 }
-button:hover {
-  background: #edf3ed;
+button:not(.richtext *):hover {
+  background: light-dark(#edf3ed, #304139);
 }
 button:disabled {
   opacity: 0.45;
@@ -79,7 +79,7 @@ button:disabled {
 .primary,
 #save {
   background: var(--green);
-  color: white;
+  color: var(--on-green);
   border-color: var(--green);
 }
 .layout {
@@ -114,8 +114,8 @@ nav button {
   font-size: 14px;
 }
 #scopes .on {
-  background: #dce9de;
-  color: #1d4d35;
+  background: light-dark(#dce9de, #315240);
+  color: light-dark(#1d4d35, #c0edcc);
   font-weight: 650;
 }
 .repo {
@@ -137,7 +137,7 @@ footer,
   justify-content: space-between;
   gap: 10px;
 }
-h1 {
+.top h1 {
   font-size: clamp(28px, 3vw, 44px);
   letter-spacing: -0.05em;
   margin: 4px 0 18px;
@@ -169,22 +169,22 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
-  background: white;
+  background: var(--surface);
   min-height: 64vh;
 }
 .files {
-  background: #fafbf8;
+  background: light-dark(#fafbf8, #1a221d);
   border-right: 1px solid var(--line);
   padding: 12px;
   min-width: 0;
 }
-input,
-select {
+input:not(.richtext *),
+select:not(.richtext *) {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: white;
+  background: var(--surface);
 }
 #files {
   max-height: 66vh;
@@ -201,8 +201,8 @@ select {
   padding: 9px 8px;
 }
 #files button.on {
-  background: #e3eee5;
-  color: #1d4d35;
+  background: light-dark(#e3eee5, #2c4536);
+  color: light-dark(#1d4d35, #c0edcc);
 }
 article {
   padding: 20px;
@@ -233,52 +233,10 @@ dialog p {
   color: var(--faded);
   line-height: 1.6;
 }
-textarea,
-pre {
-  font:
-    13px/1.65 "SFMono-Regular",
-    Consolas,
-    monospace;
-  tab-size: 2;
-}
-textarea {
-  width: 100%;
-  resize: vertical;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 14px;
-  min-height: 48vh;
-  background: #fcfdfb;
-  color: inherit;
-}
-#render {
-  max-height: 67vh;
-  overflow: auto;
-  line-height: 1.65;
-  overflow-wrap: anywhere;
-}
-#render pre {
-  white-space: pre-wrap;
-  margin: 0;
-}
-#render h1,
-#render h2 {
-  font-size: 22px;
-  margin: 15px 0 7px;
-  letter-spacing: normal;
-}
-#render h3 {
-  font-size: 16px;
-}
-#render p {
-  white-space: pre-wrap;
-  margin: 6px 0;
-  font-size: 14px;
-}
 #notice:not(:empty) {
   padding: 10px 13px;
   margin: 0 0 12px;
-  background: #e9f1e9;
+  background: light-dark(#e9f1e9, #273f31);
   border-radius: 6px;
   white-space: pre-wrap;
 }
@@ -318,7 +276,7 @@ summary {
 }
 details pre {
   overflow: auto;
-  background: #f5f7f3;
+  background: light-dark(#f5f7f3, #161e19);
   padding: 12px;
   max-height: 35vh;
 }
@@ -395,23 +353,224 @@ details pre {
   margin-left: 0;
 }
 
-#panes.split {
+[hidden] {
+  display: none !important;
+}
+aside {
+  background: light-dark(#203a33, #15251f);
+  color: #f0f5ee;
+}
+aside h2,
+.repo {
+  color: #acc3b9;
+}
+#scopes button {
+  color: inherit;
+}
+#scopes button:hover {
+  background: #304c43;
+}
+#scopes button.on {
+  background: light-dark(#dce9de, #315240);
+  color: light-dark(#173c2e, #c0edcc);
+}
+#canvas {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 16px;
+  min-width: 0;
 }
-#panes.split #render {
-  padding-left: 12px;
-  border-left: 1px solid var(--line);
+#canvas > * {
+  min-width: 0;
 }
-@media (max-width: 1050px) {
-  #panes.split {
-    grid-template-columns: 1fr;
-  }
-  #panes.split textarea {
-    min-height: 220px;
-  }
-  #tools {
+#canvas h3:not(.richtext *) {
+  font-size: 16px;
+  margin: 0;
+}
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 550;
+  min-width: 0;
+}
+.field input,
+.field select,
+.field textarea {
+  font-size: 14px;
+  font-weight: 400;
+  color: inherit;
+}
+.field textarea {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  line-height: 1.6;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px;
+}
+.handler textarea {
+  font-family: ui-monospace, monospace;
+}
+.section-head,
+.plugin-title,
+.plugin-controls,
+.switch-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-head,
+.plugin-title {
+  justify-content: space-between;
+}
+.hook-event,
+.plugin-card,
+.meta-grid {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 15px;
+}
+.hook-event > .section-head {
+  padding-bottom: 9px;
+}
+.handler,
+.role-card,
+.meta-grid,
+.nested[open] {
+  display: grid;
+  gap: 12px;
+}
+.handler {
+  background: light-dark(#f6f8f5, #242f28);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 8px;
+}
+.minor {
+  font-size: 12px;
+}
+.add-hook {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+.add-hook .field {
+  flex: 1;
+}
+.plugin-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 10px;
+}
+.plugin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+.plugin-title b {
+  font-size: 15px;
+}
+.pill {
+  font-size: 11px;
+  background: light-dark(#f0f1ee, #323d36);
+  color: light-dark(#5b655d, #c0c9c1);
+  border-radius: 20px;
+  white-space: nowrap;
+  padding: 3px 8px;
+}
+.pill.active {
+  background: light-dark(#e0efe4, #294737);
+  color: light-dark(#235b40, #b6e5c6);
+}
+.plugin-controls {
+  margin-top: auto;
+  padding-top: 8px;
+  flex-wrap: wrap;
+}
+.switch-label {
+  font-size: 13px;
+  gap: 6px;
+}
+.switch-label input {
+  appearance: none;
+  width: 30px;
+  height: 17px;
+  border: 0;
+  border-radius: 12px;
+  background: light-dark(#b3bcb4, #647268);
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+.switch-label input:before {
+  content: "";
+  display: block;
+  background: white;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  margin: 2px;
+}
+.switch-label input:checked {
+  background: var(--green);
+}
+.switch-label input:checked:before {
+  transform: translateX(13px);
+}
+.switch-label input:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.richtext {
+  min-width: 0;
+}
+.richtext .toastui-editor-defaultUI {
+  border-color: var(--line);
+  border-radius: 7px;
+}
+.richtext .toastui-editor-contents {
+  font-family: Inter, "PingFang SC", system-ui, sans-serif;
+  font-size: 15px;
+}
+.richtext .toastui-editor-defaultUI-toolbar {
+  overflow-x: auto;
+}
+.richtext .toastui-editor-ww-container {
+  max-height: 62vh;
+  overflow-y: auto;
+}
+.warning {
+  color: light-dark(#8c4811, #f3b276);
+}
+
+#theme {
+  width: auto;
+  color: inherit;
+}
+#scopes button:not(.on):not(:hover),
+#groups button:not(:hover) {
+  background: transparent;
+}
+dialog,
+.field textarea {
+  background: var(--surface);
+  color: inherit;
+}
+:root.toastui-editor-dark .toastui-editor-defaultUI {
+  border-color: var(--line);
+}
+@media (max-width: 560px) {
+  header {
     flex-wrap: wrap;
+    height: auto;
+    padding-block: 8px;
+  }
+  #theme {
+    margin-left: auto;
+  }
+  #review {
+    margin-left: 0;
   }
 }

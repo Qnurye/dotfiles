@@ -4,14 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Agent 配置 · dotfiles</title>
+    <link rel="stylesheet" href="/vendor/editor.css" />
     <link rel="stylesheet" href="/style.css" />
+    <script defer src="/vendor/editor.js"></script>
+    <script defer src="/forms.js"></script>
     <script defer src="/app.js"></script>
   </head>
   <body>
     <header>
       <span class="logo" aria-hidden="true">⌘</span><b>dotfiles</b
       ><span class="slash">/</span><strong>Agent 配置</strong
-      ><span id="branch"></span><button id="review">查看变更并提交</button>
+      ><span id="branch"></span>
+      <select id="theme" aria-label="外观模式" title="外观模式">
+        <option value="system">跟随系统</option>
+        <option value="light">浅色</option>
+        <option value="dark">暗色</option>
+      </select>
+      <button id="review">查看变更并提交</button>
     </header>
     <div class="layout">
       <aside>
@@ -45,22 +54,12 @@
               <span id="state"></span>
             </div>
             <div id="tools">
-              <button id="edit">编辑</button><button id="preview">预览</button
-              ><button id="split">对照</button
-              ><label class="auto"
+              <label class="auto"
                 ><input id="autosave" type="checkbox" /> 自动保存</label
               ><button id="save">保存</button>
             </div>
             <p id="note"></p>
-            <div id="panes">
-              <textarea
-                id="editor"
-                aria-label="配置源文件"
-                spellcheck="false"
-                hidden
-              ></textarea>
-              <div id="render"></div>
-            </div>
+            <div id="canvas"></div>
             <button id="apply" hidden>应用插件策略</button>
           </article>
         </div>

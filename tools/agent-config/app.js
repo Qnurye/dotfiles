@@ -1,5 +1,22 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
+const systemTheme = matchMedia("(prefers-color-scheme: dark)");
+const theme = $("theme");
+const storedTheme = localStorage.getItem("agent-config-theme");
+if (["light", "dark"].includes(storedTheme)) theme.value = storedTheme;
+function updateTheme() {
+  const dark =
+    theme.value === "dark" || (theme.value === "system" && systemTheme.matches);
+  document.documentElement.style.colorScheme = dark ? "dark" : "light";
+  document.documentElement.classList.toggle("toastui-editor-dark", dark);
+}
+theme.onchange = () => {
+  localStorage.setItem("agent-config-theme", theme.value);
+  updateTheme();
+};
+systemTheme.addEventListener("change", updateTheme);
+updateTheme();
+
 const token =
   location.hash.slice(1) || sessionStorage.getItem("agent-config-token");
 if (token) sessionStorage.setItem("agent-config-token", token);
@@ -26,7 +43,7 @@ let inventory,
   scope = "Universal",
   group = "Instructions",
   doc = null,
-  mode = "preview",
+  surface = null,
   dirty = false,
   busy = false,
   sequence = 0;
@@ -52,6 +69,31 @@ async function api(name, data = {}) {
   const result = await response.json();
   if (!response.ok) throw Error(result.error);
   return result;
+}
+const pluginInventories = new Map();
+function pluginInventory(client) {
+  const cached = pluginInventories.get(client);
+  if (cached && performance.now() < cached.expires) return cached.request;
+  const entry = { expires: Infinity };
+  entry.request = api("plugin-inventory", { client })
+    .then((result) => {
+      entry.expires =
+        performance.now() + (result.inventoryError ? 2000 : 60000);
+      return result;
+    })
+    .catch((error) => {
+      if (pluginInventories.get(client) === entry)
+        pluginInventories.delete(client);
+      throw error;
+    });
+  pluginInventories.set(client, entry);
+  return entry.request;
+}
+function prefetchPlugins() {
+  for (const item of inventory.items) {
+    if (item.id.startsWith("panel:"))
+      pluginInventory(item.scope).catch(() => {});
+  }
 }
 function notify(message) {
   $("notice").textContent = message;
@@ -83,6 +125,7 @@ function candidates() {
   const matches = inventory.items.filter(
     (i) =>
       i.group === group &&
+      (group !== "Plugins" || i.id.startsWith("panel:")) &&
       (scope === "Universal"
         ? i.scope === "Universal" ||
           ["Hooks", "Plugins", "Settings"].includes(group)
@@ -128,7 +171,8 @@ function chrome() {
   $("files").replaceChildren(
     ...matches.map((i) =>
       button(
-        i.title + (i.scope !== scope ? " · " + i.scope : ""),
+        i.title +
+          (i.scope !== scope && i.title !== i.scope ? " · " + i.scope : ""),
         doc?.id === i.id,
         async () => {
           if (leave()) await openDoc(i.id);
@@ -138,80 +182,68 @@ function chrome() {
   );
   if (!matches.length) $("files").append(el("p", "没有匹配的配置", "empty"));
 }
-function preview() {
-  const box = $("render");
-  box.replaceChildren();
-  if (!doc) {
-    box.textContent = "当前范围还没有这类配置。";
-    return;
-  }
-  const text = $("editor").value;
-  if (!doc.id.endsWith(".md") && !doc.id.startsWith("nix:")) {
-    box.append(el("pre", text));
-    return;
-  }
-  let code = null;
-  for (const line of text.split("\n")) {
-    if (line.startsWith("```")) {
-      if (code) {
-        box.append(code);
-        code = null;
-      } else code = el("pre", "");
-      continue;
-    }
-    if (code) {
-      code.textContent += line + "\n";
-      continue;
-    }
-    const h = line.match(/^(#{1,4})\s+(.*)$/);
-    if (h) box.append(el("h" + h[1].length, h[2]));
-    else if (line) box.append(el("p", line));
-  }
-  if (code) box.append(code);
-}
 function paint() {
-  chrome();
-  const readOnly = !doc || doc.external;
+  const readonly = !doc || doc.external || !surface;
   $("title").textContent = doc?.title || labels[group];
-  $("path").textContent = doc?.id || "";
-  const inherited =
+  $("path").textContent = doc?.id.startsWith("panel:")
+    ? doc.scope + " / 插件策略"
+    : doc?.id || "";
+  const shared =
     scope !== "Universal" && doc?.scope === "Universal" && !doc.external;
   $("note").textContent = [
     doc?.note,
-    inherited
-      ? "当前显示共享源。保存会影响使用它的客户端；独享配置请选「新建配置」。"
-      : "",
+    shared && "正在编辑共享源。可通过「新建配置」创建客户端专属配置。",
   ]
     .filter(Boolean)
     .join(" · ");
-  $("state").textContent = readOnly
-    ? doc
+  $("state").textContent = !doc
+    ? ""
+    : readonly
       ? "只读"
-      : ""
-    : dirty
-      ? "尚未保存"
-      : "已保存";
-  $("editor").hidden = mode === "preview" || readOnly;
-  $("render").hidden = mode === "edit" && !readOnly;
-  $("panes").classList.toggle("split", mode === "split" && !readOnly);
-  $("split").classList.toggle("on", mode === "split");
-  $("split").disabled = readOnly;
-  $("save").disabled = readOnly || !dirty || busy;
-  $("edit").disabled = readOnly;
-  $("edit").classList.toggle("on", mode === "edit");
-  $("preview").classList.toggle("on", mode === "preview");
-  $("apply").hidden = doc?.group !== "Plugins" || readOnly;
-  preview();
+      : busy
+        ? "保存中…"
+        : dirty
+          ? "尚未保存"
+          : "已保存";
+  $("tools").hidden = readonly;
+  $("save").disabled = readonly || !dirty || busy;
+  $("apply").hidden = doc?.group !== "Plugins" || readonly;
+  $("apply").disabled = busy;
 }
 async function openDoc(id) {
   const seq = ++sequence;
-  let next = id ? await api("read", { id }) : null;
+  let next = null;
+  if (id?.startsWith("panel:")) {
+    surface?.destroy();
+    surface = null;
+    doc = inventory.items.find((item) => item.id === id);
+    chrome();
+    paint();
+    $("state").textContent = "加载中…";
+    $("canvas").replaceChildren();
+    const [policy, runtime] = await Promise.all([
+      api("read", { id, policyOnly: true }),
+      pluginInventory(doc.scope),
+    ]);
+    next = { ...policy, ...runtime };
+  } else if (id) next = await api("read", { id });
   if (seq !== sequence) return;
+  surface?.destroy();
+  surface = null;
   doc = next;
   dirty = false;
-  $("editor").value = doc?.text || "";
-  if (!doc || doc.external) mode = "preview";
-  paint();
+  const canvas = $("canvas");
+  canvas.replaceChildren();
+  try {
+    if (doc) surface = window.mountConfig(doc, canvas, changed);
+    else
+      canvas.append(
+        el("p", "当前范围还没有" + labels[group] + "配置。", "empty"),
+      );
+  } finally {
+    chrome();
+    paint();
+  }
 }
 async function selectFirst() {
   await openDoc(candidates()[0]?.id);
@@ -222,43 +254,36 @@ async function reload() {
 async function save() {
   if (!dirty || busy || !doc) return;
   busy = true;
-  const text = $("editor").value;
+  const text = surface.text();
   try {
-    doc = await api("save", { id: doc.id, text, version: doc.version });
-    dirty = $("editor").value !== doc.text;
+    doc = await api("save", {
+      id: doc.id,
+      text,
+      version: doc.version,
+      policyOnly: true,
+    });
+    if (doc.group === "Plugins" || doc.scope === "Claude Code")
+      pluginInventories.delete(doc.scope);
+    dirty = surface.text() !== doc.text;
+    if (dirty) scheduleSave();
     notify("已保存到工作树");
   } finally {
     busy = false;
     paint();
   }
 }
-$("editor").oninput = () => {
-  if (mode === "split") preview();
-  dirty = $("editor").value !== doc.text;
-  $("state").textContent = dirty ? "尚未保存" : "已保存";
-  $("save").disabled = !dirty;
-  clearTimeout(timer);
-  if ($("autosave").checked) timer = setTimeout(action(save), 950);
-};
-$("autosave").onchange = () => {
+function scheduleSave() {
   clearTimeout(timer);
   if ($("autosave").checked && dirty) timer = setTimeout(action(save), 950);
-};
+}
+function changed() {
+  if (!surface || !doc) return;
+  dirty = surface.text() !== doc.text;
+  paint();
+  scheduleSave();
+}
+$("autosave").onchange = scheduleSave;
 $("filter").oninput = chrome;
-$("edit").onclick = () => {
-  mode = "edit";
-  paint();
-  $("editor").focus();
-};
-$("split").onclick = () => {
-  mode = "split";
-  paint();
-  $("editor").focus();
-};
-$("preview").onclick = () => {
-  mode = "preview";
-  paint();
-};
 $("save").onclick = action(save);
 window.addEventListener("beforeunload", (e) => {
   if (dirty) {
@@ -307,7 +332,6 @@ $("creation").onsubmit = action(async (e) => {
   });
   $("createDialog").close();
   group = k;
-  mode = "edit";
   await reload();
   await openDoc(n.id);
 });
@@ -361,10 +385,16 @@ $("apply").onclick = action(async () => {
   )
     return;
   await save();
-  await api("plugins");
+  try {
+    await api("plugins");
+  } finally {
+    pluginInventories.clear();
+  }
+  await openDoc(doc.id);
   notify("插件策略已应用");
 });
 action(async () => {
   await reload();
   await selectFirst();
+  prefetchPlugins();
 })();

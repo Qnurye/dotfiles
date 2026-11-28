@@ -15,6 +15,7 @@ from native import PREFERENCES, plugins, preferences, update_native
 CLIENTS = ["Claude Code", "Codex", "Antigravity", "Grok", "Zed", "DeepSeek"]
 IDS = dict(zip(CLIENTS, ["claude", "codex", "antigravity", "grok", "zed", "deepseek"]))
 SHARED = "Universal"
+PLUGIN_CLIENTS = ("Claude Code", "Codex", "Grok", "Antigravity", "DeepSeek")
 MANIFEST = "tools/symlink-guard/links.json"
 PROMPT = "agents/AGENTS.md"
 HOOK_FILES = {
@@ -127,7 +128,7 @@ class Catalog:
                     client,
                     "setup.py --plugins-only 使用的策略；保留名单不会安装插件。",
                 )
-        for client in ("Claude Code", "Codex", "Antigravity", "Grok", "DeepSeek"):
+        for client in PLUGIN_CLIENTS:
             add(
                 "plugins:" + client,
                 "本机插件状态",
@@ -143,6 +144,17 @@ class Catalog:
                 "Plugins",
                 client,
                 "以插件 ID 对应 true / false。启用项须在该客户端保留名单中。保存后点击应用插件策略。",
+            )
+        for client in PLUGIN_CLIENTS:
+            add(
+                "panel:" + client,
+                client,
+                "Plugins",
+                client,
+                "开关保存到工作树，应用策略后更新客户端。"
+                if client != "DeepSeek"
+                else "运行中的 profile",
+                client == "DeepSeek",
             )
         for client in PREFERENCES:
             add(
@@ -176,14 +188,6 @@ class Catalog:
         )
         for f in sorted(self.path("agents/skills").glob("*/SKILL.md")):
             add(str(f.relative_to(self.repo)), f.parent.name, "Skills", SHARED)
-        for f in sorted(self.path(".claude/skills").glob("*/SKILL.md")):
-            add(
-                str(f.relative_to(self.repo)),
-                f.parent.name,
-                "Skills",
-                SHARED,
-                "dotfiles 仓库级 skill",
-            )
         for f in sorted(self.path("agents/agents").glob("*.md")):
             if not any(
                 self.path(f"agents/profiles/{scope}/Agents/{f.stem}.json").exists()
@@ -210,10 +214,85 @@ class Catalog:
                 )
         return items
 
+    def plugin_panel(self, item):
+        client = item["scope"]
+        slug = IDS[client]
+        policy = self.path(f"agents/policies/{slug}.json")
+        switches = self.path(f"agents/plugin-states/{slug}.json")
+        states = json.loads(switches.read_text()) if switches.exists() else {}
+        if client == "Claude Code":
+            states = json.loads(self.path(HOOK_FILES[client]).read_text()).get(
+                "enabledPlugins", {}
+            )
+        value = {
+            "keep": json.loads(policy.read_text()) if policy.exists() else [],
+            "states": states,
+        }
+        text = pretty(value)
+        return dict(item, text=text, version=digest(text))
+
+    def plugin_inventory(self, client):
+        if client not in PLUGIN_CLIENTS:
+            raise ValueError("未知的插件客户端")
+        try:
+            return dict(live=plugins(self.home, client), inventoryError="")
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            return dict(live={}, inventoryError=str(exc))
+
+    def save_plugin_panel(self, doc, text):
+        value = json.loads(text)
+        if not isinstance(value, dict) or set(value) != {"keep", "states"}:
+            raise ValueError("插件策略需要保留名单和启用状态")
+        ids = value["keep"]
+        states = value["states"]
+        client = doc["scope"]
+        slug = IDS[client]
+        pattern = r"[a-zA-Z0-9._-]+(?:@[a-zA-Z0-9._-]+)?"
+        if (
+            not isinstance(ids, list)
+            or not isinstance(states, dict)
+            or not all(
+                isinstance(k, str) and re.fullmatch(pattern, k) for k in [*ids, *states]
+            )
+            or not all(type(v) is bool for v in states.values())
+        ):
+            raise ValueError("插件名称或开关值无效")
+        if client == "Claude Code" and any("@" not in k for k in [*ids, *states]):
+            raise ValueError("Claude 插件名称需要包含 @marketplace")
+        if client == "Claude Code" and any(
+            k.endswith("@builtin") and v for k, v in states.items()
+        ):
+            raise ValueError("Claude 内置插件由停用策略管理")
+        if client == "Codex" and any("@" not in k for k in states):
+            raise ValueError("Codex 启用状态需要完整的插件 ID")
+        if client == "Grok" and states:
+            raise ValueError("Grok 使用保留名单管理插件")
+        for name, enabled in states.items():
+            if enabled and name not in ids and name.split("@")[0] not in ids:
+                raise ValueError(f"请先保留 {name}")
+        before = json.loads(doc["text"])
+        changes = {}
+        if ids != before["keep"]:
+            changes[f"agents/policies/{slug}.json"] = pretty(ids)
+        if states != before["states"]:
+            if client == "Claude Code":
+                rel = HOOK_FILES[client]
+                config = json.loads(self.path(rel).read_text())
+                config["enabledPlugins"] = states
+                changes[rel] = pretty(config)
+            else:
+                changes[f"agents/plugin-states/{slug}.json"] = pretty(states)
+        self.commit_plan(changes, {})
+        return self.plugin_panel(
+            {k: doc[k] for k in ("id", "title", "group", "scope", "external", "note")}
+        )
+
     def read(self, key):
         item = self.items().get(key)
         if not item:
             raise ValueError("配置项不存在")
+        if key.startswith("panel:"):
+            return self.plugin_panel(item)
         f = (
             self.home / ".agents/skills" / key[4:] / "SKILL.md"
             if key.startswith("nix:")
@@ -232,6 +311,8 @@ class Catalog:
             text = pretty(preferences(self.home, item["scope"]))
         else:
             text = f.read_text()
+        if key.startswith("agents/preferences/"):
+            item["fields"] = PREFERENCES[item["scope"]][2]
         return dict(item, text=text, version=digest(text))
 
     def commit_plan(self, changes, links):
@@ -420,6 +501,8 @@ class Catalog:
             raise ValueError("文件已变化或为只读，请重新载入")
         if not isinstance(text, str) or len(text.encode()) > 1_000_000:
             raise ValueError("内容过长")
+        if key.startswith("panel:"):
+            return self.save_plugin_panel(doc, text)
         if key.startswith("settings:"):
             return self.save(HOOK_FILES[doc["scope"]], version, text) | {
                 "id": key,

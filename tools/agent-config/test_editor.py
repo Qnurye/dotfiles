@@ -32,6 +32,39 @@ class EditorTest(unittest.TestCase):
             shutil.copy(SOURCE / path, dest)
         self.cat = Catalog(self.repo, self.home)
 
+    def test_project_files_excluded_from_catalog_and_git(self):
+        run(self.repo, "git", "init", "-q")
+        run(self.repo, "git", "add", ".")
+        tree = run(self.repo, "git", "write-tree").stdout.strip()
+        seed = run(
+            self.repo,
+            "git",
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "commit-tree",
+            tree,
+            "-m",
+            "fixture",
+        ).stdout.strip()
+        run(self.repo, "git", "update-ref", "HEAD", seed)
+        paths = [
+            "AGENTS.md",
+            ".claude/skills/project-only/SKILL.md",
+            ".claude/agents/helper.md",
+            ".claude/settings.json",
+            ".codex/config.toml",
+        ]
+        for path in paths:
+            file = self.repo / path
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_text("project config")
+            with self.assertRaises(ValueError):
+                self.cat.read(path)
+        self.assertIn(PROMPT, self.cat.items())
+        self.assertEqual(changes(self.cat), [])
+
     def test_scope_and_native_formats(self):
         doc = self.cat.create("Codex", "Skills", "only-codex")
         self.assertEqual(
@@ -62,6 +95,27 @@ class EditorTest(unittest.TestCase):
         self.assertTrue((self.repo / "agents/agents/reviewer.md").exists())
         self.assertTrue((self.home / ".codex/agents/reviewer.toml").is_file())
         self.assertTrue((self.home / ".gemini/config/agents/reviewer.md").is_file())
+
+    @patch("catalog.plugins", return_value=[])
+    def test_plugin_panel_changes_only_selected_client(self, _plugins):
+        policy = self.repo / "agents/claude-settings.json"
+        original = json.loads(policy.read_text())
+        other = (self.repo / "agents/policies/codex.json").read_bytes()
+        panel = self.cat.read("panel:Claude Code")
+        value = json.loads(panel["text"])
+        value["keep"].append("example@test")
+        value["states"]["example@test"] = True
+        saved = self.cat.save(panel["id"], panel["version"], json.dumps(value))
+        current = json.loads(policy.read_text())
+        self.assertTrue(current["enabledPlugins"].pop("example@test"))
+        self.assertEqual(current, original)
+        self.assertEqual(json.loads(saved["text"]), value)
+        _plugins.assert_not_called()
+        self.assertEqual((self.repo / "agents/policies/codex.json").read_bytes(), other)
+        with self.assertRaises(ValueError):
+            self.cat.save(panel["id"], panel["version"], panel["text"])
+        with self.assertRaises(ValueError):
+            self.cat.save(saved["id"], saved["version"], "[]")
 
     def test_conflict_and_preferences(self):
         view = self.cat.read(PROMPT)

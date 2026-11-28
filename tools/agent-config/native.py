@@ -74,17 +74,15 @@ def plugins(home, client):
         rows = json.loads(
             subprocess.check_output(
                 ["claude", "plugin", "list", "--json"],
+                cwd=home,
                 timeout=15,
                 stderr=subprocess.DEVNULL,
             )
         )
         return [
-            {
-                key: row[key]
-                for key in ("id", "enabled", "scope", "projectPath")
-                if key in row
-            }
+            {key: row[key] for key in ("id", "enabled", "scope") if key in row}
             for row in rows
+            if row.get("scope") in {"user", "managed"} and not row.get("projectPath")
         ]
     if client == "Codex":
         cfg = tomllib.loads((home / ".codex/config.toml").read_text())
@@ -96,10 +94,17 @@ def plugins(home, client):
     if client == "Grok":
         data = json.loads(
             subprocess.check_output(
-                ["grok", "inspect", "--json"], timeout=8, stderr=subprocess.DEVNULL
+                ["grok", "inspect", "--json"],
+                cwd=home,
+                timeout=8,
+                stderr=subprocess.DEVNULL,
             )
         )
-        return {p["name"]: p.get("enabled") for p in data.get("plugins", [])}
+        return {
+            p["name"]: p.get("enabled")
+            for p in data.get("plugins", [])
+            if p.get("scope") == "user"
+        }
     if client == "DeepSeek":
         return {
             p.parent.name: json.loads(p.read_text())

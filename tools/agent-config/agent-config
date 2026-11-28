@@ -71,7 +71,7 @@ def server(catalog, port):
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header(
                 "Content-Security-Policy",
-                "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'",
+                "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-ancestors 'none'; base-uri 'none'; object-src 'none'",
             )
             self.end_headers()
             self.wfile.write(data)
@@ -84,6 +84,9 @@ def server(catalog, port):
                 "/": "index.html",
                 "/app.js": "app.js",
                 "/style.css": "style.css",
+                "/forms.js": "forms.js",
+                "/vendor/editor.js": "vendor/editor.js",
+                "/vendor/editor.css": "vendor/editor.css",
             }.get(self.path)
             if not self.valid_host() or not asset:
                 return self.send_error(404)
@@ -91,6 +94,9 @@ def server(catalog, port):
                 "index.html": "text/html",
                 "app.js": "text/javascript",
                 "style.css": "text/css",
+                "forms.js": "text/javascript",
+                "vendor/editor.js": "text/javascript",
+                "vendor/editor.css": "text/css",
             }[asset]
             self.send(200, (HERE / asset).read_bytes(), mime + "; charset=utf-8")
 
@@ -109,6 +115,11 @@ def server(catalog, port):
                 if not 0 < length <= 2_000_000:
                     return self.send_error(413)
                 data = json.loads(self.rfile.read(length))
+                if self.path == "/api/plugin-inventory":
+                    result = catalog.plugin_inventory(data["client"])
+                    return self.send(
+                        200, json.dumps(result).encode(), "application/json"
+                    )
                 with mutex, lockfile.open("a") as lock:
                     fcntl.flock(lock, fcntl.LOCK_EX)
                     if self.path == "/api/list":
@@ -130,10 +141,16 @@ def server(catalog, port):
                             catalog.repo,
                             sys.executable,
                             "agents/setup.py",
-                            "--plugins-only",
+                            "--user-plugins-only",
                         ).stdout
                     else:
                         return self.send_error(404)
+                if (
+                    self.path in ("/api/read", "/api/save")
+                    and result["id"].startswith("panel:")
+                    and not data.get("policyOnly")
+                ):
+                    result.update(catalog.plugin_inventory(result["scope"]))
                 self.send(200, json.dumps(result).encode(), "application/json")
             except (
                 ValueError,
