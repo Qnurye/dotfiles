@@ -549,7 +549,7 @@ window.mountConfig = function mountConfig(doc, root, onChange) {
   }
   root.replaceChildren();
   if (doc.id.startsWith("panel:")) pluginPanel(JSON.parse(doc.text));
-  else if (doc.id.endsWith(".md") || doc.id.startsWith("nix:")) markdown();
+  else if (doc.id.endsWith(".md")) markdown();
   else if (doc.group === "Agents") role(JSON.parse(doc.text));
   else if (doc.group === "Hooks") {
     const data = JSON.parse(doc.text);

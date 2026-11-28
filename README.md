@@ -89,6 +89,17 @@ that use the shared project convention.
 
 Custom and pstack skills are linked individually under `~/.agents/skills`,
 `~/.claude/skills`, `~/.gemini/skills` and `~/.gemini/config/skills`.
+Edit pstack directly in `agents/pstack/skills/<name>/` or open a skill in
+`agent-config`. Existing skill edits take effect through the links. Home Manager
+discovers new skill directories at the next rebuild.
+
+The macOS user agent checks `backnotprop/pstack` at login and every 24 hours.
+It sends one notification per new upstream head. Run
+`~/dotfiles/agents/pstack/check-upstream.sh` to print the pending comparison.
+Review that diff, port the changes you want, and record the full reviewed
+commit in `agents/pstack/upstream-rev`, including when you skip an update.
+Local customizations stay in dotfiles across `nix-up` runs.
+
 The last root is shared by Antigravity App and CLI. Claude keeps its synced
 skills and Codex keeps its system skills in client-owned directories.
 

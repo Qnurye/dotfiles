@@ -35,7 +35,7 @@ fish nix/setup-nix-conf.fish
 | `nix/modules/darwin/homebrew.nix` | Third-party taps and brews not in nixpkgs |
 | `agents/agents/` | Optional local Claude agent definitions |
 | `agents/skills/` | Custom skills, linked individually into client directories |
-| `nix/modules/home/pstack.nix` | Links every skill from the `pstack` flake input (`backnotprop/pstack`) into the skill roots; `nix-up` updates it |
+| `nix/modules/home/pstack.nix` | Links editable skills from `agents/pstack/skills` and checks upstream daily for review |
 | `tools/symlink-guard/links.json` | Managed links shared by Nix, installer, and watcher |
 | `homebrew/Brewfile` | Legacy — not used by nix-darwin, pending removal |
 

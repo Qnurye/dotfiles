@@ -58,28 +58,11 @@
         "type": "github"
       }
     },
-    "pstack": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1795621983,
-        "narHash": "sha256-PzdMdls1CGSi7YMq6++BdKv5pUPJBLptb+YCOfjN9pU=",
-        "owner": "backnotprop",
-        "repo": "pstack",
-        "rev": "c81f1bf680803f9e3f0cade6adb62593f43fb61f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "backnotprop",
-        "repo": "pstack",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "nix-darwin": "nix-darwin",
-        "nixpkgs": "nixpkgs",
-        "pstack": "pstack"
+        "nixpkgs": "nixpkgs"
       }
     }
   },

@@ -205,13 +205,8 @@ class Catalog:
             slug, group = f.parts[-3:-1]
             if f.is_file() and slug in scopes and group in CATEGORIES:
                 add(str(f.relative_to(self.repo)), f.stem, group, scopes[slug])
-        # Nix-owned packages are previewable. Edits belong in their flake input.
-        for d in sorted((self.home / ".agents/skills").glob("*")):
-            f = d / "SKILL.md"
-            if f.is_file() and str(f.resolve()).startswith("/nix/store/"):
-                add(
-                    "nix:" + d.name, d.name, "Skills", SHARED, "pstack · Nix 只读", True
-                )
+        for f in sorted(self.path("agents/pstack/skills").glob("*/SKILL.md")):
+            add(str(f.relative_to(self.repo)), f.parent.name, "Skills", SHARED, "pstack · 本地")
         return items
 
     def plugin_panel(self, item):
@@ -293,11 +288,7 @@ class Catalog:
             raise ValueError("配置项不存在")
         if key.startswith("panel:"):
             return self.plugin_panel(item)
-        f = (
-            self.home / ".agents/skills" / key[4:] / "SKILL.md"
-            if key.startswith("nix:")
-            else self.path(key)
-        )
+        f = self.path(key)
         if key.startswith("plugins:") or key == "settings:deepseek":
             try:
                 text = pretty(plugins(self.home, item["scope"]))
@@ -380,7 +371,7 @@ class Catalog:
             text = f"---\nname: {name}\ndescription: Describe when to use this skill.\n---\n\n# {name}\n"
             if scope == SHARED:
                 key = f"agents/skills/{name}/SKILL.md"
-                if name in manifest["skills"]:
+                if name in manifest["skills"] or self.path(f"agents/pstack/skills/{name}").exists():
                     raise ValueError("同名 skill 已存在")
                 manifest["skills"].append(name)
                 for root in manifest["skillRoots"]:
