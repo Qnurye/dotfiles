@@ -12,5 +12,35 @@
         "type": "command"
       }
     ]
+  },
+  "comment-cleanup": {
+    "PreToolUse": [
+      {
+        "matcher": "^(write_file|edit_file|write_to_file|replace_file_content|multi_replace_file_content)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/dotfiles/agents/hooks/clean-comments.py\" pre"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(write_file|edit_file|write_to_file|replace_file_content|multi_replace_file_content)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/dotfiles/agents/hooks/clean-comments.py\" post"
+          }
+        ]
+      }
+    ],
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 \"$HOME/dotfiles/agents/hooks/clean-comments.py\" notify"
+      }
+    ]
   }
 }

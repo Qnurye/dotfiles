@@ -20,6 +20,15 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/dotfiles/agents/hooks/clean-comments.py\" pre"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -51,6 +60,17 @@
           {
             "command": "OTTY_CLI='/Applications/Otty.app/Contents/MacOS/otty-cli' OTTY_SOCKET='/Users/qnurye/Library/Application Support/io.appmakes.otty/otty.sock' '/Applications/Otty.app/Contents/Resources/agent-integration/codex/otty-hook.sh' processing \"$PPID\"",
             "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/dotfiles/agents/hooks/clean-comments.py\" post"
           }
         ]
       }

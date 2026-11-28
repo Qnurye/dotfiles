@@ -69,19 +69,73 @@ window.mountConfig = function mountConfig(doc, root, onChange) {
     return b;
   }
   function rich(host, original, label) {
-    host.classList.add("richtext");
+    const controls = make("div", "", "editor-modes");
+    controls.setAttribute("role", "group");
+    controls.setAttribute("aria-label", label + "编辑模式");
+    const formatted = make("button", "富文本");
+    const source = make("button", "源码");
+    formatted.type = source.type = "button";
+    controls.append(formatted, source);
+    const rendered = make("div", "", "richtext");
+    const raw = make("textarea", "", "markdown-source");
+    raw.setAttribute("aria-label", label + " Markdown 源码");
+    raw.readOnly = readonly;
+    raw.spellcheck = false;
+    raw.hidden = true;
+    host.append(controls, rendered, raw);
+
+    let markdown = original;
+    let baseline;
+    let rte;
+    function read() {
+      if (!raw.hidden) {
+        return raw.value === markdown.replace(/\r\n?/g, "\n")
+          ? markdown
+          : raw.value;
+      }
+      if (readonly) return original;
+      const current = rte.getMarkdown();
+      return current === baseline
+        ? markdown
+        : current.replace(/\n*$/, "") + (markdown.endsWith("\n") ? "\n" : "");
+    }
+    function select(rawMode) {
+      formatted.setAttribute("aria-pressed", String(!rawMode));
+      source.setAttribute("aria-pressed", String(rawMode));
+      rendered.hidden = rawMode;
+      raw.hidden = !rawMode;
+    }
+    source.onclick = () => {
+      if (!raw.hidden) return;
+      markdown = read();
+      raw.value = markdown;
+      select(true);
+      raw.focus();
+    };
+    formatted.onclick = () => {
+      if (raw.hidden) return;
+      const next = read();
+      if (!readonly && next !== markdown) {
+        markdown = next;
+        rte.setMarkdown(markdown, false);
+      }
+      if (!readonly) baseline = rte.getMarkdown();
+      select(false);
+    };
+    raw.oninput = changed;
+    select(false);
     if (readonly) {
       const view = Editor.factory({
-        el: host,
+        el: rendered,
         viewer: true,
         initialValue: original,
         usageStatistics: false,
       });
       cleanups.push(() => view.destroy());
-      return () => original;
+      return read;
     }
-    const rte = new Editor({
-      el: host,
+    rte = new Editor({
+      el: rendered,
       initialEditType: "wysiwyg",
       initialValue: original,
       hideModeSwitch: true,
@@ -96,19 +150,16 @@ window.mountConfig = function mountConfig(doc, root, onChange) {
         ["link", "table", "code", "codeblock"],
       ],
     });
-    const editable = host.querySelector('[contenteditable="true"]');
+    const editable = rendered.querySelector(
+      '.toastui-editor-ww-container [contenteditable="true"]',
+    );
     editable?.setAttribute("aria-label", label);
     editable?.setAttribute("role", "textbox");
     editable?.setAttribute("aria-multiline", "true");
-    const starting = rte.getMarkdown();
+    baseline = rte.getMarkdown();
     rte.on("change", changed);
     cleanups.push(() => rte.destroy());
-    return () => {
-      const md = rte.getMarkdown();
-      return md === starting
-        ? original
-        : md.replace(/\n*$/, "") + (original.endsWith("\n") ? "\n" : "");
-    };
+    return read;
   }
   function markdown() {
     const match = /^(---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/.exec(doc.text);

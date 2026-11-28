@@ -574,3 +574,32 @@ dialog,
     margin-left: 0;
   }
 }
+
+.editor-modes {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.editor-modes button {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+.editor-modes button[aria-pressed="true"] {
+  color: var(--on-green);
+  background: var(--green);
+  border-color: var(--green);
+}
+.markdown-source {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: clamp(230px, 48vh, 600px);
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: inherit;
+  font: 14px/1.6 ui-monospace, monospace;
+  resize: vertical;
+  tab-size: 4;
+}
